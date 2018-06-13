@@ -1,25 +1,26 @@
+import { DatasourcesModule } from './datasources/datasources.module';
 import { NgModule } from '@angular/core';
+
+import { LayersModule } from './layers/layers.module';
 import { MnMapComponent } from './mn-map/mn-map.component';
-import { CsvDirective } from './datasources/csv.directive';
-import { JsonDirective } from './datasources/json.directive';
-import { RemoteDirective } from './datasources/remote.directive';
-import { DataDirective } from './layer/data.directive';
-import { TileDirective } from './layer/tile.directive';
+
 import { MnDatasourceComponent } from './mn-datasource/mn-datasource.component';
 import { MnLayerComponent } from './mn-layer/mn-layer.component';
 
+import { MnMapFlavourDirective } from './mn-map-flavour.directive';
+
+
+
 const dec = [
   MnMapComponent,
-  CsvDirective,
-  JsonDirective,
-  RemoteDirective,
-  DataDirective,
-  TileDirective,
   MnDatasourceComponent,
-  MnLayerComponent];
+  MnLayerComponent,
+  MnMapFlavourDirective];
 
 @NgModule({
   imports: [
+    LayersModule,
+    DatasourcesModule
   ],
   declarations: dec,
   exports: dec

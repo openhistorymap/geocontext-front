@@ -1,7 +1,7 @@
 import { Directive } from '@angular/core';
 
 @Directive({
-  selector: '[mnRemote]'
+  selector: '[remote]'
 })
 export class RemoteDirective {
 
