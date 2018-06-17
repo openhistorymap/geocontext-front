@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Input } from '@angular/core';
 
 @Component({
   selector: 'gcx-main',
@@ -7,11 +7,13 @@ import { Component, OnInit } from '@angular/core';
 })
 export class GcxMainComponent implements OnInit {
 
-  center = 1;
-  startzoom = 1;
-  minzoom = 1;
-  maxzoom = 1;
-  layers = 1;
+  @Input() data: any;
+
+  @Input() center = 1;
+  @Input() startzoom = 1;
+  @Input() minzoom = 1;
+  @Input() maxzoom = 1;
+  @Input() layers = 1;
 
   constructor() { }
 

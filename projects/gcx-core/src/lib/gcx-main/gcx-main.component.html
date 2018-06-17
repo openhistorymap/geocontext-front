@@ -1,8 +1,9 @@
-<mn-map mn-map-3d
+<mn-map mn-map-2d
   [center]="center"
   [startzoom]="startzoom"
   [minzoom]="minzoom"
   [maxzoom]="maxzoom"
   >
-  <mn-layer osm></mn-layer>
+  <mn-layer name='OpenStreetMap Raster Tiles' osm-tiled></mn-layer>
+  <mn-layer name='OpenStreetMap Vector Tiles' osm-vector></mn-layer>
 </mn-map>

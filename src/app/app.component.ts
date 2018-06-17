@@ -7,4 +7,16 @@ import { Component } from '@angular/core';
 })
 export class AppComponent {
   title = 'app';
+  data = {
+    'type': '3d',
+    'flavour': 'mapboxgl',
+
+    'datasources': [
+      'osm'
+    ],
+    'layers': [
+      'osm'
+    ]
+  };
+
 }

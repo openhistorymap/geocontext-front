@@ -1,3 +1,4 @@
+import { CommonModule } from '@angular/common';
 import { DatasourcesModule } from './datasources/datasources.module';
 import { NgModule } from '@angular/core';
 
@@ -19,6 +20,7 @@ const dec = [
 
 @NgModule({
   imports: [
+    CommonModule,
     LayersModule,
     DatasourcesModule
   ],

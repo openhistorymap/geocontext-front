@@ -15,7 +15,7 @@ import { RemoteDirective } from './remote.directive';
     RemoteDirective,
     DatasourceDirective,
   ],
-  exports:[
+  exports: [
     CsvDirective,
     JsonDirective,
     RemoteDirective,
