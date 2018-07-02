@@ -7,7 +7,6 @@ cache:
   - node_modules
 
 stages:
-  - compile
   - deploy
 
 deploy:
