@@ -1,17 +1,25 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, AfterViewInit, Input, ContentChildren, ViewChildren, QueryList } from '@angular/core';
+import { MnStyleComponent } from '../mn-style/mn-style.component';
+import { LayerDirective } from '../layers/layer.directive';
 
 @Component({
   selector: 'mn-layer',
-  templateUrl: './mn-layer.component.html',
+  template: '',
   styleUrls: ['./mn-layer.component.css']
 })
-export class MnLayerComponent implements OnInit {
+export class MnLayerComponent implements AfterViewInit {
 
-  @Input() name = "";
+  
+  @Input() name = '';
+  @ContentChildren(LayerDirective) dirs  = new QueryList<LayerDirective>();
+
+  @ViewChildren(MnStyleComponent) styles = new QueryList<MnStyleComponent>();
+
 
   constructor() { }
 
-  ngOnInit() {
+  ngAfterViewInit() {
+    console.log("layer", this.name, this.dirs, this.styles);
   }
 
 }

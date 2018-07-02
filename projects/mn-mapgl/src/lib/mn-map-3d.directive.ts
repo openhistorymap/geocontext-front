@@ -1,6 +1,6 @@
-import { MnMapFlavourDirective } from '@modalnodes/mn-geo';
+import { MnMapFlavourDirective, LayerDirective, DatasourceDirective } from '@modalnodes/mn-geo';
 import { MnMapComponent } from '@modalnodes/mn-geo';
-import { Directive, forwardRef, ViewContainerRef } from '@angular/core';
+import { Directive, forwardRef, ViewContainerRef, Input } from '@angular/core';
 
 import mapboxgl from 'mapbox-gl';
 // or "const mapboxgl = require('mapbox-gl');"
@@ -15,13 +15,19 @@ export class MnMap3dDirective extends MnMapFlavourDirective {
 
   css = 'https://api.mapbox.com/mapbox-gl-js/v0.42.0/mapbox-gl.css';
 
+  @Input() mapboxToken = "";
+
   the_map;
 
   constructor(
     private _view: ViewContainerRef
   ) {
     super();
-   }
+  }
+
+  ngOnInit(){
+    console.log('mn-map-3d', this.mapboxToken);
+  }
 
   setup(map: MnMapComponent) {
     const d = map.getStyles();
@@ -30,11 +36,21 @@ export class MnMap3dDirective extends MnMapFlavourDirective {
     style.setAttribute('href', this.css);
     d.appendChild(style);
 
-    mapboxgl.accessToken = 'pk.eyJ1Ijoic2lybW1vIiwiYSI6ImNpbGY4cmlrbTAwMmh3Z200eGpqcTlyZGgifQ.zLmK4VAZtCUZBpR_GCdytw';
+    mapboxgl.accessToken = this.mapboxToken;
     this.the_map = new mapboxgl.Map({
-        container: map.getelement(),
-        style: 'mapbox://styles/mapbox/streets-v9'
+        container: map.getelement()
     });
   }
+
+  addLayer(layer: LayerDirective) {
+    this.the_map.addLayer({
+      id: layer
+    });
+  }
+  removeLayer(id: any) {}
+  addDatasource(datasource: DatasourceDirective) {
+    this.the_map.addSource(datasource);
+  }
+  removeDatasource(id: any) { }
 
 }

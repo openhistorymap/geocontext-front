@@ -1,5 +1,7 @@
-import { MnMapFlavourDirective } from './../mn-map-flavour.directive';
-import { Component, OnInit, Input, ContentChildren, ElementRef, ViewChild, AfterViewInit } from '@angular/core';
+import { Component, OnInit, Input, ContentChildren, ElementRef, ViewChild, AfterViewInit, ViewChildren, QueryList } from '@angular/core';
+import { MnLayerComponent } from '../mn-layer/mn-layer.component';
+import { MnMapFlavourDirective } from '../mn-map-flavour.directive';
+import { MnDatasourceComponent } from '../mn-datasource/mn-datasource.component';
 
 @Component({
   selector: 'mn-map',
@@ -14,7 +16,6 @@ export class MnMapComponent implements OnInit, AfterViewInit {
   @Input() public startzoom;
   @Input() public minzoom;
   @Input() public maxzoom;
-  @Input() public layers;
 
   @Input() public width = '100%';
   @Input() public height = '300px';
@@ -24,12 +25,23 @@ export class MnMapComponent implements OnInit, AfterViewInit {
   @ViewChild('map') mapElement: ElementRef;
   @ViewChild('styles') stylesElement: ElementRef;
 
+  @ViewChildren(MnDatasourceComponent) datasources = new QueryList<MnDatasourceComponent>();
+  @ViewChildren(MnLayerComponent) layers = new QueryList<MnLayerComponent>();
+
+
   ngOnInit() {
-    console.log(this.flavour);
   }
 
   ngAfterViewInit() {
+    console.log("initializing", this.flavour, this.datasources, this.layers);
     this.flavour.first.setup(this);
+    this.datasources.forEach((item, idx) => {
+      this.flavour.first.addDatasource(item);
+    });
+    this.layers.forEach((item, idx) => {
+      this.flavour.first.addLayer(item);
+    });
+
   }
 
   getelement(): HTMLElement {

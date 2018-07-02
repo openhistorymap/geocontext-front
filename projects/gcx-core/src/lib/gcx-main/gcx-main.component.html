@@ -1,9 +1,13 @@
-<mn-map mn-map-2d
-  [center]="center"
-  [startzoom]="startzoom"
-  [minzoom]="minzoom"
-  [maxzoom]="maxzoom"
-  >
+<mn-map mn-map-3d [center]="center" [startzoom]="startzoom" [minzoom]="minzoom" [maxzoom]="maxzoom" mapboxToken="pk.eyJ1Ijoic2lybW1vIiwiYSI6ImNpbGY4cmlrbTAwMmh3Z200eGpqcTlyZGgifQ.zLmK4VAZtCUZBpR_GCdytw">
+  <!--<mn-datasource geojson source='https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_hour.geojson' #test></mn-datasource>
+  <mn-layer name='TestFeatures' feature from='test'>
+    <mn-style mapbox [filter]="['==','extrude','true']" type='fill-extrusion' minzoom='15' maxzoom='23' [style]='mapgl3d'></mn-style>
+  </mn-layer>
+
+  <mn-layer name='TestHeatmap' heatmap from='test'>
+    <mn-style mapbox [filter]="['==','extrude','true']" type='fill-extrusion' minzoom='15' maxzoom='23' [style]='mapgl3d'></mn-style>
+  </mn-layer>
+-->
   <mn-layer name='OpenStreetMap Raster Tiles' osm-tiled></mn-layer>
   <mn-layer name='OpenStreetMap Vector Tiles' osm-vector></mn-layer>
 </mn-map>

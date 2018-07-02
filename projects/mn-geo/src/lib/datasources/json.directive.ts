@@ -1,10 +1,16 @@
-import { Directive } from '@angular/core';
+import { DatasourceDirective } from './datasource.directive';
+import { Directive, forwardRef, Input } from '@angular/core';
 
 @Directive({
-  selector: '[json]'
-})
-export class JsonDirective {
+  selector: '[geojson]',
+  providers: [{provide: DatasourceDirective, useExisting: forwardRef(() => JsonDirective)}]
 
-  constructor() { }
+})
+export class JsonDirective extends DatasourceDirective {
+
+  @Input() source;
+  constructor() {
+    super();
+  }
 
 }

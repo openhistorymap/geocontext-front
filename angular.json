@@ -276,6 +276,86 @@
           }
         }
       }
+    },
+    "ohm-core": {
+      "root": "projects/ohm-core",
+      "sourceRoot": "projects/ohm-core/src",
+      "projectType": "library",
+      "prefix": "lib",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-ng-packagr:build",
+          "options": {
+            "tsConfig": "projects/ohm-core/tsconfig.lib.json",
+            "project": "projects/ohm-core/ng-package.json"
+          },
+          "configurations": {
+            "production": {
+              "project": "projects/ohm-core/ng-package.prod.json"
+            }
+          }
+        },
+        "test": {
+          "builder": "@angular-devkit/build-angular:karma",
+          "options": {
+            "main": "projects/ohm-core/src/test.ts",
+            "tsConfig": "projects/ohm-core/tsconfig.spec.json",
+            "karmaConfig": "projects/ohm-core/karma.conf.js"
+          }
+        },
+        "lint": {
+          "builder": "@angular-devkit/build-angular:tslint",
+          "options": {
+            "tsConfig": [
+              "projects/ohm-core/tsconfig.lib.json",
+              "projects/ohm-core/tsconfig.spec.json"
+            ],
+            "exclude": [
+              "**/node_modules/**"
+            ]
+          }
+        }
+      }
+    },
+    "c3d-core": {
+      "root": "projects/c3d-core",
+      "sourceRoot": "projects/c3d-core/src",
+      "projectType": "library",
+      "prefix": "lib",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-ng-packagr:build",
+          "options": {
+            "tsConfig": "projects/c3d-core/tsconfig.lib.json",
+            "project": "projects/c3d-core/ng-package.json"
+          },
+          "configurations": {
+            "production": {
+              "project": "projects/c3d-core/ng-package.prod.json"
+            }
+          }
+        },
+        "test": {
+          "builder": "@angular-devkit/build-angular:karma",
+          "options": {
+            "main": "projects/c3d-core/src/test.ts",
+            "tsConfig": "projects/c3d-core/tsconfig.spec.json",
+            "karmaConfig": "projects/c3d-core/karma.conf.js"
+          }
+        },
+        "lint": {
+          "builder": "@angular-devkit/build-angular:tslint",
+          "options": {
+            "tsConfig": [
+              "projects/c3d-core/tsconfig.lib.json",
+              "projects/c3d-core/tsconfig.spec.json"
+            ],
+            "exclude": [
+              "**/node_modules/**"
+            ]
+          }
+        }
+      }
     }
   },
   "defaultProject": "geocontext-front"

@@ -10,13 +10,17 @@ import { MnLayerComponent } from './mn-layer/mn-layer.component';
 
 import { MnMapFlavourDirective } from './mn-map-flavour.directive';
 
-
+import { MnStyleComponent } from './mn-style/mn-style.component';
+import { MnMarkerComponent } from './mn-marker/mn-marker.component';
 
 const dec = [
   MnMapComponent,
   MnDatasourceComponent,
   MnLayerComponent,
-  MnMapFlavourDirective];
+  MnMapFlavourDirective,
+  MnStyleComponent,
+  MnMarkerComponent
+];
 
 @NgModule({
   imports: [

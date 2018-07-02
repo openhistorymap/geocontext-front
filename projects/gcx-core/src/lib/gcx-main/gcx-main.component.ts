@@ -15,9 +15,12 @@ export class GcxMainComponent implements OnInit {
   @Input() maxzoom = 1;
   @Input() layers = 1;
 
+  mapgl3d = {};
+
   constructor() { }
 
   ngOnInit() {
   }
+
 
 }

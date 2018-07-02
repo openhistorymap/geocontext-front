@@ -28,6 +28,12 @@
       ],
       "@geocontext/gcx-core": [
         "dist/gcx-core"
+      ],
+      "ohm-core": [
+        "dist/ohm-core"
+      ],
+      "c3d-core": [
+        "dist/c3d-core"
       ]
     }
   }

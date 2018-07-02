@@ -1,4 +1,3 @@
-import { CartoDirective } from './carto.directive';
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
@@ -7,6 +6,10 @@ import { LayerDirective } from './layer.directive';
 import { DataDirective } from './data.directive';
 import { TileDirective } from './tile.directive';
 
+import { FeatureDirective } from './feature.directive';
+import { HeatmapDirective } from './heatmap.directive';
+
+import { CartoDirective } from './carto.directive';
 import { OsmDirective, OsmVectorDirective } from './osm.directive';
 import { StamenDirective } from './stamen.directive';
 
@@ -22,7 +25,9 @@ import { StamenDirective } from './stamen.directive';
     DataDirective,
     StamenDirective,
     CartoDirective,
-    LayerDirective
+    LayerDirective,
+    FeatureDirective,
+    HeatmapDirective
   ],
   exports: [
     OsmDirective,
@@ -31,7 +36,9 @@ import { StamenDirective } from './stamen.directive';
     DataDirective,
     StamenDirective,
     CartoDirective,
-    LayerDirective
+    LayerDirective,
+    FeatureDirective,
+    HeatmapDirective
   ]
 })
 export class LayersModule { }

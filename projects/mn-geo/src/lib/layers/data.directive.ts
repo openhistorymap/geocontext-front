@@ -1,7 +1,7 @@
 import { Directive } from '@angular/core';
 
 @Directive({
-  selector: '[data]'
+  selector: '[datasource]'
 })
 export class DataDirective {
 

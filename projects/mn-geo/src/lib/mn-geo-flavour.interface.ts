@@ -1,4 +1,4 @@
-import { MnMapComponent } from '@modalnodes/mn-geo';
+import { MnMapComponent } from './mn-map/mn-map.component';
 import { LayerDirective } from './layers/layer.directive';
 import { DatasourceDirective } from './datasources/datasource.directive';
 export interface MnGeoFlavour {
