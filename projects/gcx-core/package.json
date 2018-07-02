@@ -5,7 +5,8 @@
     "@angular/common": "^6.0.0-rc.0 || ^6.0.0",
     "@angular/core": "^6.0.0-rc.0 || ^6.0.0",
     "@modalnodes/mn-docker": "0.0.1",
-    "@modalnodes/mn-geo": "0.0.1",
-    "@modalnodes/mn-mapgl": "0.0.1"
+    "@modalnodes/mn-geo": "0.0.2",
+    "@modalnodes/mn-mapgl": "0.0.1",
+    "@modalnodes/mn-map": "0.0.1"
   }
 }
