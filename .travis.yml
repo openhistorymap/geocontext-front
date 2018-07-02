@@ -7,11 +7,6 @@ cache:
   - node_modules
 
 
-test:
-  provider: script
-  script: skip
-
-
 deploy:
   provider: script
   script: "bash build_em_all.sh"
