@@ -20,6 +20,15 @@ export class GcxMainComponent implements OnInit {
   constructor() { }
 
   ngOnInit() {
+    if (this.data) {
+      this.center = this.data.center;
+      this.startzoom = this.data.startzoom;
+      this.minzoom = this.data.minzoom;
+      this.maxzoom = this.data.maxzoom;
+      if (this.data.layers) {
+        this.layers = this.data.layers;
+      }
+    }
   }
 
 

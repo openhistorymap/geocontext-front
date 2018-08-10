@@ -34,6 +34,9 @@
       ],
       "c3d-core": [
         "dist/c3d-core"
+      ],
+      "chcx-main": [
+        "dist/chcx-main"
       ]
     }
   }

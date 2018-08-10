@@ -8,9 +8,8 @@ import { Component } from '@angular/core';
 export class AppComponent {
   title = 'app';
   data = {
-    'type': '3d',
+    'type': '2d',
     'flavour': 'mapboxgl',
-
     'datasources': [
       'osm'
     ],
