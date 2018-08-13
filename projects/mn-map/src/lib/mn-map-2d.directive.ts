@@ -1,4 +1,5 @@
-import { MnMapFlavourDirective, LayerDirective, DatasourceDirective } from '@modalnodes/mn-geo';
+import { Layer } from '@modalnodes/mn-geo-layers';
+import { MnMapFlavourDirective, DatasourceDirective } from '@modalnodes/mn-geo';
 import { MnMapComponent } from '@modalnodes/mn-geo';
 import { Directive, ViewContainerRef, forwardRef } from '@angular/core';
 
@@ -32,11 +33,11 @@ export class MnMap2dDirective extends MnMapFlavourDirective {
     this.the_map = L.map(map.getelement()).setView(map.center, map.startzoom);
   }
 
-  addLayer(layer: LayerDirective){
-
+  addLayer(layer: Layer) {
+    this.the_map.addLayer(layer.create());
   }
 
-  addDataset(datasource: DatasourceDirective){
+  addDataset(datasource: DatasourceDirective) {
 
   }
 

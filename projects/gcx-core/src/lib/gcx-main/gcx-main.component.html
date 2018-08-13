@@ -1,4 +1,42 @@
-<mn-map mn-map-2d [center]="center" [startzoom]="startzoom" [minzoom]="minzoom" [maxzoom]="maxzoom">
-
-  <mn-layer name='OpenStreetMap Raster Tiles' osm-tiled></mn-layer>
-</mn-map>
+<mat-toolbar color="primary">
+  <mat-toolbar-row #toolbar>
+    <button mat-button mat-icon-button (click)="is_opened = !is_opened">
+      <mat-icon>menu</mat-icon>
+    </button>
+    <span>{{title}}</span>
+  </mat-toolbar-row>
+</mat-toolbar>
+<mat-drawer-container class="example-container">
+  <mat-drawer mode="over" [opened]="is_opened">
+    <mat-tab-group>
+      <mat-tab>
+        <ng-template mat-tab-label>
+          <mat-icon class="example-tab-icon" title="Collections">map</mat-icon>
+        </ng-template>
+        <mat-list role="list" #collections>
+        </mat-list>
+      </mat-tab>
+      <mat-tab>
+        <ng-template mat-tab-label>
+          <mat-icon class="example-tab-icon" title="Layers" >layers</mat-icon>
+        </ng-template>
+        <div #layers></div>
+        </mat-tab>
+      <mat-tab>
+        <ng-template mat-tab-label>
+          <mat-icon class="example-tab-icon" title="Info">place</mat-icon>
+        </ng-template>
+        <div #item></div>
+        </mat-tab>
+    </mat-tab-group>
+  </mat-drawer>
+  <mat-drawer-content>
+    <mn-map #map mn-map-2d [center]="center" [startzoom]="startzoom" [minzoom]="minzoom" [maxzoom]="maxzoom">
+      <mn-layer type="osm-tiled" name='OpenStreetMap Raster Tiles'></mn-layer>
+    </mn-map>
+  </mat-drawer-content>
+</mat-drawer-container>
+<div class="footer">
+  Made with
+  <i class="fa fa-fw fa-heart"></i> in Bologna - Engine: GeoContext {{gcx_version}}
+</div>

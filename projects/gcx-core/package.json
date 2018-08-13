@@ -4,8 +4,11 @@
   "peerDependencies": {
     "@angular/common": "^6.0.0-rc.0 || ^6.0.0",
     "@angular/core": "^6.0.0-rc.0 || ^6.0.0",
+    "@angular/material": "~6.4.3",
     "@modalnodes/mn-docker": "0.0.1",
     "@modalnodes/mn-geo": "0.0.2",
+    "@modalnodes/mn-geo-layers": "0.0.2",
+    "@modalnodes/mn-geo-layers-osm": "0.0.2",
     "@modalnodes/mn-mapgl": "0.0.1",
     "@modalnodes/mn-map": "0.0.1"
   }

@@ -18,28 +18,33 @@ export class MnMapComponent implements OnInit, AfterViewInit {
   @Input() public maxzoom;
 
   @Input() public width = '100%';
-  @Input() public height = '300px';
+  @Input() public height = '90vh';
 
   @ContentChildren(MnMapFlavourDirective) flavour;
 
   @ViewChild('map') mapElement: ElementRef;
   @ViewChild('styles') stylesElement: ElementRef;
 
-  @ViewChildren(MnDatasourceComponent) datasources = new QueryList<MnDatasourceComponent>();
-  @ViewChildren(MnLayerComponent) layers = new QueryList<MnLayerComponent>();
+  _map: any;
+
+  @ContentChildren(MnDatasourceComponent) datasources = new QueryList<MnDatasourceComponent>();
+  @ContentChildren(MnLayerComponent) layers = new QueryList<MnLayerComponent>();
 
 
   ngOnInit() {
   }
 
   ngAfterViewInit() {
-    console.log("initializing", this.flavour, this.datasources, this.layers);
-    this.flavour.first.setup(this);
+    this._map = this.flavour.first;
+    console.log('initializing', this.flavour, this.datasources, this.layers);
+    this._map.setup(this);
     this.datasources.forEach((item, idx) => {
+      console.log('datasource', item);
       this.flavour.first.addDatasource(item);
     });
-    this.layers.forEach((item, idx) => {
-      this.flavour.first.addLayer(item);
+    this.layers.forEach(item => {
+      console.log('layer', item);
+      this.flavour.first.addLayer(item.layer);
     });
 
   }

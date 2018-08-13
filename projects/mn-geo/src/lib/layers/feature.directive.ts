@@ -1,11 +1,13 @@
-import { Directive, ElementRef, Input, forwardRef, HostBinding, OnInit } from '@angular/core';
-import { LayerDirective } from './layer.directive';
+import { Component, ElementRef, Input, forwardRef, HostBinding, OnInit } from '@angular/core';
+import { LayerComponent } from './layer.directive';
 
-@Directive({
+@Component({
   selector: '[feature]',
-  providers: [{provide: LayerDirective, useExisting: forwardRef(() => FeatureDirective)}]
+  providers: [{ provide: LayerComponent, useExisting: forwardRef(() => FeatureComponent) }],
+  template: '',
+  styles: [],
 })
-export class FeatureDirective extends LayerDirective implements OnInit {
+export class FeatureComponent extends LayerComponent implements OnInit {
 
     @Input() from;
 

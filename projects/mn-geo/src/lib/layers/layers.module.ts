@@ -1,44 +1,36 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
-import { LayerDirective } from './layer.directive';
+import { TileComponent } from './tile.directive';
+import { DataComponent } from './data.directive';
 
-import { DataDirective } from './data.directive';
-import { TileDirective } from './tile.directive';
+import { FeatureComponent } from './feature.directive';
+import { HeatmapComponent } from './heatmap.directive';
 
-import { FeatureDirective } from './feature.directive';
-import { HeatmapDirective } from './heatmap.directive';
 
-import { CartoDirective } from './carto.directive';
-import { OsmDirective, OsmVectorDirective } from './osm.directive';
-import { StamenDirective } from './stamen.directive';
+import { MnGeoLayersRegistryService, MnGeoLayersModule } from '@modalnodes/mn-geo-layers';
 
 
 @NgModule({
   imports: [
-    CommonModule
+    CommonModule,
+    MnGeoLayersModule
   ],
   declarations: [
-    OsmDirective,
-    OsmVectorDirective,
-    TileDirective,
-    DataDirective,
-    StamenDirective,
-    CartoDirective,
-    LayerDirective,
-    FeatureDirective,
-    HeatmapDirective
+    TileComponent,
+    DataComponent,
+    FeatureComponent,
+    HeatmapComponent
   ],
-  exports: [
-    OsmDirective,
-    OsmVectorDirective,
-    TileDirective,
-    DataDirective,
-    StamenDirective,
-    CartoDirective,
-    LayerDirective,
-    FeatureDirective,
-    HeatmapDirective
-  ]
+  exports: [ ],
+  providers: [ ],
+  entryComponents: [ ],
 })
-export class LayersModule { }
+export class LayersModule {
+  constructor(
+    private layers: MnGeoLayersRegistryService
+  ) {
+    layers.register('heatmap', HeatmapComponent);
+    layers.register('feature', FeatureComponent);
+  }
+}

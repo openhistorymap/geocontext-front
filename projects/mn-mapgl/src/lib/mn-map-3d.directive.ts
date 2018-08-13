@@ -1,4 +1,5 @@
-import { MnMapFlavourDirective, LayerDirective, DatasourceDirective } from '@modalnodes/mn-geo';
+import { Layer } from '@modalnodes/mn-geo-layers';
+import { MnMapFlavourDirective, DatasourceDirective } from '@modalnodes/mn-geo';
 import { MnMapComponent } from '@modalnodes/mn-geo';
 import { Directive, forwardRef, ViewContainerRef, Input } from '@angular/core';
 
@@ -15,7 +16,7 @@ export class MnMap3dDirective extends MnMapFlavourDirective {
 
   css = 'https://api.mapbox.com/mapbox-gl-js/v0.42.0/mapbox-gl.css';
 
-  @Input() mapboxToken = "";
+  @Input() mapboxToken = '';
 
   the_map;
 
@@ -25,7 +26,7 @@ export class MnMap3dDirective extends MnMapFlavourDirective {
     super();
   }
 
-  ngOnInit(){
+  ngOnInit() {
     console.log('mn-map-3d', this.mapboxToken);
   }
 
@@ -42,7 +43,7 @@ export class MnMap3dDirective extends MnMapFlavourDirective {
     });
   }
 
-  addLayer(layer: LayerDirective) {
+  addLayer(layer: Layer) {
     this.the_map.addLayer({
       id: layer
     });

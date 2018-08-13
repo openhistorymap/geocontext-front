@@ -321,7 +321,7 @@
       "root": "projects/c3d-core",
       "sourceRoot": "projects/c3d-core/src",
       "projectType": "library",
-      "prefix": "lib",
+      "prefix": "c3d",
       "architect": {
         "build": {
           "builder": "@angular-devkit/build-ng-packagr:build",
@@ -361,7 +361,7 @@
       "root": "projects/chcx-main",
       "sourceRoot": "projects/chcx-main/src",
       "projectType": "library",
-      "prefix": "lib",
+      "prefix": "chcx",
       "architect": {
         "build": {
           "builder": "@angular-devkit/build-ng-packagr:build",
@@ -526,6 +526,286 @@
           "builder": "@angular-devkit/build-angular:tslint",
           "options": {
             "tsConfig": "projects/ohm-front-e2e/tsconfig.e2e.json",
+            "exclude": [
+              "**/node_modules/**"
+            ]
+          }
+        }
+      }
+    },
+    "mn-geo-layers": {
+      "root": "projects/mn-geo-layers",
+      "sourceRoot": "projects/mn-geo-layers/src",
+      "projectType": "library",
+      "prefix": "mn",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-ng-packagr:build",
+          "options": {
+            "tsConfig": "projects/mn-geo-layers/tsconfig.lib.json",
+            "project": "projects/mn-geo-layers/ng-package.json"
+          },
+          "configurations": {
+            "production": {
+              "project": "projects/mn-geo-layers/ng-package.prod.json"
+            }
+          }
+        },
+        "test": {
+          "builder": "@angular-devkit/build-angular:karma",
+          "options": {
+            "main": "projects/mn-geo-layers/src/test.ts",
+            "tsConfig": "projects/mn-geo-layers/tsconfig.spec.json",
+            "karmaConfig": "projects/mn-geo-layers/karma.conf.js"
+          }
+        },
+        "lint": {
+          "builder": "@angular-devkit/build-angular:tslint",
+          "options": {
+            "tsConfig": [
+              "projects/mn-geo-layers/tsconfig.lib.json",
+              "projects/mn-geo-layers/tsconfig.spec.json"
+            ],
+            "exclude": [
+              "**/node_modules/**"
+            ]
+          }
+        }
+      }
+    },
+    "mn-geo-layers-osm": {
+      "root": "projects/mn-geo-layers-osm",
+      "sourceRoot": "projects/mn-geo-layers-osm/src",
+      "projectType": "library",
+      "prefix": "mn",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-ng-packagr:build",
+          "options": {
+            "tsConfig": "projects/mn-geo-layers-osm/tsconfig.lib.json",
+            "project": "projects/mn-geo-layers-osm/ng-package.json"
+          },
+          "configurations": {
+            "production": {
+              "project": "projects/mn-geo-layers-osm/ng-package.prod.json"
+            }
+          }
+        },
+        "test": {
+          "builder": "@angular-devkit/build-angular:karma",
+          "options": {
+            "main": "projects/mn-geo-layers-osm/src/test.ts",
+            "tsConfig": "projects/mn-geo-layers-osm/tsconfig.spec.json",
+            "karmaConfig": "projects/mn-geo-layers-osm/karma.conf.js"
+          }
+        },
+        "lint": {
+          "builder": "@angular-devkit/build-angular:tslint",
+          "options": {
+            "tsConfig": [
+              "projects/mn-geo-layers-osm/tsconfig.lib.json",
+              "projects/mn-geo-layers-osm/tsconfig.spec.json"
+            ],
+            "exclude": [
+              "**/node_modules/**"
+            ]
+          }
+        }
+      }
+    },
+    "mn-geo-layers-stamen": {
+      "root": "projects/mn-geo-layers-stamen",
+      "sourceRoot": "projects/mn-geo-layers-stamen/src",
+      "projectType": "library",
+      "prefix": "mn",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-ng-packagr:build",
+          "options": {
+            "tsConfig": "projects/mn-geo-layers-stamen/tsconfig.lib.json",
+            "project": "projects/mn-geo-layers-stamen/ng-package.json"
+          },
+          "configurations": {
+            "production": {
+              "project": "projects/mn-geo-layers-stamen/ng-package.prod.json"
+            }
+          }
+        },
+        "test": {
+          "builder": "@angular-devkit/build-angular:karma",
+          "options": {
+            "main": "projects/mn-geo-layers-stamen/src/test.ts",
+            "tsConfig": "projects/mn-geo-layers-stamen/tsconfig.spec.json",
+            "karmaConfig": "projects/mn-geo-layers-stamen/karma.conf.js"
+          }
+        },
+        "lint": {
+          "builder": "@angular-devkit/build-angular:tslint",
+          "options": {
+            "tsConfig": [
+              "projects/mn-geo-layers-stamen/tsconfig.lib.json",
+              "projects/mn-geo-layers-stamen/tsconfig.spec.json"
+            ],
+            "exclude": [
+              "**/node_modules/**"
+            ]
+          }
+        }
+      }
+    },
+    "mn-geo-datasources": {
+      "root": "projects/mn-geo-datasources",
+      "sourceRoot": "projects/mn-geo-datasources/src",
+      "projectType": "library",
+      "prefix": "mn",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-ng-packagr:build",
+          "options": {
+            "tsConfig": "projects/mn-geo-datasources/tsconfig.lib.json",
+            "project": "projects/mn-geo-datasources/ng-package.json"
+          },
+          "configurations": {
+            "production": {
+              "project": "projects/mn-geo-datasources/ng-package.prod.json"
+            }
+          }
+        },
+        "test": {
+          "builder": "@angular-devkit/build-angular:karma",
+          "options": {
+            "main": "projects/mn-geo-datasources/src/test.ts",
+            "tsConfig": "projects/mn-geo-datasources/tsconfig.spec.json",
+            "karmaConfig": "projects/mn-geo-datasources/karma.conf.js"
+          }
+        },
+        "lint": {
+          "builder": "@angular-devkit/build-angular:tslint",
+          "options": {
+            "tsConfig": [
+              "projects/mn-geo-datasources/tsconfig.lib.json",
+              "projects/mn-geo-datasources/tsconfig.spec.json"
+            ],
+            "exclude": [
+              "**/node_modules/**"
+            ]
+          }
+        }
+      }
+    },
+    "mn-geo-layers-carto": {
+      "root": "projects/mn-geo-layers-carto",
+      "sourceRoot": "projects/mn-geo-layers-carto/src",
+      "projectType": "library",
+      "prefix": "lib",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-ng-packagr:build",
+          "options": {
+            "tsConfig": "projects/mn-geo-layers-carto/tsconfig.lib.json",
+            "project": "projects/mn-geo-layers-carto/ng-package.json"
+          },
+          "configurations": {
+            "production": {
+              "project": "projects/mn-geo-layers-carto/ng-package.prod.json"
+            }
+          }
+        },
+        "test": {
+          "builder": "@angular-devkit/build-angular:karma",
+          "options": {
+            "main": "projects/mn-geo-layers-carto/src/test.ts",
+            "tsConfig": "projects/mn-geo-layers-carto/tsconfig.spec.json",
+            "karmaConfig": "projects/mn-geo-layers-carto/karma.conf.js"
+          }
+        },
+        "lint": {
+          "builder": "@angular-devkit/build-angular:tslint",
+          "options": {
+            "tsConfig": [
+              "projects/mn-geo-layers-carto/tsconfig.lib.json",
+              "projects/mn-geo-layers-carto/tsconfig.spec.json"
+            ],
+            "exclude": [
+              "**/node_modules/**"
+            ]
+          }
+        }
+      }
+    },
+    "chcx-about": {
+      "root": "projects/chcx-about",
+      "sourceRoot": "projects/chcx-about/src",
+      "projectType": "library",
+      "prefix": "lib",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-ng-packagr:build",
+          "options": {
+            "tsConfig": "projects/chcx-about/tsconfig.lib.json",
+            "project": "projects/chcx-about/ng-package.json"
+          },
+          "configurations": {
+            "production": {
+              "project": "projects/chcx-about/ng-package.prod.json"
+            }
+          }
+        },
+        "test": {
+          "builder": "@angular-devkit/build-angular:karma",
+          "options": {
+            "main": "projects/chcx-about/src/test.ts",
+            "tsConfig": "projects/chcx-about/tsconfig.spec.json",
+            "karmaConfig": "projects/chcx-about/karma.conf.js"
+          }
+        },
+        "lint": {
+          "builder": "@angular-devkit/build-angular:tslint",
+          "options": {
+            "tsConfig": [
+              "projects/chcx-about/tsconfig.lib.json",
+              "projects/chcx-about/tsconfig.spec.json"
+            ],
+            "exclude": [
+              "**/node_modules/**"
+            ]
+          }
+        }
+      }
+    },
+    "chcx-static": {
+      "root": "projects/chcx-static",
+      "sourceRoot": "projects/chcx-static/src",
+      "projectType": "library",
+      "prefix": "lib",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-ng-packagr:build",
+          "options": {
+            "tsConfig": "projects/chcx-static/tsconfig.lib.json",
+            "project": "projects/chcx-static/ng-package.json"
+          },
+          "configurations": {
+            "production": {
+              "project": "projects/chcx-static/ng-package.prod.json"
+            }
+          }
+        },
+        "test": {
+          "builder": "@angular-devkit/build-angular:karma",
+          "options": {
+            "main": "projects/chcx-static/src/test.ts",
+            "tsConfig": "projects/chcx-static/tsconfig.spec.json",
+            "karmaConfig": "projects/chcx-static/karma.conf.js"
+          }
+        },
+        "lint": {
+          "builder": "@angular-devkit/build-angular:tslint",
+          "options": {
+            "tsConfig": [
+              "projects/chcx-static/tsconfig.lib.json",
+              "projects/chcx-static/tsconfig.spec.json"
+            ],
             "exclude": [
               "**/node_modules/**"
             ]

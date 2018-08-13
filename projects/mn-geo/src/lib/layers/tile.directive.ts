@@ -1,13 +1,21 @@
-import { Directive, Input } from '@angular/core';
+import { LayerComponent } from './layer.directive';
+import { Component, Input, forwardRef } from '@angular/core';
 
-@Directive({
-  selector: '[tile]'
+@Component({
+  selector: '[tile]',
+  template: '',
+  styles: [],
+  providers: [
+    { provide: LayerComponent, useExisting: forwardRef(() => TileComponent) },
+  ]
 })
-export class TileDirective {
+export class TileComponent extends LayerComponent {
 
   @Input() url = '';
   @Input() attribution = '';
 
-  constructor() { }
+  constructor() {
+    super();
+   }
 
 }

@@ -10,11 +10,8 @@ export * from './lib/mn-layer/mn-layer.component';
 export * from './lib/mn-map-flavour.directive';
 
 export * from './lib/layers/layer.directive';
-export * from './lib/layers/carto.directive';
 export * from './lib/layers/data.directive';
 export * from './lib/layers/layers.module';
-export * from './lib/layers/osm.directive';
-export * from './lib/layers/stamen.directive';
 export * from './lib/layers/tile.directive';
 export * from './lib/layers/heatmap.directive';
 export * from './lib/layers/feature.directive';

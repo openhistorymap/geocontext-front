@@ -1,0 +1,10 @@
+{
+  "type": "2d",
+
+  "datasources": [
+    "osm"
+  ],
+  "layers": [
+    "osm-tiled"
+  ]
+}

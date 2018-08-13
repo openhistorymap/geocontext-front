@@ -26,6 +26,18 @@
       "@modalnodes/mn-mapgl": [
         "dist/mn-mapgl"
       ],
+      "@modalnodes/mn-geo-layers": [
+        "dist/mn-geo-layers"
+      ],
+      "@modalnodes/mn-geo-layers-osm": [
+        "dist/mn-geo-layers-osm"
+      ],
+      "@modalnodes/mn-geo-layers-stamen": [
+        "dist/mn-geo-layers-stamen"
+      ],
+      "@modalnodes/mn-geo-datasources": [
+        "dist/mn-geo-datasources"
+      ],
       "@geocontext/gcx-core": [
         "dist/gcx-core"
       ],
@@ -37,6 +49,21 @@
       ],
       "chcx-main": [
         "dist/chcx-main"
+      ],
+      "mn-geo-layers-carto": [
+        "dist/mn-geo-layers-carto"
+      ],
+      "chcx-about": [
+        "dist/chcx-about"
+      ],
+      "chcx-about/*": [
+        "dist/chcx-about/*"
+      ],
+      "chcx-static": [
+        "dist/chcx-static"
+      ],
+      "chcx-static/*": [
+        "dist/chcx-static/*"
       ]
     }
   }

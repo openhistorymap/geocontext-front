@@ -1,11 +1,13 @@
-import { Directive, ElementRef, Input, forwardRef, HostBinding, OnInit } from '@angular/core';
-import { LayerDirective } from './layer.directive';
+import { Component, ElementRef, Input, forwardRef, HostBinding, OnInit } from '@angular/core';
+import { LayerComponent } from './layer.directive';
 
-@Directive({
+@Component({
   selector: '[heatmap]',
-  providers: [{provide: LayerDirective, useExisting: forwardRef(() => HeatmapDirective)}]
+  providers: [{ provide: LayerComponent, useExisting: forwardRef(() => HeatmapComponent) }],
+  template: '',
+  styles: [],
 })
-export class HeatmapDirective extends LayerDirective {
+export class HeatmapComponent extends LayerComponent {
   
   @Input() from;
 

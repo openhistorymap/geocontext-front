@@ -1,10 +1,11 @@
-import { Directive } from '@angular/core';
+import { Component } from '@angular/core';
+import { LayerComponent } from './layer.directive';
 
-@Directive({
-  selector: '[datasource]'
+@Component({
+  selector: '[datasource]',
+  template: '',
+  styles: [],
 })
-export class DataDirective {
-
-  constructor() { }
+export class DataComponent extends LayerComponent {
 
 }

@@ -1,5 +1,5 @@
 import { DatasourceDirective } from './datasources/datasource.directive';
-import { LayerDirective } from './layers/layer.directive';
+import { LayerComponent } from './layers/layer.directive';
 import { MnGeoFlavour } from './mn-geo-flavour.interface';
 import { Directive } from '@angular/core';
 
@@ -17,7 +17,7 @@ export class MnMapFlavourDirective implements MnGeoFlavour {
   }
 
 
-  addLayer(layer: LayerDirective) { }
+  addLayer(layer: LayerComponent) { }
   removeLayer(id) { }
 
   addDatasource(datasource: DatasourceDirective) { }
