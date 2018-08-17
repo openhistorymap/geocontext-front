@@ -11,6 +11,7 @@ export class MnLayerComponent implements OnInit {
 
   @Input() name = '';
   @Input() type = '';
+  @Input() datasource: string;
   @Input() conf: any = {};
 
   @Input() setup: any;
@@ -30,12 +31,18 @@ export class MnLayerComponent implements OnInit {
   }
 
   ngOnInit() {
+    console.log(this.styles);
     if (this.setup) {
       this.conf = this.setup.conf;
       this.type = this.setup.type;
       this.name = this.setup.name;
     }
-    this._layer = new (this.layers.for(this.type))();
+    if (this.datasource) {
+      this.conf.datasource = this.datasource;
+      this.conf.styles = this.styles;
+    }
+    const lyr = this.layers.for(this.type);
+    this._layer = lyr;
     // this.layer.configure(this.conf);
   }
 }

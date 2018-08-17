@@ -1,6 +1,7 @@
 import { MnMapComponent } from '@modalnodes/mn-geo';
 import { Component, OnInit, Input, ContentChild } from '@angular/core';
 import { MatToolbarRow } from '@angular/material/toolbar';
+import { GcxCoreService } from '../gcx-core.service';
 
 @Component({
   selector: 'gcx-main',
@@ -23,10 +24,17 @@ export class GcxMainComponent implements OnInit {
   title = 'GeoContext';
   gcx_version = '0.0.1';
 
+  selected_coll = null;
+  selected_item = null;
+
+  @Input() items = [];
+
   @ContentChild('map') map: MnMapComponent;
   @ContentChild('toolbar') toolbar: MatToolbarRow;
 
-  constructor() { }
+  constructor(
+    private gcx: GcxCoreService
+  ) { }
 
   ngOnInit() {
     if (this.data) {

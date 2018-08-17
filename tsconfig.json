@@ -64,6 +64,12 @@
       ],
       "chcx-static/*": [
         "dist/chcx-static/*"
+      ],
+      "mn-geo-datasources-csv": [
+        "dist/mn-geo-datasources-csv"
+      ],
+      "mn-geo-datasources-csv/*": [
+        "dist/mn-geo-datasources-csv/*"
       ]
     }
   }

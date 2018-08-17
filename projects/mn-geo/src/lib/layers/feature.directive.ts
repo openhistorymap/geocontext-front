@@ -1,22 +1,18 @@
-import { Component, ElementRef, Input, forwardRef, HostBinding, OnInit } from '@angular/core';
-import { LayerComponent } from './layer.directive';
+import { Layer } from '@modalnodes/mn-geo-layers';
+import * as L from 'leaflet';
+import { Injectable } from '@angular/core';
 
-@Component({
-  selector: '[feature]',
-  providers: [{ provide: LayerComponent, useExisting: forwardRef(() => FeatureComponent) }],
-  template: '',
-  styles: [],
-})
-export class FeatureComponent extends LayerComponent implements OnInit {
-
-    @Input() from;
-
-  constructor() { 
+@Injectable()
+export class FeatureLayer extends Layer {
+  constructor() {
     super();
+    this.setRequiresDatasources(true);
   }
 
-  ngOnInit(){
-     console.log('featuredirective');
+  create(): any {
+    const ds = this.getConfiguration().datasource;
+    const geoJsonFeature: any = this.getDatasourceRepo().for(ds);
+    const r = L.geoJSON(geoJsonFeature);
+    return r;
   }
-
 }

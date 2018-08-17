@@ -1,3 +1,4 @@
+import { DatasetRegistryService } from './dataset-registry.service';
 import { CommonModule } from '@angular/common';
 import { DatasourcesModule } from './datasources/datasources.module';
 import { NgModule } from '@angular/core';
@@ -29,6 +30,7 @@ const dec = [
     DatasourcesModule
   ],
   declarations: dec,
-  exports: dec
+  exports: dec,
+  providers: [DatasetRegistryService]
 })
 export class MnGeoModule { }

@@ -1,25 +1,23 @@
+import { GeoJsonDatasource, GeoJsonRemoteHttpDatasource } from './geojson.datasource';
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { DatasourceDirective } from './datasource.directive';
-import { CsvDirective } from './csv.directive';
-import { JsonDirective } from './json.directive';
-import { RemoteDirective } from './remote.directive';
+import { MnGeoDatasourcesModule, MnGeoDatasourcesRegistryService } from '@modalnodes/mn-geo-datasources';
 
 @NgModule({
   imports: [
-    CommonModule
+    CommonModule,
+    MnGeoDatasourcesModule
   ],
   declarations: [
-    CsvDirective,
-    JsonDirective,
-    RemoteDirective,
-    DatasourceDirective,
   ],
   exports: [
-    CsvDirective,
-    JsonDirective,
-    RemoteDirective,
-    DatasourceDirective
   ]
 })
-export class DatasourcesModule { }
+export class DatasourcesModule {
+  constructor(
+    private dsreg: MnGeoDatasourcesRegistryService
+  ) {
+    this.dsreg.register('geojson', GeoJsonDatasource);
+    this.dsreg.register('geojson+http+remote', GeoJsonRemoteHttpDatasource);
+  }
+}

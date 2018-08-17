@@ -1,5 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
-import { DatasourceDirective } from '../datasources/datasource.directive';
+import { Component, OnInit, ViewChild, Input } from '@angular/core';
 
 @Component({
   selector: 'mn-datasource',
@@ -7,12 +6,12 @@ import { DatasourceDirective } from '../datasources/datasource.directive';
   styleUrls: ['./mn-datasource.component.css']
 })
 export class MnDatasourceComponent implements OnInit {
+  @Input() type;
+  @Input() name;
+  @Input() conf;
 
-  @ViewChild(DatasourceDirective) dirs;
   constructor() { }
 
-  ngOnInit() {
-    console.log('DataSources', this.dirs);
-  }
+  ngOnInit() { }
 
 }

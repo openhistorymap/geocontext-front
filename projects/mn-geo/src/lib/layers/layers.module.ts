@@ -1,11 +1,7 @@
+import { FeatureLayer } from './feature.directive';
+import { HeatmapLayer } from './heatmap.directive';
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-
-import { TileComponent } from './tile.directive';
-import { DataComponent } from './data.directive';
-
-import { FeatureComponent } from './feature.directive';
-import { HeatmapComponent } from './heatmap.directive';
 
 
 import { MnGeoLayersRegistryService, MnGeoLayersModule } from '@modalnodes/mn-geo-layers';
@@ -16,12 +12,7 @@ import { MnGeoLayersRegistryService, MnGeoLayersModule } from '@modalnodes/mn-ge
     CommonModule,
     MnGeoLayersModule
   ],
-  declarations: [
-    TileComponent,
-    DataComponent,
-    FeatureComponent,
-    HeatmapComponent
-  ],
+  declarations: [ ],
   exports: [ ],
   providers: [ ],
   entryComponents: [ ],
@@ -30,7 +21,8 @@ export class LayersModule {
   constructor(
     private layers: MnGeoLayersRegistryService
   ) {
-    layers.register('heatmap', HeatmapComponent);
-    layers.register('feature', FeatureComponent);
+    // layers.register('heatmap', HeatmapLayer);
+    layers.register('feature', FeatureLayer);
+    layers.register('features', FeatureLayer);
   }
 }

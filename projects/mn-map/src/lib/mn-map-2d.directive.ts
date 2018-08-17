@@ -1,5 +1,5 @@
 import { Layer } from '@modalnodes/mn-geo-layers';
-import { MnMapFlavourDirective, DatasourceDirective } from '@modalnodes/mn-geo';
+import { MnMapFlavourDirective } from '@modalnodes/mn-geo';
 import { MnMapComponent } from '@modalnodes/mn-geo';
 import { Directive, ViewContainerRef, forwardRef } from '@angular/core';
 
@@ -34,10 +34,10 @@ export class MnMap2dDirective extends MnMapFlavourDirective {
   }
 
   addLayer(layer: Layer) {
-    this.the_map.addLayer(layer.create());
+    this.the_map.addLayer(layer);
   }
 
-  addDataset(datasource: DatasourceDirective) {
+  addDataset(datasource: any) {
 
   }
 

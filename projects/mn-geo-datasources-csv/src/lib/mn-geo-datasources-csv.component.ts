@@ -1,15 +1,15 @@
 import { Component, OnInit } from '@angular/core';
 
 @Component({
-  selector: 'lib-mn-geo-layers-stamen',
+  selector: 'lib-mn-geo-datasources-csv',
   template: `
     <p>
-      mn-geo-layers-stamen works!
+      mn-geo-datasources-csv works!
     </p>
   `,
   styles: []
 })
-export class MnGeoLayersStamenComponent implements OnInit {
+export class MnGeoDatasourcesCsvComponent implements OnInit {
 
   constructor() { }
 

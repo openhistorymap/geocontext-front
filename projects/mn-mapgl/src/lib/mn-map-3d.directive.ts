@@ -1,5 +1,5 @@
 import { Layer } from '@modalnodes/mn-geo-layers';
-import { MnMapFlavourDirective, DatasourceDirective } from '@modalnodes/mn-geo';
+import { MnMapFlavourDirective } from '@modalnodes/mn-geo';
 import { MnMapComponent } from '@modalnodes/mn-geo';
 import { Directive, forwardRef, ViewContainerRef, Input } from '@angular/core';
 
@@ -49,7 +49,7 @@ export class MnMap3dDirective extends MnMapFlavourDirective {
     });
   }
   removeLayer(id: any) {}
-  addDatasource(datasource: DatasourceDirective) {
+  addDatasource(datasource: any) {
     this.the_map.addSource(datasource);
   }
   removeDatasource(id: any) { }

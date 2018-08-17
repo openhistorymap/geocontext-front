@@ -1,10 +1,13 @@
+import { HttpClientModule } from '@angular/common/http';
+import { MnGeoDatasourcesRegistryService } from './mn-geo-datasources-registry.service';
 import { NgModule } from '@angular/core';
-import { MnGeoDatasourcesComponent } from './mn-geo-datasources.component';
 
 @NgModule({
   imports: [
+    HttpClientModule
   ],
-  declarations: [MnGeoDatasourcesComponent],
-  exports: [MnGeoDatasourcesComponent]
+  declarations: [],
+  exports: [],
+  providers: [MnGeoDatasourcesRegistryService]
 })
 export class MnGeoDatasourcesModule { }

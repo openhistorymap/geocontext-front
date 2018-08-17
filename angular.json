@@ -812,6 +812,46 @@
           }
         }
       }
+    },
+    "mn-geo-datasources-csv": {
+      "root": "projects/mn-geo-datasources-csv",
+      "sourceRoot": "projects/mn-geo-datasources-csv/src",
+      "projectType": "library",
+      "prefix": "lib",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-ng-packagr:build",
+          "options": {
+            "tsConfig": "projects/mn-geo-datasources-csv/tsconfig.lib.json",
+            "project": "projects/mn-geo-datasources-csv/ng-package.json"
+          },
+          "configurations": {
+            "production": {
+              "project": "projects/mn-geo-datasources-csv/ng-package.prod.json"
+            }
+          }
+        },
+        "test": {
+          "builder": "@angular-devkit/build-angular:karma",
+          "options": {
+            "main": "projects/mn-geo-datasources-csv/src/test.ts",
+            "tsConfig": "projects/mn-geo-datasources-csv/tsconfig.spec.json",
+            "karmaConfig": "projects/mn-geo-datasources-csv/karma.conf.js"
+          }
+        },
+        "lint": {
+          "builder": "@angular-devkit/build-angular:tslint",
+          "options": {
+            "tsConfig": [
+              "projects/mn-geo-datasources-csv/tsconfig.lib.json",
+              "projects/mn-geo-datasources-csv/tsconfig.spec.json"
+            ],
+            "exclude": [
+              "**/node_modules/**"
+            ]
+          }
+        }
+      }
     }
   },
   "defaultProject": "geocontext-front"

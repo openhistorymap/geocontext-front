@@ -1,18 +1,14 @@
-import { Component, ElementRef, Input, forwardRef, HostBinding, OnInit } from '@angular/core';
-import { LayerComponent } from './layer.directive';
+import { Layer } from '@modalnodes/mn-geo-layers';
+import * as L from 'leaflet';
+import { Injectable } from '@angular/core';
 
-@Component({
-  selector: '[heatmap]',
-  providers: [{ provide: LayerComponent, useExisting: forwardRef(() => HeatmapComponent) }],
-  template: '',
-  styles: [],
-})
-export class HeatmapComponent extends LayerComponent {
-  
-  @Input() from;
+@Injectable()
+export class HeatmapLayer extends Layer {
+  osmUrl = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+  osmAttrib = 'Map data © <a href="https://openstreetmap.org">OpenStreetMap</a> contributors';
 
-  constructor() {
-    super();
-   }
-
+  create(): any {
+    const r = L.tileLayer(this.osmUrl, { minZoom: 1, maxZoom: 19, attribution: this.osmAttrib });
+    return r;
+  }
 }

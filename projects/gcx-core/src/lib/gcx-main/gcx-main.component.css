@@ -17,7 +17,7 @@ mat-drawer{
   width:330px
 }
 
-.mat-tab-label {
+/deep/ .mat-tab-label {
   max-width: 110px !important;
   width: 110px !important;
   min-width: 110px !important;

@@ -21,6 +21,7 @@ import { MatTabsModule } from '@angular/material/tabs';
 
 
 import { GcxMainComponent } from './gcx-main/gcx-main.component';
+import { MnGeoLayersStamenModule } from '@modalnodes/mn-geo-layers-stamen';
 
 @NgModule({
   imports: [
@@ -32,6 +33,7 @@ import { GcxMainComponent } from './gcx-main/gcx-main.component';
 
     MnGeoLayersModule,
     MnGeoLayersOsmModule,
+    MnGeoLayersStamenModule,
 
     BrowserAnimationsModule,
 
