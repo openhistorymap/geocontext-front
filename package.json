@@ -22,7 +22,7 @@
     "@angular/platform-browser": "^6.0.6",
     "@angular/platform-browser-dynamic": "^6.0.6",
     "@angular/router": "^6.0.6",
-    "@modalnodes/mn-configurator": "0.0.3",
+    "@modalnodes/mn-configurator": "0.0.4",
     "@modalnodes/mn-docker": "0.0.1",
     "@modalnodes/mn-registry": "0.0.3",
     "@types/leaflet": "^1.2.7",

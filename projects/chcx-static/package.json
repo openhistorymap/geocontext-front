@@ -1,9 +1,9 @@
 {
-  "name": "chcx-static",
+  "name": "@ohmap/chcx-static",
   "version": "0.0.2",
   "peerDependencies": {
     "@angular/common": "^6.0.0-rc.0 || ^6.0.0",
     "@angular/core": "^6.0.0-rc.0 || ^6.0.0",
-    "@modalnodes/mn-configurator": "0.0.3"
+    "@modalnodes/mn-configurator": "0.0.4"
   }
 }

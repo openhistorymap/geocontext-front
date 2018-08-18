@@ -48,6 +48,8 @@ export class MnMapComponent implements OnInit, AfterViewInit {
 
   ds_temp = [];
 
+  lyrs = [];
+
   ngOnInit() {
   }
 
@@ -66,7 +68,9 @@ export class MnMapComponent implements OnInit, AfterViewInit {
       return x.fetchData();
     })).pipe(
       filter((r, i) => {
-        this.dsRegistry.register(this.ds_temp[i].getName(), r);
+        r.map((o, j) => {
+          this.dsRegistry.register(this.ds_temp[j].getName(), o);      
+        });
         return true;
       })
     );
@@ -74,6 +78,7 @@ export class MnMapComponent implements OnInit, AfterViewInit {
 
   addLayerWithoutDatasources(item) {
     const lyr: Layer = item.layer;
+    this.lyrs.push(lyr);
     lyr.setConfiguration(item);
     const flyr = lyr.create();
     this.flavour.first.addLayer(flyr);
@@ -81,6 +86,7 @@ export class MnMapComponent implements OnInit, AfterViewInit {
 
   addLayer(item) {
     const lyr: Layer = item.layer;
+    this.lyrs.push(lyr);
     lyr.setConfiguration(item.conf);
     if (lyr.getRequiresDatasources()) {
       lyr.setDatasourceRepo(this.dsRegistry);
@@ -123,6 +129,14 @@ export class MnMapComponent implements OnInit, AfterViewInit {
 
   getStyles(): HTMLElement {
     return this.stylesElement.nativeElement;
+  }
+
+  getLayers() {
+    return this.lyrs;
+  }
+
+  toggleVisibility(layer) {
+    // this._map.toggleVisibility();
   }
 
 }

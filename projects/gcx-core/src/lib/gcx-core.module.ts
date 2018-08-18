@@ -1,7 +1,11 @@
+import { GcxLegendComponent } from './gcx-legend/gcx-legend.component';
+import { MnConfiguratorModule, MnConfigurationRegsitryService } from '@modalnodes/mn-configurator';
+import { GcxCoreService, GCX_CORE_FILE } from './gcx-core.service';
+import { GcxMapComponent } from './gcx-map/gcx-map.component';
+import { GcxRouterModule } from './gcx-core.router.module';
 import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
 
-import { MnDockerModule } from '@modalnodes/mn-docker';
 import { MnMapglModule} from '@modalnodes/mn-mapgl';
 import { MnMapModule } from '@modalnodes/mn-map';
 
@@ -18,15 +22,22 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatTreeModule } from '@angular/material/tree';
 import { MatListModule } from '@angular/material/list';
 import { MatTabsModule } from '@angular/material/tabs';
-
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 
 import { GcxMainComponent } from './gcx-main/gcx-main.component';
 import { MnGeoLayersStamenModule } from '@modalnodes/mn-geo-layers-stamen';
+import { RouterModule } from '@angular/router';
+
+
 
 @NgModule({
   imports: [
     CommonModule,
-    // MnDockerModule,
+    RouterModule,
+    GcxRouterModule,
+
+    MnConfiguratorModule,
     MnGeoModule,
     MnMapglModule,
     MnMapModule,
@@ -44,9 +55,17 @@ import { MnGeoLayersStamenModule } from '@modalnodes/mn-geo-layers-stamen';
     MatTreeModule,
     MatListModule,
     MatTabsModule,
-    
+    MatCheckboxModule,
+    MatSlideToggleModule,
   ],
-  declarations: [GcxMainComponent],
-  exports: [GcxMainComponent]
+  declarations: [GcxMainComponent, GcxMapComponent, GcxLegendComponent],
+  exports: [GcxMainComponent, GcxMapComponent, GcxLegendComponent],
+  providers: [GcxCoreService]
 })
-export class GcxCoreModule { }
+export class GcxCoreModule {
+  constructor(
+    private conf: MnConfigurationRegsitryService
+  ) {
+    this.conf.register('gcx-core', GCX_CORE_FILE);
+  }
+}

@@ -1,3 +1,4 @@
+import { ChcxConfiguratorService } from '@ohmap/chcx-static';
 import { Component, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 
@@ -11,7 +12,8 @@ export class AppComponent implements OnInit {
   data: any = {};
 
   constructor(
-    private http: HttpClient
+    private http: HttpClient,
+    public chcxStatic: ChcxConfiguratorService
   ) { }
 
   ngOnInit() {

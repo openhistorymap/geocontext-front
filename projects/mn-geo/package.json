@@ -4,6 +4,8 @@
   "peerDependencies": {
     "@angular/common": "^6.0.0-rc.0 || ^6.0.0",
     "@angular/core": "^6.0.0-rc.0 || ^6.0.0",
-    "@turf/turf": "^5.1.6"
+    "@turf/turf": "^5.1.6",
+    "@modalnodes/mn-geo-layers": "0.0.1",
+    "@modalnodes/mn-geo-datasources": "0.0.1"
   }
 }

@@ -1,0 +1,9 @@
+<svg height="16" width="16">
+<circle *ngIf="style && style.markerType==='circle'" 
+  [attr.cx]="16-style.options.radius*2"
+  [attr.cy]="16-style.options.radius*2"
+  [attr.r]="style.options.radius"
+  [attr.stroke]="style.options.color" 
+  [attr.stroke-width]="style.options.weight" 
+  [attr.fill]="style.options.fillColor" />
+</svg>

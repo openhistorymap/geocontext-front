@@ -12,9 +12,9 @@ export class MnGeoLayersStamenModule {
   constructor(
     private layers: MnGeoLayersRegistryService
   ) {
-    this.layers.register('toner', StamenTonerLayer);
-    this.layers.register('toner-lite', StamenTonerLiteLayer);
-    this.layers.register('watercolor', StamenWatercolorLayer);
-    this.layers.register('terrain', StamenTerrainLayer);
+    this.layers.register('stamen-toner', StamenTonerLayer);
+    this.layers.register('stamen-toner-lite', StamenTonerLiteLayer);
+    this.layers.register('stamen-watercolor', StamenWatercolorLayer);
+    this.layers.register('stamen-terrain', StamenTerrainLayer);
   }
 }

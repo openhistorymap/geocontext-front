@@ -1,9 +1,9 @@
-[{
-    "page": "Introduzione",
+{
+  "info": {
+    "target": "info",
+    "title": "Info",
+    "icon": "info",
     "mode": "file",
     "content": "/assets/chcx-static-pages/file.html"
-}, {
-    "page": "Avanzate",
-    "mode": "content",
-    "content": "Scriviamo due stronzate di prova"
-}]
+  }
+}

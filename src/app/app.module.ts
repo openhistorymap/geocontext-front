@@ -1,3 +1,4 @@
+import { ChcxStaticModule } from '@ohmap/chcx-static';
 import { GcxCoreModule } from '@geocontext/gcx-core';
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
@@ -15,6 +16,8 @@ import { MnGeoModule } from '@modalnodes/mn-geo';
     BrowserModule,
     HttpClientModule,
     GcxCoreModule,
+    ChcxStaticModule
+    ,
     MnGeoModule,
   ],
   providers: [],

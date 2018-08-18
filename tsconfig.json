@@ -41,34 +41,34 @@
       "@geocontext/gcx-core": [
         "dist/gcx-core"
       ],
-      "ohm-core": [
+      "@ohmap/ohm-core": [
         "dist/ohm-core"
       ],
-      "c3d-core": [
+      "@ohmap/c3d-core": [
         "dist/c3d-core"
       ],
-      "chcx-main": [
+      "@ohmap/chcx-main": [
         "dist/chcx-main"
       ],
-      "mn-geo-layers-carto": [
+      "@modalnodes/mn-geo-layers-carto": [
         "dist/mn-geo-layers-carto"
       ],
-      "chcx-about": [
+      "@ohmap/chcx-about": [
         "dist/chcx-about"
       ],
-      "chcx-about/*": [
+      "@ohmap/chcx-about/*": [
         "dist/chcx-about/*"
       ],
-      "chcx-static": [
+      "@ohmap/chcx-static": [
         "dist/chcx-static"
       ],
-      "chcx-static/*": [
+      "@ohmap/chcx-static/*": [
         "dist/chcx-static/*"
       ],
-      "mn-geo-datasources-csv": [
+      "@modalnodes/mn-geo-datasources-csv": [
         "dist/mn-geo-datasources-csv"
       ],
-      "mn-geo-datasources-csv/*": [
+      "@modalnodes/mn-geo-datasources-csv/*": [
         "dist/mn-geo-datasources-csv/*"
       ]
     }

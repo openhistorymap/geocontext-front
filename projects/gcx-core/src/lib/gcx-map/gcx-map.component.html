@@ -1,0 +1,47 @@
+<mat-drawer-container class="example-container">
+  <mat-drawer mode="side" [opened]="is_opened">
+    <mat-tab-group [selectedIndex]="selectedTab">
+      <mat-tab #colltab [disabled]="true">
+        <ng-template mat-tab-label>
+          <mat-icon class="example-tab-icon" title="Collections">map</mat-icon>
+        </ng-template>
+        <mat-list role="list" #collections>
+        </mat-list>
+      </mat-tab>
+      <mat-tab [disabled]="!selected_coll" #layerstab>
+        <ng-template mat-tab-label>
+          <mat-icon class="example-tab-icon" title="Layers">layers</mat-icon>
+        </ng-template>
+        <mat-list>
+          <mat-list-item *ngFor="let layer of lyrs"> 
+            <mat-slide-toggle class="example-margin" color="primary" [checked]="layer.visible" (change)="toggleVisible(layer)">
+            <gcx-legend [style]="layer.style"></gcx-legend>{{layer.name}}
+            </mat-slide-toggle>
+          </mat-list-item>
+        </mat-list>
+      </mat-tab>
+      <mat-tab [disabled]="!selected_item" #infotab>
+        <ng-template mat-tab-label>
+          <mat-icon class="example-tab-icon" title="Info">place</mat-icon>
+        </ng-template>
+        <div style="margin:10px; max-width: 310px;">
+          <h2>{{selected_item?.properties.name || selected_item?.properties.Name}}</h2>
+          <table *ngIf="selected_item">
+            <tr *ngFor="let k of getKeys(selected_item.properties)">
+              <th align="right">{{k}}</th>
+              <td>{{selected_item?.properties[k]}}</td>
+            </tr>
+          </table>
+        </div>
+      </mat-tab>
+    </mat-tab-group>
+  </mat-drawer>
+  <mat-drawer-content>
+    <mn-map #map mn-map-2d [center]="center" [startzoom]="startzoom" [minzoom]="minzoom" [maxzoom]="maxzoom">
+      <mn-datasource *ngFor="let ds of dtss" [name]="ds.name" [type]="ds.type" [conf]="ds.conf"></mn-datasource>
+      <mn-layer *ngFor="let l of lyrs" [name]="l.name" [type]="l.type" [datasource]="l.datasource" (layerClicked)="show($event)" >
+        <mn-style *ngIf="l.style" [style]="l.style"></mn-style>
+      </mn-layer>
+    </mn-map>
+  </mat-drawer-content>
+</mat-drawer-container>

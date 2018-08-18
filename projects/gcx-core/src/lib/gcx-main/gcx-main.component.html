@@ -1,64 +1,16 @@
 <mat-toolbar color="primary">
   <mat-toolbar-row #toolbar>
-    <button mat-button mat-icon-button (click)="is_opened = !is_opened">
+    <button mat-button mat-icon-button (click)="gcx.toggleSidebar()">
       <mat-icon>menu</mat-icon>
     </button>
     <span>{{title}}</span>
-    <button *ngFor="let itm of items" mat-button>{{itm.title}}</button>
+    <button mat-button [routerLink]="['/map']"><mat-icon>map</mat-icon>Map</button>
+    <button *ngFor="let itm of items" mat-button [routerLink]="['/static', itm.target]">
+      <mat-icon>{{itm.icon}}</mat-icon>{{itm.title}}
+    </button>
   </mat-toolbar-row>
 </mat-toolbar>
-<mat-drawer-container class="example-container">
-  <mat-drawer mode="side" [opened]="is_opened">
-    <mat-tab-group>
-      <mat-tab #colltab>
-        <ng-template mat-tab-label>
-          <mat-icon class="example-tab-icon" title="Collections">map</mat-icon>
-        </ng-template>
-        <mat-list role="list" #collections>
-        </mat-list>
-      </mat-tab>
-      <mat-tab [disabled]="selected_coll" #layerstab>
-        <ng-template mat-tab-label>
-          <mat-icon class="example-tab-icon" title="Layers" >layers</mat-icon>
-        </ng-template>
-        <div #layers></div>
-        </mat-tab>
-      <mat-tab [disabled]="selected_item" #infotab>
-        <ng-template mat-tab-label>
-          <mat-icon class="example-tab-icon" title="Info">place</mat-icon>
-        </ng-template>
-        <div #item></div>
-        </mat-tab>
-    </mat-tab-group>
-  </mat-drawer>
-  <mat-drawer-content>
-    <mn-map #map mn-map-2d [center]="center" [startzoom]="startzoom" [minzoom]="minzoom" [maxzoom]="maxzoom">
-      <mn-datasource name="amphitheatres" type="geojson+http+remote" [conf]="{source:'/assets/datasets/amphitheatres.geojson'}"></mn-datasource>
-      <mn-datasource name="circuses" type="geojson+http+remote" [conf]="{source:'/assets/datasets/circuses.geojson'}"></mn-datasource>
-      <mn-datasource name="stadiums" type="geojson+http+remote" [conf]="{source:'/assets/datasets/stadiums.geojson'}"></mn-datasource>
-      <mn-datasource name="theatres" type="geojson+http+remote" [conf]="{source:'/assets/datasets/theatres.geojson'}"></mn-datasource>
-      <mn-layer type="features" name="amphitheatres" datasource="amphitheatres">
-        <mn-style [style]="{
-          style: 'leaflet',
-          mode: 'marker', 
-          markerType:'circle', 
-          options: {
-            radius: 8,
-            fillColor: ' #ff7800 ',
-            color: '#000',
-            weight: 1,
-            opacity: 1,
-            fillOpacity: 0.8
-          }}">
-        </mn-style>
-      </mn-layer>
-      <mn-layer type="features" name="circuses" datasource="circuses"></mn-layer>
-      <mn-layer type="features" name="stadiums" datasource="stadiums"></mn-layer>
-      <mn-layer type="features" name="theatres" datasource="theatres"></mn-layer>
-      <mn-layer type="terrain" name='OpenStreetMap Raster Tiles'></mn-layer>
-    </mn-map>
-  </mat-drawer-content>
-</mat-drawer-container>
+<router-outlet (activate)="onActivate($event)"></router-outlet>
 <div class="footer">
   Made with
   <i class="fa fa-fw fa-heart"></i> in Bologna - Engine: GeoContext {{gcx_version}}
