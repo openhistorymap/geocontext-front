@@ -1,4 +1,4 @@
-#cp .npmrc.template $HOME/.npmrc
+cp .npmrc.template $HOME/.npmrc
 
 ng build mn-geo --prod               && cd dist/mn-geo           && npm publish --access public && cd ../..
 ng build mn-geo-layers --prod        && cd dist/mn-layers        && npm publish --access public && cd ../..
