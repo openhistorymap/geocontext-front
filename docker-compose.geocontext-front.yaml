@@ -1,0 +1,28 @@
+version: '3'
+
+networks:
+  traefik:
+    external: true
+
+services:
+  front:
+    image: ${FRONT_IMG}:${FRONT_IMG_VERSION}
+    networks:
+      - default
+      - traefik
+    deploy:
+      placement:
+        constraints:
+          - node.hostname == bender
+      restart_policy:
+        condition: on-failure
+        delay: 10s
+        max_attempts: 3
+      replicas: 1
+      labels:
+        - "traefik.docker.network=traefik"
+        - "traefik.frontend.rule=Host:${MN_FRONT_URL}"
+        - "traefik.port=80"
+    environment:
+      VERSION: ${FRONT_IMG_VERSION}
+      TEST: "8"

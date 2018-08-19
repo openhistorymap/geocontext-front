@@ -1,0 +1,12 @@
+FROM nginx:alpine
+
+WORKDIR /usr/share/nginx/html/
+
+COPY ./dist/geocontext-front/ .
+
+RUN chmod 777 *
+
+COPY ./docker-entrypoint.sh .
+RUN chmod +x ./docker-entrypoint.sh
+
+ENTRYPOINT ["./docker-entrypoint.sh"]

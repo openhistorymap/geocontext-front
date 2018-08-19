@@ -10,6 +10,13 @@ stages:
   - deploy
 
 deploy:
-  provider: script
-  script: "bash build_em_all.sh"
-  skip_cleanup: true
+  - provider: script
+    script: "bash build_em_all.sh"
+    skip_cleanup: true
+  - provider: pages
+    skip-cleanup: true
+    local-dir: "documentation"
+    github-token: $GITHUB_TOKEN  # Set in the settings page of your repository, as a secure variable
+    keep-history: true
+    on:
+      branch: master
