@@ -13,4 +13,9 @@
 #ng build chcx-static --prod          && cd dist/chcx-static          && npm publish --access public && cd ../..
 #ng build ohm-core --prod             && cd dist/ohm-core             && npm publish --access public && cd ../..
 
+ng build --prod
 
+echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+docker build -t modalnodes/geocontext-front:0.1.rc$TRAVIS_BUILD_NUMBER .
+docker push modalnodes/geocontext-front:0.1.rc$TRAVIS_BUILD_NUMBER
+echo "modalnodes/geocontext-front:0.1.rc$TRAVIS_BUILD_NUMBER"
