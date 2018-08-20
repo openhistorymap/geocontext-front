@@ -1,6 +1,6 @@
 #cp .npmrc.template $HOME/.npmrc
 
-#npm run compodoc
+# npm run compodoc
 
 #ng build mn-geo                      #&& cd dist/mn-geo               && npm publish --access public && cd ../..
 #ng build mn-geo-layers --prod        && cd dist/mn-geo-layers            && npm publish --access public && cd ../..
@@ -13,9 +13,9 @@
 #ng build chcx-static --prod          && cd dist/chcx-static          && npm publish --access public && cd ../..
 #ng build ohm-core --prod             && cd dist/ohm-core             && npm publish --access public && cd ../..
 
-ng build --prod
+#ng build --prod
 
-echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
-docker build -t modalnodes/geocontext-front:0.1.rc$TRAVIS_BUILD_NUMBER .
-docker push modalnodes/geocontext-front:0.1.rc$TRAVIS_BUILD_NUMBER
-echo "modalnodes/geocontext-front:0.1.rc$TRAVIS_BUILD_NUMBER"
+#echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+#docker build -t modalnodes/geocontext-front:0.1.rc$TRAVIS_BUILD_NUMBER .
+#docker push modalnodes/geocontext-front:0.1.rc$TRAVIS_BUILD_NUMBER
+#echo "modalnodes/geocontext-front:0.1.rc$TRAVIS_BUILD_NUMBER"
