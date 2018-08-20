@@ -25,4 +25,15 @@ export class OsmVectors extends Layer {
     create() {
         return {};
     }
- }
+}
+
+export class OsmOverpass extends Layer {
+    constructor() {
+        super();
+        this.setRequiresDatasources(true);
+    }
+
+    create() {
+        return {};
+    }
+}

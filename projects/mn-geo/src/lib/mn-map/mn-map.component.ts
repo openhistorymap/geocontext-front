@@ -3,7 +3,17 @@ import { tap, map, filter } from 'rxjs/operators';
 import { forkJoin, of, interval } from 'rxjs';
 
 import { Layer } from '@modalnodes/mn-geo-layers';
-import { Component, OnInit, Input, ContentChildren, ElementRef, ViewChild, AfterViewInit, QueryList, Output, EventEmitter } from '@angular/core';
+import { 
+  Component, 
+  OnInit, 
+  Input, 
+  ContentChildren, 
+  ElementRef, 
+  ViewChild, 
+  AfterViewInit, 
+  QueryList, 
+  Output, 
+  EventEmitter } from '@angular/core';
 import { Datasource } from '@modalnodes/mn-geo-datasources';
 import { DatasetRegistryService } from './../dataset-registry.service';
 import { MnLayerComponent } from '../mn-layer/mn-layer.component';
