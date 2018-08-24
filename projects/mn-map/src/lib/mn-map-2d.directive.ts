@@ -31,6 +31,7 @@ export class MnMap2dDirective extends MnMapFlavourDirective {
     d.appendChild(style);
 
     this.the_map = L.map(map.getelement()).setView(map.center, map.startzoom);
+    map.ready();
   }
 
   addLayer(layer: Layer) {

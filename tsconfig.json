@@ -70,6 +70,57 @@
       ],
       "@modalnodes/mn-geo-datasources-csv/*": [
         "dist/mn-geo-datasources-csv/*"
+      ],
+      "@ohmap/mn-geo-layers-ohm": [
+        "dist/mn-geo-layers-ohm"
+      ],
+      "mn-geo-layers-c3d": [
+        "dist/mn-geo-layers-c3d"
+      ],
+      "mn-geo-modes": [
+        "dist/mn-geo-modes"
+      ],
+      "mn-geo-modes-m2d": [
+        "dist/mn-geo-modes-m2d"
+      ],
+      "mn-geo-modes-m25d": [
+        "dist/mn-geo-modes-m25d"
+      ],
+      "mn-geo-modes-m3d": [
+        "dist/mn-geo-modes-m3d"
+      ],
+      "mn-geo-flavours": [
+        "dist/mn-geo-flavours"
+      ],
+      "mn-geo-transformers": [
+        "dist/mn-geo-transformers"
+      ],
+      "mn-geo-transformers-osm-leaflet": [
+        "dist/mn-geo-transformers-osm-leaflet"
+      ],
+      "mn-geo-flavours-leaflet": [
+        "dist/mn-geo-flavours-leaflet"
+      ],
+      "mn-geo-flavours-mapbox": [
+        "dist/mn-geo-flavours-mapbox"
+      ],
+      "mn-geo-transformers-stamen-leaflet": [
+        "dist/mn-geo-transformers-stamen-leaflet"
+      ],
+      "mn-geo-datasources-shp": [
+        "dist/mn-geo-datasources-shp"
+      ],
+      "mn-geo-datasources-firebase": [
+        "dist/mn-geo-datasources-firebase"
+      ],
+      "mn-geo-transformers-c3d-m3d-leaflet": [
+        "dist/mn-geo-transformers-c3d-m3d-leaflet"
+      ],
+      "mn-geo-transformers-leaflet": [
+        "dist/mn-geo-transformers-leaflet"
+      ],
+      "mn-geo-transformers-mapbox": [
+        "dist/mn-geo-transformers-mapbox"
       ]
     }
   }

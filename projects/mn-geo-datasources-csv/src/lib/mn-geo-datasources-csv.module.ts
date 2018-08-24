@@ -1,10 +1,18 @@
+import { CsvDatasource, CsvRemoteHttpDatasource } from './csvparser';
+import { MnGeoDatasourcesRegistryService } from '@modalnodes/mn-geo-datasources';
 import { NgModule } from '@angular/core';
-import { MnGeoDatasourcesCsvComponent } from './mn-geo-datasources-csv.component';
 
 @NgModule({
   imports: [
   ],
-  declarations: [MnGeoDatasourcesCsvComponent],
-  exports: [MnGeoDatasourcesCsvComponent]
+  declarations: [],
+  exports: []
 })
-export class MnGeoDatasourcesCsvModule { }
+export class MnGeoDatasourcesCsvModule {
+  constructor(
+    private ds: MnGeoDatasourcesRegistryService
+  ) {
+    this.ds.register('csv', CsvDatasource);
+    this.ds.register('csv+remote+http', CsvRemoteHttpDatasource);
+  }
+ }

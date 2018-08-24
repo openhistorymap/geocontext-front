@@ -69,7 +69,7 @@ export class GcxMapComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit() {
-    this.show_layers = this.map.getLayers();
+    // this.show_layers = this.map.getLayers();
   }
 
   show(event) {

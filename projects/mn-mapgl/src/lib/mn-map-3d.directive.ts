@@ -18,7 +18,7 @@ export class MnMap3dDirective extends MnMapFlavourDirective {
 
   @Input() mapboxToken = '';
 
-  the_map;
+  the_map: any;
 
   constructor(
     private _view: ViewContainerRef
@@ -39,14 +39,18 @@ export class MnMap3dDirective extends MnMapFlavourDirective {
 
     mapboxgl.accessToken = this.mapboxToken;
     this.the_map = new mapboxgl.Map({
-        container: map.getelement()
+        container: map.getelement(),
+        center: map.center,
+        zoom: map.startzoom,
+        style: 'mapbox://styles/mapbox/light-v9',
+    });
+    this.the_map.on('load', () => {
+      map.ready();
     });
   }
 
-  addLayer(layer: Layer) {
-    this.the_map.addLayer({
-      id: layer
-    });
+  addLayer(layer: any) {
+    this.the_map.addLayer(layer);
   }
   removeLayer(id: any) {}
   addDatasource(datasource: any) {

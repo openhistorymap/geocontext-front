@@ -3,16 +3,16 @@ import { tap, map, filter } from 'rxjs/operators';
 import { forkJoin, of, interval } from 'rxjs';
 
 import { Layer } from '@modalnodes/mn-geo-layers';
-import { 
-  Component, 
-  OnInit, 
-  Input, 
-  ContentChildren, 
-  ElementRef, 
-  ViewChild, 
-  AfterViewInit, 
-  QueryList, 
-  Output, 
+import {
+  Component,
+  OnInit,
+  Input,
+  ContentChildren,
+  ElementRef,
+  ViewChild,
+  AfterViewInit,
+  QueryList,
+  Output,
   EventEmitter } from '@angular/core';
 import { Datasource } from '@modalnodes/mn-geo-datasources';
 import { DatasetRegistryService } from './../dataset-registry.service';
@@ -79,7 +79,7 @@ export class MnMapComponent implements OnInit, AfterViewInit {
     })).pipe(
       filter((r, i) => {
         r.map((o, j) => {
-          this.dsRegistry.register(this.ds_temp[j].getName(), o);      
+          this.dsRegistry.register(this.ds_temp[j].getName(), o);
         });
         return true;
       })
@@ -108,6 +108,10 @@ export class MnMapComponent implements OnInit, AfterViewInit {
     this._map = this.flavour.first;
     console.log('initializing', this.flavour, this.datasources, this.layers);
     this._map.setup(this);
+
+  }
+
+  ready() {
     this.datasources.forEach((item, idx) => {
       console.log('datasource', item);
       this.addDatasource(item);

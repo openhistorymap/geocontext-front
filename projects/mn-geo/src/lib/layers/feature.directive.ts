@@ -1,8 +1,7 @@
 import { Layer } from '@modalnodes/mn-geo-layers';
 import * as L from 'leaflet';
-import { Injectable } from '@angular/core';
 
-@Injectable()
+
 export class FeatureLayer extends Layer {
   constructor() {
     super();
@@ -16,6 +15,21 @@ export class FeatureLayer extends Layer {
   }
 
   create(): any {
+    const ds = this.getConfiguration().datasource;
+    const geoJsonFeature: any = this.getDatasourceRepo().for(ds);
+
+    return {
+      id: this.getName,
+      type: 'points',
+      source: {
+        type: 'geojson',
+        data:geoJsonFeature
+      }
+    };
+  }
+
+  // laflet
+/*  create(): any {
     const ds = this.getConfiguration().datasource;
     const options = {
       onEachFeature: (feature, layer) => {
@@ -34,5 +48,5 @@ export class FeatureLayer extends Layer {
     console.log('geojson', ds, geoJsonFeature, this.getDatasourceRepo());
     const r = L.geoJSON(geoJsonFeature, options);
     return r;
-  }
+  }*/
 }

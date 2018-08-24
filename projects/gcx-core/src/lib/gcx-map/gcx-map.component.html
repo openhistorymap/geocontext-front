@@ -13,7 +13,7 @@
           <mat-icon class="example-tab-icon" title="Layers">layers</mat-icon>
         </ng-template>
         <mat-list>
-          <mat-list-item *ngFor="let layer of lyrs"> 
+          <mat-list-item *ngFor="let layer of lyrs">
             <mat-slide-toggle class="example-margin" color="primary" [checked]="layer.visible" (change)="toggleVisible(layer)">
             <gcx-legend [style]="layer.style"></gcx-legend>{{layer.name}}
             </mat-slide-toggle>
@@ -37,7 +37,7 @@
     </mat-tab-group>
   </mat-drawer>
   <mat-drawer-content>
-    <mn-map #map mn-map-2d [center]="center" [startzoom]="startzoom" [minzoom]="minzoom" [maxzoom]="maxzoom">
+    <mn-map #map mn-map-3d [center]="center" [startzoom]="startzoom" [minzoom]="minzoom" [maxzoom]="maxzoom" mapboxToken="pk.eyJ1Ijoic2lybW1vIiwiYSI6ImNpbGY4cmlrbTAwMmh3Z200eGpqcTlyZGgifQ.zLmK4VAZtCUZBpR_GCdytw">
       <mn-datasource *ngFor="let ds of dtss" [name]="ds.name" [type]="ds.type" [conf]="ds.conf"></mn-datasource>
       <mn-layer *ngFor="let l of lyrs" [name]="l.name" [type]="l.type" [datasource]="l.datasource" (layerClicked)="show($event)" >
         <mn-style *ngIf="l.style" [style]="l.style"></mn-style>

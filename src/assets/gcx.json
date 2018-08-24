@@ -17,8 +17,7 @@
     {"name": "amphitheatres", "type": "features", "datasource": "amphitheatres", "style": { "style": "leaflet", "mode": "marker", "markerType": "circle", "options": { "radius": 4, "fillColor": "#8cdf8a", "color": "#000", "weight": 1, "opacity": 1, "fillOpacity": 0.6 } } },
     {"name": "circuses",      "type": "features", "datasource": "circuses",      "style": { "style": "leaflet", "mode": "marker", "markerType": "circle", "options": { "radius": 4, "fillColor": "#ea583e", "color": "#000", "weight": 1, "opacity": 1, "fillOpacity": 0.6 } } },
     {"name": "stadiums",      "type": "features", "datasource": "stadiums",      "style": { "style": "leaflet", "mode": "marker", "markerType": "circle", "options": { "radius": 4, "fillColor": "#febccd", "color": "#000", "weight": 1, "opacity": 1, "fillOpacity": 0.6 } } },
-    {"name": "theatres",      "type": "features", "datasource": "theatres",      "style": { "style": "leaflet", "mode": "marker", "markerType": "circle", "options": { "radius": 4, "fillColor": "#9448b7", "color": "#000", "weight": 1, "opacity": 1, "fillOpacity": 0.6 } } },
-    {"name": "Terrain",       "type":"stamen-terrain"}
+    {"name": "theatres",      "type": "features", "datasource": "theatres",      "style": { "style": "leaflet", "mode": "marker", "markerType": "circle", "options": { "radius": 4, "fillColor": "#9448b7", "color": "#000", "weight": 1, "opacity": 1, "fillOpacity": 0.6 } } }
   ]
 }
 

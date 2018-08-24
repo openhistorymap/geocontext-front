@@ -4,8 +4,10 @@ import { MnRegistryService } from '@modalnodes/mn-registry';
 export interface ILayer {
     getName(): string;
     setName(name: string);
-    
+
     getType(): string;
+    getUpdateable(): boolean;
+    update(bbox: number[]|{n, e, s, w}, zoom: number, confs?: any): any;
 
     setConfiguration(conf: any);
     getConfiguration(): any;
@@ -20,6 +22,7 @@ export interface ILayer {
 
 export interface ILayerConfigurator {
     setType(type: string);
+    setUpdateable(b: boolean);
     setDatasourceRepo(repo: any);
     setRequiresDatasources(b: boolean);
     setClickable(ee: EventEmitter<any>);
@@ -29,6 +32,7 @@ export abstract class Layer implements ILayer, ILayerConfigurator {
     private _name: string;
     private _type: string;
     private _conf: any;
+    private _updateable = false;
 
 
     private _repo: MnRegistryService<any>;
@@ -56,6 +60,20 @@ export abstract class Layer implements ILayer, ILayerConfigurator {
 
     setType(type: string) {
         this._type = type;
+    }
+
+    getUpdateable() {
+      return this._updateable;
+    }
+
+    setUpdateable(updateable: boolean) {
+      this._updateable = updateable;
+    }
+
+    update(bbox: number[], zoom: number, confs?: any) {
+      if (this._updateable) {
+        throw new Error('Layer declared updateable, yet no "update" method is defined!');
+      }
     }
 
     setDatasourceRepo(repo: MnRegistryService<any>) {
