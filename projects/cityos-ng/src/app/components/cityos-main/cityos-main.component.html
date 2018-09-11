@@ -1,0 +1,12 @@
+<mn-map #map
+  mn-map-2d
+  [center]="center"
+  [startzoom]="4"
+  [minzoom]="1"
+  [maxzoom]="22">
+
+  <mn-datasource name="Points" type="geojson" [conf]="{source:dataset}"></mn-datasource>
+  <mn-layer name="Points" type="features" datasource="Points" ></mn-layer>
+  <mn-layer name="BG" type="osm-tiled"></mn-layer>
+</mn-map>
+

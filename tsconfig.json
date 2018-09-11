@@ -121,6 +121,18 @@
       ],
       "mn-geo-transformers-mapbox": [
         "dist/mn-geo-transformers-mapbox"
+      ],
+      "mn-geo-datasources-agentmap": [
+        "dist/mn-geo-datasources-agentmap"
+      ],
+      "mn-geo-transformers-agentmap-m2d-leaflet": [
+        "dist/mn-geo-transformers-agentmap-m2d-leaflet"
+      ],
+      "mn-geo-transformers-agentmap-m3d-mapbox": [
+        "dist/mn-geo-transformers-agentmap-m3d-mapbox"
+      ],
+      "mn-caching": [
+        "dist/mn-caching"
       ]
     }
   }

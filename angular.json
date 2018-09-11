@@ -1532,6 +1532,280 @@
           }
         }
       }
+    },
+    "mn-geo-datasources-agentmap": {
+      "root": "projects/mn-geo-datasources-agentmap",
+      "sourceRoot": "projects/mn-geo-datasources-agentmap/src",
+      "projectType": "library",
+      "prefix": "lib",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-ng-packagr:build",
+          "options": {
+            "tsConfig": "projects/mn-geo-datasources-agentmap/tsconfig.lib.json",
+            "project": "projects/mn-geo-datasources-agentmap/ng-package.json"
+          },
+          "configurations": {
+            "production": {
+              "project": "projects/mn-geo-datasources-agentmap/ng-package.prod.json"
+            }
+          }
+        },
+        "test": {
+          "builder": "@angular-devkit/build-angular:karma",
+          "options": {
+            "main": "projects/mn-geo-datasources-agentmap/src/test.ts",
+            "tsConfig": "projects/mn-geo-datasources-agentmap/tsconfig.spec.json",
+            "karmaConfig": "projects/mn-geo-datasources-agentmap/karma.conf.js"
+          }
+        },
+        "lint": {
+          "builder": "@angular-devkit/build-angular:tslint",
+          "options": {
+            "tsConfig": [
+              "projects/mn-geo-datasources-agentmap/tsconfig.lib.json",
+              "projects/mn-geo-datasources-agentmap/tsconfig.spec.json"
+            ],
+            "exclude": [
+              "**/node_modules/**"
+            ]
+          }
+        }
+      }
+    },
+    "mn-geo-transformers-agentmap-m2d-leaflet": {
+      "root": "projects/mn-geo-transformers-agentmap-m2d-leaflet",
+      "sourceRoot": "projects/mn-geo-transformers-agentmap-m2d-leaflet/src",
+      "projectType": "library",
+      "prefix": "lib",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-ng-packagr:build",
+          "options": {
+            "tsConfig": "projects/mn-geo-transformers-agentmap-m2d-leaflet/tsconfig.lib.json",
+            "project": "projects/mn-geo-transformers-agentmap-m2d-leaflet/ng-package.json"
+          },
+          "configurations": {
+            "production": {
+              "project": "projects/mn-geo-transformers-agentmap-m2d-leaflet/ng-package.prod.json"
+            }
+          }
+        },
+        "test": {
+          "builder": "@angular-devkit/build-angular:karma",
+          "options": {
+            "main": "projects/mn-geo-transformers-agentmap-m2d-leaflet/src/test.ts",
+            "tsConfig": "projects/mn-geo-transformers-agentmap-m2d-leaflet/tsconfig.spec.json",
+            "karmaConfig": "projects/mn-geo-transformers-agentmap-m2d-leaflet/karma.conf.js"
+          }
+        },
+        "lint": {
+          "builder": "@angular-devkit/build-angular:tslint",
+          "options": {
+            "tsConfig": [
+              "projects/mn-geo-transformers-agentmap-m2d-leaflet/tsconfig.lib.json",
+              "projects/mn-geo-transformers-agentmap-m2d-leaflet/tsconfig.spec.json"
+            ],
+            "exclude": [
+              "**/node_modules/**"
+            ]
+          }
+        }
+      }
+    },
+    "mn-geo-transformers-agentmap-m3d-mapbox": {
+      "root": "projects/mn-geo-transformers-agentmap-m3d-mapbox",
+      "sourceRoot": "projects/mn-geo-transformers-agentmap-m3d-mapbox/src",
+      "projectType": "library",
+      "prefix": "lib",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-ng-packagr:build",
+          "options": {
+            "tsConfig": "projects/mn-geo-transformers-agentmap-m3d-mapbox/tsconfig.lib.json",
+            "project": "projects/mn-geo-transformers-agentmap-m3d-mapbox/ng-package.json"
+          },
+          "configurations": {
+            "production": {
+              "project": "projects/mn-geo-transformers-agentmap-m3d-mapbox/ng-package.prod.json"
+            }
+          }
+        },
+        "test": {
+          "builder": "@angular-devkit/build-angular:karma",
+          "options": {
+            "main": "projects/mn-geo-transformers-agentmap-m3d-mapbox/src/test.ts",
+            "tsConfig": "projects/mn-geo-transformers-agentmap-m3d-mapbox/tsconfig.spec.json",
+            "karmaConfig": "projects/mn-geo-transformers-agentmap-m3d-mapbox/karma.conf.js"
+          }
+        },
+        "lint": {
+          "builder": "@angular-devkit/build-angular:tslint",
+          "options": {
+            "tsConfig": [
+              "projects/mn-geo-transformers-agentmap-m3d-mapbox/tsconfig.lib.json",
+              "projects/mn-geo-transformers-agentmap-m3d-mapbox/tsconfig.spec.json"
+            ],
+            "exclude": [
+              "**/node_modules/**"
+            ]
+          }
+        }
+      }
+    },
+    "cityos-ng": {
+      "root": "projects/cityos-ng/",
+      "sourceRoot": "projects/cityos-ng/src",
+      "projectType": "application",
+      "prefix": "app",
+      "schematics": {},
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-angular:browser",
+          "options": {
+            "outputPath": "dist/cityos-ng",
+            "index": "projects/cityos-ng/src/index.html",
+            "main": "projects/cityos-ng/src/main.ts",
+            "polyfills": "projects/cityos-ng/src/polyfills.ts",
+            "tsConfig": "projects/cityos-ng/tsconfig.app.json",
+            "assets": [
+              "projects/cityos-ng/src/favicon.ico",
+              "projects/cityos-ng/src/assets"
+            ],
+            "styles": [
+              "projects/cityos-ng/src/styles.css"
+            ],
+            "scripts": []
+          },
+          "configurations": {
+            "production": {
+              "fileReplacements": [
+                {
+                  "replace": "projects/cityos-ng/src/environments/environment.ts",
+                  "with": "projects/cityos-ng/src/environments/environment.prod.ts"
+                }
+              ],
+              "optimization": true,
+              "outputHashing": "all",
+              "sourceMap": false,
+              "extractCss": true,
+              "namedChunks": false,
+              "aot": true,
+              "extractLicenses": true,
+              "vendorChunk": false,
+              "buildOptimizer": true
+            }
+          }
+        },
+        "serve": {
+          "builder": "@angular-devkit/build-angular:dev-server",
+          "options": {
+            "browserTarget": "cityos-ng:build"
+          },
+          "configurations": {
+            "production": {
+              "browserTarget": "cityos-ng:build:production"
+            }
+          }
+        },
+        "extract-i18n": {
+          "builder": "@angular-devkit/build-angular:extract-i18n",
+          "options": {
+            "browserTarget": "cityos-ng:build"
+          }
+        },
+        "test": {
+          "builder": "@angular-devkit/build-angular:karma",
+          "options": {
+            "main": "projects/cityos-ng/src/test.ts",
+            "polyfills": "projects/cityos-ng/src/polyfills.ts",
+            "tsConfig": "projects/cityos-ng/tsconfig.spec.json",
+            "karmaConfig": "projects/cityos-ng/karma.conf.js",
+            "styles": [
+              "projects/cityos-ng/styles.css"
+            ],
+            "scripts": [],
+            "assets": [
+              "projects/cityos-ng/src/favicon.ico",
+              "projects/cityos-ng/src/assets"
+            ]
+          }
+        },
+        "lint": {
+          "builder": "@angular-devkit/build-angular:tslint",
+          "options": {
+            "tsConfig": [
+              "projects/cityos-ng/tsconfig.app.json",
+              "projects/cityos-ng/tsconfig.spec.json"
+            ],
+            "exclude": [
+              "**/node_modules/**"
+            ]
+          }
+        }
+      }
+    },
+    "cityos-ng-e2e": {
+      "root": "projects/cityos-ng-e2e/",
+      "projectType": "application",
+      "architect": {
+        "e2e": {
+          "builder": "@angular-devkit/build-angular:protractor",
+          "options": {
+            "protractorConfig": "projects/cityos-ng-e2e/protractor.conf.js",
+            "devServerTarget": "cityos-ng:serve"
+          }
+        },
+        "lint": {
+          "builder": "@angular-devkit/build-angular:tslint",
+          "options": {
+            "tsConfig": "projects/cityos-ng-e2e/tsconfig.e2e.json",
+            "exclude": [
+              "**/node_modules/**"
+            ]
+          }
+        }
+      }
+    },
+    "mn-caching": {
+      "root": "projects/mn-caching",
+      "sourceRoot": "projects/mn-caching/src",
+      "projectType": "library",
+      "prefix": "lib",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-ng-packagr:build",
+          "options": {
+            "tsConfig": "projects/mn-caching/tsconfig.lib.json",
+            "project": "projects/mn-caching/ng-package.json"
+          },
+          "configurations": {
+            "production": {
+              "project": "projects/mn-caching/ng-package.prod.json"
+            }
+          }
+        },
+        "test": {
+          "builder": "@angular-devkit/build-angular:karma",
+          "options": {
+            "main": "projects/mn-caching/src/test.ts",
+            "tsConfig": "projects/mn-caching/tsconfig.spec.json",
+            "karmaConfig": "projects/mn-caching/karma.conf.js"
+          }
+        },
+        "lint": {
+          "builder": "@angular-devkit/build-angular:tslint",
+          "options": {
+            "tsConfig": [
+              "projects/mn-caching/tsconfig.lib.json",
+              "projects/mn-caching/tsconfig.spec.json"
+            ],
+            "exclude": [
+              "**/node_modules/**"
+            ]
+          }
+        }
+      }
     }
   },
   "defaultProject": "geocontext-front"

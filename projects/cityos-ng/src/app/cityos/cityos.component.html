@@ -1,0 +1,13 @@
+<mat-sidenav-container class="example-container">
+  <mat-sidenav mode="side" opened>
+    <cos-sidebar [map]="data_map" [mode]="mode" [items]="data_map_locs"></cos-sidebar>
+  </mat-sidenav>
+  <mat-sidenav-content>
+    <cos-main
+      [minzoom]="2"
+      [maxzoom]="22"
+      [startzoom]="data_map.zoom"
+      [center]="[0,0]"
+      [fbitems]="data_map_locs"></cos-main>
+  </mat-sidenav-content>
+</mat-sidenav-container>

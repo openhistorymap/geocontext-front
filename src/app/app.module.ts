@@ -6,11 +6,13 @@ import { HttpClientModule } from '@angular/common/http';
 
 import { AppComponent } from './app.component';
 import { MnGeoModule } from '@modalnodes/mn-geo';
+import { CityosSidebarComponent } from './cityos-sidebar/cityos-sidebar.component';
 
 
 @NgModule({
   declarations: [
     AppComponent,
+    CityosSidebarComponent,
   ],
   imports: [
     BrowserModule,

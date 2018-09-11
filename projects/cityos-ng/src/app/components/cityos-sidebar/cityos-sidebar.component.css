@@ -1,0 +1,8 @@
+.sn-viewport-out {
+    visibility:hidden;
+  }
+
+ .sn-viewport-in {
+   visibility: visible;
+    transform: translateY(0);
+  }

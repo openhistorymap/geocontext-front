@@ -57,7 +57,7 @@ export abstract class Datasource implements IDatasource, IDatasourceSetter {
     isReady() {
         return this._ready;
     }
-    
+
     setup(setup: any) {}
 
 }
@@ -65,7 +65,7 @@ export abstract class Datasource implements IDatasource, IDatasourceSetter {
 @Injectable()
 export abstract class RemoteHttpDatasource extends Datasource {
     private http: HttpClient;
-    
+
     setup(setup: any) {
         for (const k in Object.keys(setup)) {
             if (setup.hasOwnProperty(Object.keys(setup)[k])) {

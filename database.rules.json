@@ -1,0 +1,28 @@
+{
+  "rules": {
+    ".read": true,
+    ".write": true,
+    "locations": {
+      ".indexOn": [
+        "slug",
+        "id",
+        "mapping_space",
+        "name"
+      ]
+    },
+    "mappingspaces": {
+      ".indexOn": [
+        "slug",
+        "id",
+        "name"
+      ]
+    },
+    "mappers": {
+      ".indexOn": [
+        "username",
+        "user",
+        "id"
+      ]
+    }
+  }
+}

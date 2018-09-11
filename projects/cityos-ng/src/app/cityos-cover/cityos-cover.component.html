@@ -1,0 +1,21 @@
+<mat-grid-list cols="3" rowHeight="3:1">
+  <mat-grid-tile *ngFor="let m of measures">
+    <mat-grid-tile-header>{{m.name}}</mat-grid-tile-header>
+    <h4>{{m.value}}</h4>
+  </mat-grid-tile>
+</mat-grid-list>
+
+<mat-grid-list cols="4" rowHeight="1:1">
+  <mat-grid-tile *ngFor="let ms of cityos.mappingspaces|async">
+    <mat-grid-tile-header>
+      <h1>{{ms.name}}</h1>
+    </mat-grid-tile-header>
+
+    <mat-grid-tile-footer>
+      <a mat-button [routerLink]="['/', ms.slug ]">Vai</a>
+    </mat-grid-tile-footer>
+    <mn-map mn-map-2d [center]='[0,0]' [minzoom]='4' [maxzoom]='4' [startzoom]='4'>
+      <mn-layer name='bg' type='osm-tiled'></mn-layer>
+    </mn-map>
+  </mat-grid-tile>
+</mat-grid-list>
