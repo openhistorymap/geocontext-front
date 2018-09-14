@@ -1806,6 +1806,46 @@
           }
         }
       }
+    },
+    "mn-lazy": {
+      "root": "projects/mn-lazy",
+      "sourceRoot": "projects/mn-lazy/src",
+      "projectType": "library",
+      "prefix": "lib",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-ng-packagr:build",
+          "options": {
+            "tsConfig": "projects/mn-lazy/tsconfig.lib.json",
+            "project": "projects/mn-lazy/ng-package.json"
+          },
+          "configurations": {
+            "production": {
+              "project": "projects/mn-lazy/ng-package.prod.json"
+            }
+          }
+        },
+        "test": {
+          "builder": "@angular-devkit/build-angular:karma",
+          "options": {
+            "main": "projects/mn-lazy/src/test.ts",
+            "tsConfig": "projects/mn-lazy/tsconfig.spec.json",
+            "karmaConfig": "projects/mn-lazy/karma.conf.js"
+          }
+        },
+        "lint": {
+          "builder": "@angular-devkit/build-angular:tslint",
+          "options": {
+            "tsConfig": [
+              "projects/mn-lazy/tsconfig.lib.json",
+              "projects/mn-lazy/tsconfig.spec.json"
+            ],
+            "exclude": [
+              "**/node_modules/**"
+            ]
+          }
+        }
+      }
     }
   },
   "defaultProject": "geocontext-front"

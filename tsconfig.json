@@ -74,65 +74,68 @@
       "@ohmap/mn-geo-layers-ohm": [
         "dist/mn-geo-layers-ohm"
       ],
-      "mn-geo-layers-c3d": [
+      "@modalnodes/mn-geo-layers-c3d": [
         "dist/mn-geo-layers-c3d"
       ],
-      "mn-geo-modes": [
+      "@modalnodes/mn-geo-modes": [
         "dist/mn-geo-modes"
       ],
-      "mn-geo-modes-m2d": [
+      "@modalnodes/mn-geo-modes-m2d": [
         "dist/mn-geo-modes-m2d"
       ],
-      "mn-geo-modes-m25d": [
+      "@modalnodes/mn-geo-modes-m25d": [
         "dist/mn-geo-modes-m25d"
       ],
-      "mn-geo-modes-m3d": [
+      "@modalnodes/mn-geo-modes-m3d": [
         "dist/mn-geo-modes-m3d"
       ],
-      "mn-geo-flavours": [
+      "@modalnodes/mn-geo-flavours": [
         "dist/mn-geo-flavours"
       ],
-      "mn-geo-transformers": [
+      "@modalnodes/mn-geo-transformers": [
         "dist/mn-geo-transformers"
       ],
-      "mn-geo-transformers-osm-leaflet": [
+      "@modalnodes/mn-geo-transformers-osm-leaflet": [
         "dist/mn-geo-transformers-osm-leaflet"
       ],
-      "mn-geo-flavours-leaflet": [
+      "@modalnodes/mn-geo-flavours-leaflet": [
         "dist/mn-geo-flavours-leaflet"
       ],
-      "mn-geo-flavours-mapbox": [
+      "@modalnodes/mn-geo-flavours-mapbox": [
         "dist/mn-geo-flavours-mapbox"
       ],
-      "mn-geo-transformers-stamen-leaflet": [
+      "@modalnodes/mn-geo-transformers-stamen-leaflet": [
         "dist/mn-geo-transformers-stamen-leaflet"
       ],
-      "mn-geo-datasources-shp": [
+      "@modalnodes/mn-geo-datasources-shp": [
         "dist/mn-geo-datasources-shp"
       ],
-      "mn-geo-datasources-firebase": [
+      "@modalnodes/mn-geo-datasources-firebase": [
         "dist/mn-geo-datasources-firebase"
       ],
-      "mn-geo-transformers-c3d-m3d-leaflet": [
+      "@modalnodes/mn-geo-transformers-c3d-m3d-leaflet": [
         "dist/mn-geo-transformers-c3d-m3d-leaflet"
       ],
-      "mn-geo-transformers-leaflet": [
+      "@modalnodes/mn-geo-transformers-leaflet": [
         "dist/mn-geo-transformers-leaflet"
       ],
-      "mn-geo-transformers-mapbox": [
+      "@modalnodes/mn-geo-transformers-mapbox": [
         "dist/mn-geo-transformers-mapbox"
       ],
-      "mn-geo-datasources-agentmap": [
+      "@modalnodes/mn-geo-datasources-agentmap": [
         "dist/mn-geo-datasources-agentmap"
       ],
-      "mn-geo-transformers-agentmap-m2d-leaflet": [
+      "@modalnodes/mn-geo-transformers-agentmap-m2d-leaflet": [
         "dist/mn-geo-transformers-agentmap-m2d-leaflet"
       ],
-      "mn-geo-transformers-agentmap-m3d-mapbox": [
+      "@modalnodes/mn-geo-transformers-agentmap-m3d-mapbox": [
         "dist/mn-geo-transformers-agentmap-m3d-mapbox"
       ],
-      "mn-caching": [
+      "@modalnodes/mn-caching": [
         "dist/mn-caching"
+      ],
+      "@modalnodes/mn-lazy": [
+        "dist/mn-lazy"
       ]
     }
   }

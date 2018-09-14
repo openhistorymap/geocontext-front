@@ -1,6 +1,13 @@
-#cp .npmrc.template $HOME/.npmrc
+#! /bin/env /bin/bash
+PROJECTS = jq '.compilerOptions.paths[][]' ./tsconfig.json | grep -v "*"
+cp .npmrc.template $HOME/.npmrc
 
 # npm run compodoc
+
+for p in $PROJECTS;
+do
+  ng build $p --prod;
+done
 
 #ng build mn-geo                      #&& cd dist/mn-geo               && npm publish --access public && cd ../..
 #ng build mn-geo-layers --prod        #&& cd dist/mn-geo-layers            && npm publish --access public && cd ../..
