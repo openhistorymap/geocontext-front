@@ -19,7 +19,8 @@ import { DatasetRegistryService } from './../dataset-registry.service';
 import { MnLayerComponent } from '../mn-layer/mn-layer.component';
 import { MnMapFlavourDirective } from '../mn-map-flavour.directive';
 import { MnDatasourceComponent } from '../mn-datasource/mn-datasource.component';
-import { MnGeoDatasourcesRegistryService } from '@modalnodes/mn-geo-datasources';
+import { DatasourcesmanagerService } from '@modalnodes/mn-geo-datasources';
+import { LayersmanagerService } from '@modalnodes/mn-geo-layers';
 
 @Component({
   selector: 'mn-map',
@@ -29,8 +30,9 @@ import { MnGeoDatasourcesRegistryService } from '@modalnodes/mn-geo-datasources'
 export class MnMapComponent implements OnInit, AfterViewInit {
 
   constructor(
-    private dsreg: MnGeoDatasourcesRegistryService,
-    private dsRegistry: DatasetRegistryService
+    private dsRegistry: DatasetRegistryService,
+    private dsMgr: DatasourcesmanagerService,
+    private lyrMgr: LayersmanagerService
   ) { }
 
   @Input() public center;
@@ -56,85 +58,25 @@ export class MnMapComponent implements OnInit, AfterViewInit {
   @ContentChildren(MnDatasourceComponent) datasources = new QueryList<MnDatasourceComponent>();
   @ContentChildren(MnLayerComponent) layers = new QueryList<MnLayerComponent>();
 
-  ds_temp = [];
-
-  lyrs = [];
-
   ngOnInit() {
+    this.dsMgr.setLayermanager(this.lyrMgr);
+    this.lyrMgr.setDatasourcemanager(this.dsMgr);
   }
 
-
-  addDatasource(item) {
-    const dd = this.dsreg.for(item.type);
-    const da = dd as Datasource;
-    console.log('datasource', da);
-    da.setName(item.name);
-    da.setConf(item.conf);
-    this.ds_temp.push(da);
-  }
-
-  fetchDatasources() {
-    return forkJoin(...this.ds_temp.map(x => {
-      return x.fetchData();
-    })).pipe(
-      filter((r, i) => {
-        r.map((o, j) => {
-          this.dsRegistry.register(this.ds_temp[j].getName(), o);
-        });
-        return true;
-      })
-    );
-  }
-
-  addLayerWithoutDatasources(item) {
-    const lyr: Layer = item.layer;
-    this.lyrs.push(lyr);
-    lyr.setConfiguration(item);
-    const flyr = lyr.create();
-    this.flavour.first.addLayer(flyr);
-  }
-
-  addLayer(item) {
-    const lyr: Layer = item.layer;
-    this.lyrs.push(lyr);
-    lyr.setConfiguration(item.conf);
-    if (lyr.getRequiresDatasources()) {
-      lyr.setDatasourceRepo(this.dsRegistry);
-    }
-    const flyr = lyr.create();
-    this.flavour.first.addLayer(flyr);
-  }
   ngAfterViewInit() {
     this._map = this.flavour.first;
-    console.log('initializing', this.flavour, this.datasources, this.layers);
+    this.lyrMgr.setFlavour(this._map);
     this._map.setup(this);
-
   }
 
   ready() {
-    this.datasources.forEach((item, idx) => {
-      console.log('datasource', item);
-      this.addDatasource(item);
+    this.layers.forEach(x => {
+      this.lyrMgr.addLayer(x);
     });
-    this.layers.forEach(item => {
-      console.log('adding layers without datasources');
-      if (!item.layer.getRequiresDatasources()) {
-        console.log('adding', item);
-        this.addLayerWithoutDatasources(item);
-      }
-      console.log('done adding layers without datasources');
+    this.datasources.forEach(x => {
+      this.dsMgr.addDatasource(x);
     });
-    this.fetchDatasources().subscribe(res => {
-      console.log('figa', res, this.dsRegistry);
-      this.layers.forEach(item => {
-        console.log('adding layers with datasources');
-        if (item.layer.getRequiresDatasources()) {
-          console.log('adding', item);
-          this.addLayer(item);
-        }
-        console.log('done adding layers with datasources');
-      });
-    });
+    this.lyrMgr.displayLayers();
   }
 
   getelement(): HTMLElement {
@@ -146,7 +88,7 @@ export class MnMapComponent implements OnInit, AfterViewInit {
   }
 
   getLayers() {
-    return this.lyrs;
+    return this.lyrMgr.getLayers();
   }
 
   toggleVisibility(layer) {

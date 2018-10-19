@@ -7,17 +7,78 @@
   "startzoom": 5,
   "maxzoom": 20,
 
+  "search": true,
+
   "datasources": [
-    {"name": "amphitheatres", "type": "geojson+http+remote", "conf": { "source": "/assets/datasets/amphitheatres.geojson"}},
-    {"name": "circuses", "type": "geojson+http+remote", "conf": { "source": "/assets/datasets/circuses.geojson"}},
-    {"name": "stadiums", "type": "geojson+http+remote", "conf": { "source": "/assets/datasets/stadiums.geojson"}},
-    {"name": "theatres", "type": "geojson+http+remote", "conf": { "source": "/assets/datasets/theatres.geojson"}}
+    {"name": "amphitheatres", "type": "geojson+http+remote", "conf": { "source": "/assets/datasets/amphitheatres.geojson", "structure":[
+      {"column":"name", "type":"string", "tags":["gcx:title", "gcx:search"]},
+      {"column":"City", "type":"string", "tags":[]},
+      {"column":"country", "type":"category", "tags":["gcx:search"]},
+      {"column":"city", "type":"string", "tags":[]},
+      {"column":"located", "type":"boolean", "tags":[]}
+    ]}},
+    {"name": "circuses", "type": "geojson+http+remote", "conf": { "source": "/assets/datasets/circuses.geojson", "structure":[
+      {"column":"Name",       "type":"string", "tags":["gcx:title", "gcx:search"]},
+      {"column":"Located",    "type":"boolean", "tags":[]},
+      {"column":"Visible",    "type":"boolean", "tags":[]},
+      {"column":"ModernCity", "type":"string", "tags":[]},
+      {"column":"Country",    "type":"category", "tags":[]},
+      {"column":"overall wd", "type":"number", "tags":[]},
+      {"column":"overall lg", "type":"number", "tags":[]},
+      {"column":"track wd",   "type":"number", "tags":[]},
+      {"column":"track lg",   "type":"number", "tags":[]},
+      {"column":"capacity",   "type":"number", "tags":[]},
+      {"column":"palatial",   "type":"boolean", "tags":[]},
+      {"column":"distance",   "type":"string", "tags":[]},
+      {"column":"const.ann",  "type":"date", "tags":[]},
+      {"column":"const.cen.", "type":"date", "tags":[]}
+    ]}},
+    {"name": "stadiums", "type": "geojson+http+remote", "conf": { "source": "/assets/datasets/stadiums.geojson", "structure":[
+      {"column":"name", "type":"string", "tags":["gcx:title", "gcx:search"]},
+      {"column":"City", "type":"string", "tags":[]},
+      {"column":"country", "type":"category", "tags":["gcx:search"]},
+      {"column":"city", "type":"string", "tags":[]},
+      {"column":"located", "type":"boolean", "tags":[]}
+    ]}},
+    {"name": "theatres", "type": "geojson+http+remote", "conf": { "source": "/assets/datasets/theatres.geojson", "structure":[
+      {"column":"name",    "type":"string", "tags":["gcx:title", "gcx:search"]},
+      {"column":"city",    "type":"string", "tags":["gcx:search"]},
+      {"column":"country", "type":"string", "tags":[]},
+      {"column":"located", "type":"string", "tags":[]},
+      {"column":"visible", "type":"string", "tags":[]}
+    ]}},
+    {"name": "decarch", "type": "csv+http+remote", "conf": { "source": "/assets/datasets/decharch.csv", "structure":[
+      {"column":"categoria edifici",    "type":"category",  "tags": ["gcx:search"]},
+      {"column":"pertinenza edificio",  "type":"category",  "tags": ["gcx:search"]},
+      {"column":"parte di edificio",    "type":"category",  "tags": ["gcx:search"]},
+      {"column":"latitudine",           "type":"number",    "tags": ["gcx:lat"]},
+      {"column":"longitudine",          "type":"number",    "tags": ["gcx:lon"]},
+      {"column":"media",                "type":"url",       "tags": ["gcx:img"]},
+      {"column":"nome",                 "type":"string",    "tags": ["gcx:title", "gcx:search"]}
+    ]}},
+    {"name":"IT", "type":"csv+http+remote", "conf":{"source":"/assets/datasets/IT.txt", "structure":[
+      {"column": "country code", "type": "string", "tags":[]},
+      {"column": "postal code", "type": "string", "tags":[]},
+      {"column": "place name", "type": "string", "tags":[]},
+      {"column": "admin name1", "type": "string", "tags":[]},
+      {"column": "admin code1", "type": "string", "tags":[]},
+      {"column": "admin name2", "type": "string", "tags":[]},
+      {"column": "admin code2", "type": "string", "tags":[]},
+      {"column": "admin name3", "type": "string", "tags":[]},
+      {"column": "admin code3", "type": "string", "tags":[]},
+      {"column": "latitude", "type": "number", "tags":["gcx:lat"]},
+      {"column": "longitude", "type": "number", "tags":["gcx:lon"]},
+      {"column": "accuracy", "type": "string", "tags":[]}
+    ]}}
   ],
+
   "layers": [
-    {"name": "amphitheatres", "type": "features", "datasource": "amphitheatres", "style": { "style": "leaflet", "mode": "marker", "markerType": "circle", "options": { "radius": 4, "fillColor": "#8cdf8a", "color": "#000", "weight": 1, "opacity": 1, "fillOpacity": 0.6 } } },
-    {"name": "circuses",      "type": "features", "datasource": "circuses",      "style": { "style": "leaflet", "mode": "marker", "markerType": "circle", "options": { "radius": 4, "fillColor": "#ea583e", "color": "#000", "weight": 1, "opacity": 1, "fillOpacity": 0.6 } } },
-    {"name": "stadiums",      "type": "features", "datasource": "stadiums",      "style": { "style": "leaflet", "mode": "marker", "markerType": "circle", "options": { "radius": 4, "fillColor": "#febccd", "color": "#000", "weight": 1, "opacity": 1, "fillOpacity": 0.6 } } },
-    {"name": "theatres",      "type": "features", "datasource": "theatres",      "style": { "style": "leaflet", "mode": "marker", "markerType": "circle", "options": { "radius": 4, "fillColor": "#9448b7", "color": "#000", "weight": 1, "opacity": 1, "fillOpacity": 0.6 } } }
+    {"name": "IT",            "type": "features",       "datasource": "IT",             "style": { "style": "leaflet", "mode": "marker", "markerType": "circle", "options": { "radius": 4, "fillColor": "#009992", "color": "#000", "weight": 1, "opacity": 1, "fillOpacity": 0.6 } } },
+    {"name": "amphitheatres", "type": "features",       "datasource": "amphitheatres",  "style": { "style": "leaflet", "mode": "marker", "markerType": "circle", "options": { "radius": 4, "fillColor": "#8cdf8a", "color": "#000", "weight": 1, "opacity": 1, "fillOpacity": 0.6 } } },
+    {"name": "circuses",      "type": "features",       "datasource": "circuses",       "style": { "style": "leaflet", "mode": "marker", "markerType": "circle", "options": { "radius": 4, "fillColor": "#ea583e", "color": "#000", "weight": 1, "opacity": 1, "fillOpacity": 0.6 } } },
+    {"name": "stadiums",      "type": "features",       "datasource": "stadiums",       "style": { "style": "leaflet", "mode": "marker", "markerType": "circle", "options": { "radius": 4, "fillColor": "#febccd", "color": "#000", "weight": 1, "opacity": 1, "fillOpacity": 0.6 } } },
+    {"name": "theatres",      "type": "features",       "datasource": "theatres",       "style": { "style": "leaflet", "mode": "marker", "markerType": "circle", "options": { "radius": 4, "fillColor": "#9448b7", "color": "#000", "weight": 1, "opacity": 1, "fillOpacity": 0.6 } } },
+    {"name": "decarch",       "type": "features",       "datasource": "decarch",        "style": { "style": "leaflet", "mode": "marker", "markerType": "circle", "options": { "radius": 4, "fillColor": "#099092", "color": "#000", "weight": 1, "opacity": 1, "fillOpacity": 0.6 } } },
+    {"name": "Terrain",       "type": "stamen-terrain"}
   ]
 }
-

@@ -1,3 +1,4 @@
+import { DatasourcesmanagerService } from '@modalnodes/mn-geo-datasources';
 import { EventEmitter } from '@angular/core';
 import { MnRegistryService } from '@modalnodes/mn-registry';
 
@@ -14,7 +15,7 @@ export interface ILayer {
 
     create(): any;
 
-    getDatasourceRepo(): MnRegistryService<any>;
+    getDatasourceManager(): DatasourcesmanagerService;
     getRequiresDatasources(): boolean;
 
     featureClicked(feat: any);
@@ -23,7 +24,7 @@ export interface ILayer {
 export interface ILayerConfigurator {
     setType(type: string);
     setUpdateable(b: boolean);
-    setDatasourceRepo(repo: any);
+    setDatasourceManager(repo: any);
     setRequiresDatasources(b: boolean);
     setClickable(ee: EventEmitter<any>);
 }
@@ -35,7 +36,7 @@ export abstract class Layer implements ILayer, ILayerConfigurator {
     private _updateable = false;
 
 
-    private _repo: MnRegistryService<any>;
+    private _repo: DatasourcesmanagerService;
     private _requiresDS: boolean;
 
     private _ee: EventEmitter<any>;
@@ -76,10 +77,10 @@ export abstract class Layer implements ILayer, ILayerConfigurator {
       }
     }
 
-    setDatasourceRepo(repo: MnRegistryService<any>) {
+    setDatasourceManager(repo: any) {
         this._repo = repo;
     }
-    getDatasourceRepo(): MnRegistryService<any> {
+    getDatasourceManager(): DatasourcesmanagerService {
         return this._repo;
     }
 

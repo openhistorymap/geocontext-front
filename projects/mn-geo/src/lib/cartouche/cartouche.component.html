@@ -1,0 +1,7 @@
+<h2>{{items('gcx:title','')}}</h2>
+<table>
+  <tr *ngFor="let k of getKeys(item.properties)">
+    <th align="right">{{k}}</th>
+    <td>{{item?.properties[k]}}</td>
+  </tr>
+</table>

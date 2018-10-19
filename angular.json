@@ -1846,6 +1846,126 @@
           }
         }
       }
+    },
+    "mn-filesize": {
+      "root": "projects/mn-filesize",
+      "sourceRoot": "projects/mn-filesize/src",
+      "projectType": "library",
+      "prefix": "lib",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-ng-packagr:build",
+          "options": {
+            "tsConfig": "projects/mn-filesize/tsconfig.lib.json",
+            "project": "projects/mn-filesize/ng-package.json"
+          },
+          "configurations": {
+            "production": {
+              "project": "projects/mn-filesize/ng-package.prod.json"
+            }
+          }
+        },
+        "test": {
+          "builder": "@angular-devkit/build-angular:karma",
+          "options": {
+            "main": "projects/mn-filesize/src/test.ts",
+            "tsConfig": "projects/mn-filesize/tsconfig.spec.json",
+            "karmaConfig": "projects/mn-filesize/karma.conf.js"
+          }
+        },
+        "lint": {
+          "builder": "@angular-devkit/build-angular:tslint",
+          "options": {
+            "tsConfig": [
+              "projects/mn-filesize/tsconfig.lib.json",
+              "projects/mn-filesize/tsconfig.spec.json"
+            ],
+            "exclude": [
+              "**/node_modules/**"
+            ]
+          }
+        }
+      }
+    },
+    "mn-geo-layers-components": {
+      "root": "projects/mn-geo-layers-components",
+      "sourceRoot": "projects/mn-geo-layers-components/src",
+      "projectType": "library",
+      "prefix": "lib",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-ng-packagr:build",
+          "options": {
+            "tsConfig": "projects/mn-geo-layers-components/tsconfig.lib.json",
+            "project": "projects/mn-geo-layers-components/ng-package.json"
+          },
+          "configurations": {
+            "production": {
+              "project": "projects/mn-geo-layers-components/ng-package.prod.json"
+            }
+          }
+        },
+        "test": {
+          "builder": "@angular-devkit/build-angular:karma",
+          "options": {
+            "main": "projects/mn-geo-layers-components/src/test.ts",
+            "tsConfig": "projects/mn-geo-layers-components/tsconfig.spec.json",
+            "karmaConfig": "projects/mn-geo-layers-components/karma.conf.js"
+          }
+        },
+        "lint": {
+          "builder": "@angular-devkit/build-angular:tslint",
+          "options": {
+            "tsConfig": [
+              "projects/mn-geo-layers-components/tsconfig.lib.json",
+              "projects/mn-geo-layers-components/tsconfig.spec.json"
+            ],
+            "exclude": [
+              "**/node_modules/**"
+            ]
+          }
+        }
+      }
+    },
+    "mn-geo-datasources-components": {
+      "root": "projects/mn-geo-datasources-components",
+      "sourceRoot": "projects/mn-geo-datasources-components/src",
+      "projectType": "library",
+      "prefix": "lib",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-ng-packagr:build",
+          "options": {
+            "tsConfig": "projects/mn-geo-datasources-components/tsconfig.lib.json",
+            "project": "projects/mn-geo-datasources-components/ng-package.json"
+          },
+          "configurations": {
+            "production": {
+              "project": "projects/mn-geo-datasources-components/ng-package.prod.json"
+            }
+          }
+        },
+        "test": {
+          "builder": "@angular-devkit/build-angular:karma",
+          "options": {
+            "main": "projects/mn-geo-datasources-components/src/test.ts",
+            "tsConfig": "projects/mn-geo-datasources-components/tsconfig.spec.json",
+            "karmaConfig": "projects/mn-geo-datasources-components/karma.conf.js"
+          }
+        },
+        "lint": {
+          "builder": "@angular-devkit/build-angular:tslint",
+          "options": {
+            "tsConfig": [
+              "projects/mn-geo-datasources-components/tsconfig.lib.json",
+              "projects/mn-geo-datasources-components/tsconfig.spec.json"
+            ],
+            "exclude": [
+              "**/node_modules/**"
+            ]
+          }
+        }
+      }
     }
   },
   "defaultProject": "geocontext-front"

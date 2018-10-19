@@ -64,7 +64,7 @@ export abstract class Datasource implements IDatasource, IDatasourceSetter {
 
 @Injectable()
 export abstract class RemoteHttpDatasource extends Datasource {
-    private http: HttpClient;
+    protected http: HttpClient;
 
     setup(setup: any) {
         for (const k in Object.keys(setup)) {

@@ -13,7 +13,7 @@ export class FeatureLayer extends Layer {
       this.featureClicked(feat);
     };
   }
-
+/*
   create(): any {
     const ds = this.getConfiguration().datasource;
     const geoJsonFeature: any = this.getDatasourceRepo().for(ds);
@@ -27,9 +27,9 @@ export class FeatureLayer extends Layer {
       }
     };
   }
-
+*/
   // laflet
-/*  create(): any {
+  create(): any {
     const ds = this.getConfiguration().datasource;
     const options = {
       onEachFeature: (feature, layer) => {
@@ -44,9 +44,8 @@ export class FeatureLayer extends Layer {
         return L.circleMarker(latlng, geojsonMarkerOptions);
       };
     }
-    const geoJsonFeature: any = this.getDatasourceRepo().for(ds);
-    console.log('geojson', ds, geoJsonFeature, this.getDatasourceRepo());
+    const geoJsonFeature: any = this.getDatasourceManager().getDatasource(ds);
     const r = L.geoJSON(geoJsonFeature, options);
     return r;
-  }*/
+  }
 }

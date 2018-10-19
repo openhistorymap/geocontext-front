@@ -18,8 +18,7 @@ import { CityosSidebarComponent } from './cityos-sidebar/cityos-sidebar.componen
     BrowserModule,
     HttpClientModule,
     GcxCoreModule,
-    ChcxStaticModule
-    ,
+    ChcxStaticModule,
     MnGeoModule,
   ],
   providers: [],

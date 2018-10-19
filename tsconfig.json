@@ -136,6 +136,15 @@
       ],
       "@modalnodes/mn-lazy": [
         "dist/mn-lazy"
+      ],
+      "mn-filesize": [
+        "dist/mn-filesize"
+      ],
+      "mn-geo-layers-components": [
+        "dist/mn-geo-layers-components"
+      ],
+      "mn-geo-datasources-components": [
+        "dist/mn-geo-datasources-components"
       ]
     }
   }
