@@ -55,7 +55,7 @@ export class GcxMapComponent implements OnInit, AfterViewInit {
 
   toggleVisible(layer) {
     layer.visible = !layer.visible;
-    this.map.toggleVisibility(layer);
+    // this.map.toggleVisibility(layer);
   }
 
   setup(center, startzoom, minzoom, maxzoom, layers) {

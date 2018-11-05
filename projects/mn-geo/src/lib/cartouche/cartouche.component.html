@@ -1,7 +1,8 @@
 <h2>{{items('gcx:title','')}}</h2>
-<table>
-  <tr *ngFor="let k of getKeys(item.properties)">
+<a [href]="items('gcx:media','')" target="_blank"><img [src]="items('gcx:media','')" width="310"></a>
+<table *ngIf="item">
+  <tr *ngFor="let k of getKeys(['gcx:title', 'gcx:media', 'gcx:geo'])">
     <th align="right">{{k}}</th>
-    <td>{{item?.properties[k]}}</td>
+    <td><span class="category" *ngFor="let p of properties[k]|typed">{{p}}</span></td>
   </tr>
 </table>

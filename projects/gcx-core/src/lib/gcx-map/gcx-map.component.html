@@ -19,18 +19,7 @@
         </ng-template>
         <mn-layerswitcher [map]="map">
           <ng-template let-layer>
-            <mat-accordion>
-              <mat-expansion-panel [disabled]="layer.visible">
-                <mat-expansion-panel-header>
-                  <mat-panel-title>
-                    <mat-slide-toggle class="example-margin" color="primary" [checked]="layer.visible" (change)="toggleVisible(layer)">
-                      <gcx-legend [style]="layer.style"></gcx-legend>{{layer.name}}
-                    </mat-slide-toggle>
-                  </mat-panel-title>
-                </mat-expansion-panel-header>
-                <mn-datasourcefilter [map]="map" [layer]="layer"></mn-datasourcefilter>
-              </mat-expansion-panel>
-            </mat-accordion>
+            <mat-slide-toggle class="example-margin" color="primary" [checked]="layer.visible" (change)="toggleVisible(layer)"></mat-slide-toggle><gcx-legend [style]="layer.style"></gcx-legend>{{layer.name}}
           </ng-template>
         </mn-layerswitcher>
       </mat-tab>
@@ -39,7 +28,7 @@
           <mat-icon class="example-tab-icon" title="Info">place</mat-icon>
         </ng-template>
         <div style="margin:10px; max-width: 310px;">
-          <mn-cartouche *ngIf="selected_item" [item]="selected_item.properties" [conf]="selected_item.conf"></mn-cartouche>
+          <mn-cartouche *ngIf="selected_item" [item]="selected_item" [properties]="selected_item.properties" [conf]="selected_item.conf"></mn-cartouche>
         </div>
       </mat-tab>
     </mat-tab-group>

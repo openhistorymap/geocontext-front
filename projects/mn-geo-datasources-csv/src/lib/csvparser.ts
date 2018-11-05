@@ -2,7 +2,6 @@ import { Datasource, RemoteHttpDatasource } from '@modalnodes/mn-geo-datasources
 import { Papa } from 'ngx-papaparse';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import * as turf from '@turf/turf';
 
 export class CsvDatasource extends Datasource {
   prepareData(data: any) {
@@ -25,7 +24,7 @@ export class CsvDatasource extends Datasource {
       })
     };
     console.log('ret', ret);
-    return turf.voronoi(ret, {bbox:bbox(ret)});
+    return ret;
   }
 
 }
@@ -70,6 +69,6 @@ export class CsvRemoteHttpDatasource extends RemoteHttpDatasource {
       })
     };
     console.log('ret', ret);
-    return voronoi(ret, bbox(ret));
+    return ret;
   }
 }

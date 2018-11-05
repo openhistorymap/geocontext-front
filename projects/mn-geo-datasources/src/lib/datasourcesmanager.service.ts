@@ -35,9 +35,8 @@ export class DatasourcesmanagerService {
   }
 
   fetchDatasources(): Observable<any> {
-    return forkJoin(...this.ds_temp.map(x => {
-      x.fetchData();
-      return x.prepareData();
+    return forkJoin(...this.ds_temp.map((x: Datasource) => {
+      return x.fetchData();
     })).pipe(
       tap((r) => {
         r.map((o, j) => {

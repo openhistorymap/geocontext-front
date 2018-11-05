@@ -1,41 +1,247 @@
-categoria edifici	pertinenza edificio	parte di edificio	latitudine	longitudine	media	nome	Stato
-moschea	Damasco	capitello	33.51267	36.30547	https://upload.wikimedia.org/wikipedia/commons/0/07/Damasco._Propilei_della_Grande_Moschea_-_DecArch_-_2-57.jpg	Grande Moschea degli Ommayadi	Siria
-teatro	Palmira	trabeazione	34.5508	38.2634	https://upload.wikimedia.org/wikipedia/commons/b/b7/Palmira._Teatro._Trab._I_Ordine_-_DecArch_-_1-125.jpg	Teatro di Palmira	Siria
-chiesa	Aleppo	capitello	36.3342	36.8385	https://commons.wikimedia.org/wiki/File:Santuario_di_S._Simeone_-_DecArch_-_2-249.jpg	Santuario di S. Simeone	Siria
-arco	Palmira	capitello, base, cornice	34.5513	38.2656	https://upload.wikimedia.org/wikipedia/commons/d/d8/Palmira._Arco_monumentale%2C_facciata_verso_tetrapilo_front._later_-_DecArch_-_1-83.jpg	Arco Monumentale	Siria
-castrum	Palmira	capitello	34.5548	38.2556	https://upload.wikimedia.org/wikipedia/commons/b/b3/Palmira._Campo_di_Diocleziano%2C_pretorio%2C_corte_antistante_-_DecArch_-_1-209.jpg	Campo di Diocleziano	Siria
-ninfeo	Palmira	capitello	34.5505	38.2687	https://upload.wikimedia.org/wikipedia/commons/5/50/Palmira._Ninfeo_-_DecArch_-_1-33.jpg	Ninfeo di Palmira	Siria
-via colonnata	Apamea	capitello, architrave	35.418	36.3926	https://upload.wikimedia.org/wikipedia/commons/d/de/Apamea_-_DecArch_-_2-102.jpg	Via Colonnata di Apamea	Siria
-via colonnata	Apamea	colonna, mensola	35.418	36.3926	https://upload.wikimedia.org/wikipedia/commons/6/61/Apamea_-_DecArch_-_2-103.jpg	Via Colonnata di Apamea	Siria
-via colonnata	Apamea	capitello, colonna, architrave	35.418	36.3926	https://upload.wikimedia.org/wikipedia/commons/1/1b/Apamea_-_DecArch_-_2-104.jpg	Via Colonnata di Apamea	Siria
-cortile colonnato	Apamea	mensola	35.418	36.3926	https://upload.wikimedia.org/wikipedia/commons/a/ac/Apamea_-_DecArch_-_2-105.jpg	Via Colonnata di Apamea	Siria
-via colonnata	Apamea	architrave	35.418	36.3926	https://upload.wikimedia.org/wikipedia/commons/7/75/Apamea_-_DecArch_-_2-107.jpg	Casa delle mensole	Siria
-via colonnata	Apamea	architrave	35.418	36.3926	https://upload.wikimedia.org/wikipedia/commons/a/a7/Apamea_-_DecArch_-_2-109.jpg	Via Colonnata di Apamea	Siria
-via colonnata	Apamea	capitello	35.418	36.3926	https://upload.wikimedia.org/wikipedia/commons/0/0a/Apamea_-_DecArch_-_2-110.jpg	Via Colonnata di Apamea	Siria
-via colonnata	Apamea	capitello, architrave, colonna	35.418	36.3926	https://upload.wikimedia.org/wikipedia/commons/1/1f/Apamea_-_DecArch_-_2-111.jpg	Via Colonnata di Apamea	Siria
-via colonnata	Apamea	architrave	35.418	36.3926	https://upload.wikimedia.org/wikipedia/commons/1/1b/Apamea_-_DecArch_-_2-112.jpg	Via Colonnata di Apamea	Siria
-via colonnata	Apamea	capitello, base, cornice	35.418	36.3926	https://upload.wikimedia.org/wikipedia/commons/2/26/Apamea_-_DecArch_-_2-113.jpg	Via Colonnata di Apamea	Siria
-via colonnata	Apamea	capitello	35.418	36.3926	https://upload.wikimedia.org/wikipedia/commons/7/70/Apamea_-_DecArch_-_2-114.jpg	Via Colonnata di Apamea	Siria
-via colonnata	Apamea	capitello	35.418	36.3926	https://upload.wikimedia.org/wikipedia/commons/7/7a/Apamea_-_DecArch_-_2-115.jpg	Via Colonnata di Apamea	Siria
-via colonnata	Apamea	architrave	35.418	36.3926	https://upload.wikimedia.org/wikipedia/commons/5/5d/Apamea_-_DecArch_-_2-119.jpg	Via Colonnata di Apamea	Siria
-via colonnata	Apamea	capitello	35.418	36.3926	https://upload.wikimedia.org/wikipedia/commons/5/58/Apamea_-_DecArch_-_2-121.jpg	Via Colonnata di Apamea	Siria
-via colonnata	Apamea	capitello	35.418	36.3926	https://upload.wikimedia.org/wikipedia/commons/e/e0/Apamea_-_DecArch_-_2-120.jpg	Via Colonnata di Apamea	Siria
-via colonnata	Apamea	capitello	35.418	36.3926	https://upload.wikimedia.org/wikipedia/commons/4/48/Apamea_-_DecArch_-_2-122.jpg	Via Colonnata di Apamea	Siria
-via colonnata	Apamea	capitello, base, architrave	35.418	36.3926	https://upload.wikimedia.org/wikipedia/commons/6/67/Apamea_-_DecArch_-_2-157.jpg	Via Colonnata di Apamea	Siria
-Ninfeo	Bosra	capitello	32.5194	36.4771	https://upload.wikimedia.org/wikipedia/commons/6/6e/Bosra._Ninfeo_-_DecArch_-_2-32.jpg	Ninfeo di Bosra	Siria
-Ninfeo	Bosra	capitello, colonna, base	32.5194	36.4771	https://upload.wikimedia.org/wikipedia/commons/4/46/Bosra._Ninfeo_-_DecArch_-_2-33.jpg	Ninfeo di Bosra	Siria
-via colonnata	Bosra	cornice	32.5194	36.4771	https://upload.wikimedia.org/wikipedia/commons/8/8e/Bosra._Via_colonnata_-_DecArch_-_2-26.jpg	Via Colonnata di Bosra	Siria
-Teatro	Bosra	base	32.517	36.4756	https://upload.wikimedia.org/wikipedia/commons/b/bb/Bosra._Antiquarium_Teatro_-_DecArch_-_2-48.jpg	Antiquarium del Teatro di Bosra	Siria
-Teatro	Bosra	architrave	32.517	36.4756	https://upload.wikimedia.org/wikipedia/commons/6/67/Bosra._Antiquarium_Teatro_-_DecArch_-_2-49.jpg	Antiquarium del Teatro di Bosra	Siria
-Teatro	Bosra	architrave	32.517	36.4756	https://upload.wikimedia.org/wikipedia/commons/3/3e/Bosra._Antiquarium_Teatro_-_DecArch_-_2-50.jpg	Antiquarium del Teatro di Bosra	Siria
-via colonnata	Bosra	capitello	32.5194	36.4771	https://upload.wikimedia.org/wikipedia/commons/5/53/Bosra._Via_colonnata_-_DecArch_-_2-27.jpg	Via Colonnata di Bosra	Siria
-via colonnata	Bosra	capitello	32.5194	36.4771	https://upload.wikimedia.org/wikipedia/commons/3/3f/Bosra._Via_colonnata_-_DecArch_-_2-28.jpg	Via Colonnata di Bosra	Siria
-via colonnata	Bosra	capitello, base	32.5194	36.4771	https://upload.wikimedia.org/wikipedia/commons/2/2d/Bosra._Via_colonnata_-_DecArch_-_2-31.jpg	Via Colonnata di Bosra	Siria
-via colonnata	Bosra	capitello, colonna	32.5194	36.4771	https://upload.wikimedia.org/wikipedia/commons/6/60/Bosra._Via_colonnata_-_DecArch_-_2-37.jpg	Via Colonnata di Bosra	Siria
-via colonnata	Bosra	cornice, architrave	32.5194	36.4771	https://upload.wikimedia.org/wikipedia/commons/b/be/Bosra._Via_colonnata_-_DecArch_-_2-36.jpg	Via Colonnata di Bosra (porta)	Siria
-porta	Damasco	capitello	33.5094	36.3124	https://upload.wikimedia.org/wikipedia/commons/c/c3/Damasco._Bab_Sharki_%28porta%29_-_DecArch_-_2-187.jpg	Bab Sharqi	Siria
-moschea	Damasco	architrave	33.51267	36.30547	https://upload.wikimedia.org/wikipedia/commons/8/81/Damasco._Grande_Moscea_-_DecArch_-_2-67.jpg	Grande Moschea degli Ommayadi	Siria
-moschea	Damasco	architrave	33.51267	36.30547	https://upload.wikimedia.org/wikipedia/commons/a/aa/Damasco._Grande_Moscea_-_DecArch_-_2-68.jpg	Grande Moschea degli Ommayadi	Siria
-tempio	Damasco	cornice	33.51267	36.30547	https://upload.wikimedia.org/wikipedia/commons/d/d2/Damasco._Temenos_T._di_Zeus_%28forse%29_V._N._28_-_DecArch_-_2-195.jpg	Tempio di Zeus	Siria
-tempio	Damasco	cornice	33.51267	36.30547	https://upload.wikimedia.org/wikipedia/commons/2/2b/Damasco._Temenos_T._di_Zeus_%28forse%29_V._N._28_-_DecArch_-_2-197.jpg	Tempio di Zeus	Siria
-tempio	Damasco	capitello, architrave	33.51267	36.30547	https://upload.wikimedia.org/wikipedia/commons/5/50/Damasco._Temenos_Tempio_di_Zeus_%28se_Grande_Moschea%29_-_DecArch_-_2-52.jpg	Tempio di Zeus	Siria
+categoria edifici,pertinenza edificio,parte di edificio,latitudine,longitudine,media,nome,Stato
+moschea,Damasco,capitello,33.51267,36.30547,https://upload.wikimedia.org/wikipedia/commons/0/07/Damasco._Propilei_della_Grande_Moschea_-_DecArch_-_2-57.jpg,Grande Moschea degli Ommayadi,Siria
+teatro,Palmira,trabeazione,34.5508,38.2634,https://upload.wikimedia.org/wikipedia/commons/b/b7/Palmira._Teatro._Trab._I_Ordine_-_DecArch_-_1-125.jpg,Teatro di Palmira,Siria
+chiesa,Aleppo,capitello,36.3342,36.8385,https://commons.wikimedia.org/wiki/File:Santuario_di_S._Simeone_-_DecArch_-_2-249.jpg,Santuario di S. Simeone,Siria
+arco,Palmira,"capitello, base di colonna, cornice",34.5509,38.2656,https://upload.wikimedia.org/wikipedia/commons/d/d8/Palmira._Arco_monumentale%2C_facciata_verso_tetrapilo_front._later_-_DecArch_-_1-83.jpg,Arco Monumentale,Siria
+castrum,Palmira,capitello,34.5548,38.2592,https://upload.wikimedia.org/wikipedia/commons/b/b3/Palmira._Campo_di_Diocleziano%2C_pretorio%2C_corte_antistante_-_DecArch_-_1-209.jpg,Campo di Diocleziano,Siria
+ninfeo,Palmira,capitello,34.5505,38.2687,https://upload.wikimedia.org/wikipedia/commons/5/50/Palmira._Ninfeo_-_DecArch_-_1-33.jpg,Ninfeo di Palmira,Siria
+via colonnata,Apamea,"capitello, trabeazione",35.418,36.3926,https://upload.wikimedia.org/wikipedia/commons/d/de/Apamea_-_DecArch_-_2-102.jpg,Via Colonnata di Apamea,Siria
+via colonnata,Apamea,"colonna, mensola",35.418,36.3926,https://upload.wikimedia.org/wikipedia/commons/6/61/Apamea_-_DecArch_-_2-103.jpg,Via Colonnata di Apamea,Siria
+via colonnata,Apamea,"capitello, colonna, trabeazione",35.418,36.3926,https://upload.wikimedia.org/wikipedia/commons/1/1b/Apamea_-_DecArch_-_2-104.jpg,Via Colonnata di Apamea,Siria
+cortile colonnato,Apamea,mensola,35.418,36.3926,https://upload.wikimedia.org/wikipedia/commons/a/ac/Apamea_-_DecArch_-_2-105.jpg,Via Colonnata di Apamea,Siria
+via colonnata,Apamea,trabeazione,35.418,36.3926,https://upload.wikimedia.org/wikipedia/commons/7/75/Apamea_-_DecArch_-_2-107.jpg,Casa delle mensole,Siria
+via colonnata,Apamea,trabeazione,35.418,36.3926,https://upload.wikimedia.org/wikipedia/commons/a/a7/Apamea_-_DecArch_-_2-109.jpg,Via Colonnata di Apamea,Siria
+via colonnata,Apamea,capitello,35.418,36.3926,https://upload.wikimedia.org/wikipedia/commons/0/0a/Apamea_-_DecArch_-_2-110.jpg,Via Colonnata di Apamea,Siria
+via colonnata,Apamea,"capitello, trabeazione, colonna",35.418,36.3926,https://upload.wikimedia.org/wikipedia/commons/1/1f/Apamea_-_DecArch_-_2-111.jpg,Via Colonnata di Apamea,Siria
+via colonnata,Apamea,architrave,35.418,36.3926,https://upload.wikimedia.org/wikipedia/commons/1/1b/Apamea_-_DecArch_-_2-112.jpg,Via Colonnata di Apamea,Siria
+via colonnata,Apamea,"capitello, base di colonna, cornice",35.418,36.3926,https://upload.wikimedia.org/wikipedia/commons/2/26/Apamea_-_DecArch_-_2-113.jpg,Via Colonnata di Apamea,Siria
+via colonnata,Apamea,capitello,35.418,36.3926,https://upload.wikimedia.org/wikipedia/commons/7/70/Apamea_-_DecArch_-_2-114.jpg,Via Colonnata di Apamea,Siria
+via colonnata,Apamea,capitello,35.418,36.3926,https://upload.wikimedia.org/wikipedia/commons/7/7a/Apamea_-_DecArch_-_2-115.jpg,Via Colonnata di Apamea,Siria
+via colonnata,Apamea,trabeazione,35.418,36.3926,https://upload.wikimedia.org/wikipedia/commons/5/5d/Apamea_-_DecArch_-_2-119.jpg,Via Colonnata di Apamea,Siria
+via colonnata,Apamea,capitello,35.418,36.3926,https://upload.wikimedia.org/wikipedia/commons/5/58/Apamea_-_DecArch_-_2-121.jpg,Via Colonnata di Apamea,Siria
+via colonnata,Apamea,capitello,35.418,36.3926,https://upload.wikimedia.org/wikipedia/commons/e/e0/Apamea_-_DecArch_-_2-120.jpg,Via Colonnata di Apamea,Siria
+via colonnata,Apamea,capitello,35.418,36.3926,https://upload.wikimedia.org/wikipedia/commons/4/48/Apamea_-_DecArch_-_2-122.jpg,Via Colonnata di Apamea,Siria
+via colonnata,Apamea,"capitello, base di colonna, trabeazione",35.418,36.3926,https://upload.wikimedia.org/wikipedia/commons/6/67/Apamea_-_DecArch_-_2-157.jpg,Via Colonnata di Apamea,Siria
+Ninfeo,Bosra,capitello,32.5194,36.4771,https://upload.wikimedia.org/wikipedia/commons/6/6e/Bosra._Ninfeo_-_DecArch_-_2-32.jpg,Ninfeo di Bosra,Siria
+Ninfeo,Bosra,"capitello, colonna, base di colonna",32.5194,36.4771,https://upload.wikimedia.org/wikipedia/commons/4/46/Bosra._Ninfeo_-_DecArch_-_2-33.jpg,Ninfeo di Bosra,Siria
+via colonnata,Bosra,cornice,32.5194,36.4771,https://upload.wikimedia.org/wikipedia/commons/8/8e/Bosra._Via_colonnata_-_DecArch_-_2-26.jpg,Via Colonnata di Bosra,Siria
+Teatro,Bosra,base di colonna,32.517,36.4756,https://upload.wikimedia.org/wikipedia/commons/b/bb/Bosra._Antiquarium_Teatro_-_DecArch_-_2-48.jpg,Antiquarium del Teatro di Bosra,Siria
+Teatro,Bosra,trabeazione,32.517,36.4756,https://upload.wikimedia.org/wikipedia/commons/6/67/Bosra._Antiquarium_Teatro_-_DecArch_-_2-49.jpg,Antiquarium del Teatro di Bosra,Siria
+Teatro,Bosra,architrave,32.517,36.4756,https://upload.wikimedia.org/wikipedia/commons/3/3e/Bosra._Antiquarium_Teatro_-_DecArch_-_2-50.jpg,Antiquarium del Teatro di Bosra,Siria
+via colonnata,Bosra,capitello,32.5194,36.4771,https://upload.wikimedia.org/wikipedia/commons/5/53/Bosra._Via_colonnata_-_DecArch_-_2-27.jpg,Via Colonnata di Bosra,Siria
+via colonnata,Bosra,capitello,32.5194,36.4771,https://upload.wikimedia.org/wikipedia/commons/3/3f/Bosra._Via_colonnata_-_DecArch_-_2-28.jpg,Via Colonnata di Bosra,Siria
+via colonnata,Bosra,"capitello, base di colonna",32.5194,36.4771,https://upload.wikimedia.org/wikipedia/commons/2/2d/Bosra._Via_colonnata_-_DecArch_-_2-31.jpg,Via Colonnata di Bosra,Siria
+via colonnata,Bosra,"capitello, colonna",32.5194,36.4771,https://upload.wikimedia.org/wikipedia/commons/6/60/Bosra._Via_colonnata_-_DecArch_-_2-37.jpg,Via Colonnata di Bosra,Siria
+via colonnata,Bosra,trabeazione,32.5194,36.4771,https://upload.wikimedia.org/wikipedia/commons/b/be/Bosra._Via_colonnata_-_DecArch_-_2-36.jpg,Via Colonnata di Bosra (porta),Siria
+porta,Damasco,capitello,33.5094,36.3124,https://upload.wikimedia.org/wikipedia/commons/c/c3/Damasco._Bab_Sharki_%28porta%29_-_DecArch_-_2-187.jpg,Bab Sharqi,Siria
+moschea,Damasco,architrave,33.51267,36.30547,https://upload.wikimedia.org/wikipedia/commons/8/81/Damasco._Grande_Moscea_-_DecArch_-_2-67.jpg,Grande Moschea degli Ommayadi,Siria
+moschea,Damasco,architrave,33.51267,36.30547,https://upload.wikimedia.org/wikipedia/commons/a/aa/Damasco._Grande_Moscea_-_DecArch_-_2-68.jpg,Grande Moschea degli Ommayadi,Siria
+tempio,Damasco,cornice,33.51267,36.30547,https://upload.wikimedia.org/wikipedia/commons/d/d2/Damasco._Temenos_T._di_Zeus_%28forse%29_V._N._28_-_DecArch_-_2-195.jpg,Tempio di Zeus,Siria
+tempio,Damasco,cornice,33.51267,36.30547,https://upload.wikimedia.org/wikipedia/commons/2/2b/Damasco._Temenos_T._di_Zeus_%28forse%29_V._N._28_-_DecArch_-_2-197.jpg,Tempio di Zeus,Siria
+tempio,Damasco,"capitello, trabeazione",33.51267,36.30547,https://upload.wikimedia.org/wikipedia/commons/5/50/Damasco._Temenos_Tempio_di_Zeus_%28se_Grande_Moschea%29_-_DecArch_-_2-52.jpg,Tempio di Zeus,Siria
+moschea,Damasco,capitello,33.51267,36.30547,https://upload.wikimedia.org/wikipedia/commons/3/38/Damasco._Grande_Moscea%2C_casa_delle_campane_-_DecArch_-_2-61.jpg,Grande Moschea degli Ommayadi,Siria
+moschea,Damasco,capitello,33.51267,36.30547,https://upload.wikimedia.org/wikipedia/commons/b/ba/Damasco._Grande_Moscea%2C_casa_delle_campane_-_DecArch_-_2-62.jpg,Grande Moschea degli Ommayadi,Siria
+moschea,Damasco,capitello,33.51267,36.30547,https://upload.wikimedia.org/wikipedia/commons/0/07/Damasco._Propilei_della_Grande_Moschea_-_DecArch_-_2-57.jpg,Grande Moschea degli Ommayadi ,Siria
+moschea,Damasco,"treazione, cornice, capitello",33.51267,36.30547,https://upload.wikimedia.org/wikipedia/commons/3/3b/Damasco._Propilei_della_Grande_Moschea_-_DecArch_-_2-55.jpg,Grande Moschea degli Ommayadi ,Siria
+moschea,Damasco,trabeazione,33.51267,36.30547,https://upload.wikimedia.org/wikipedia/commons/2/27/Damasco._Grande_Moschea%2C_lato_sud_-_DecArch_-_2-51.jpg,Grande Moschea degli Ommayadi,Siria
+moschea,Damasco,capitello,33.51267,36.30547,https://upload.wikimedia.org/wikipedia/commons/e/e6/Damasco._Grande_Moschea%2C_casa_delle_campane_-_DecArch_-_2-60.jpg,Grande Moschea degli Ommayadi,Siria
+moschea,Damasco,capitello,33.51267,36.30547,https://upload.wikimedia.org/wikipedia/commons/e/e6/Damasco._Grande_Moschea%2C_casa_delle_campane_-_DecArch_-_2-59.jpg,Grande Moschea degli Ommayadi,Siria
+moschea,Damasco,capitello,33.51267,36.30547,https://upload.wikimedia.org/wikipedia/commons/7/7f/Damasco._Grande_Moscea%2C_Tesoro_-_DecArch_-_2-70.jpg,Grande Moschea degli Ommayadi,Siria
+moschea,Damasco,architrave,33.51267,36.30547,https://upload.wikimedia.org/wikipedia/commons/5/57/Damasco._Grande_Moscea%2C_Tesoro_-_DecArch_-_2-69.jpg,Grande Moschea degli Ommayadi,Siria
+moschea,Damasco,capitello,33.51267,36.30547,https://upload.wikimedia.org/wikipedia/commons/d/d2/Damasco._Grande_Moscea%2C_casa_delle_campane_-_DecArch_-_2-65.jpg,Grande Moschea degli Ommayadi,Siria
+moschea,Damasco,capitello,33.51267,36.30547,https://upload.wikimedia.org/wikipedia/commons/6/67/Damasco._Grande_Moscea%2C_casa_delle_campane_-_DecArch_-_2-64.jpg,Grande Moschea degli Ommayadi,Siria
+moschea,Damasco,capitello,33.51267,36.30547,https://upload.wikimedia.org/wikipedia/commons/b/bb/Damasco._Grande_Moscea%2C_casa_delle_campane_-_DecArch_-_2-63.jpg,Grande Moschea degli Ommayadi,Siria
+arco,Palmira,cornice,34.5509,38.2687,https://upload.wikimedia.org/wikipedia/commons/d/d3/Palmira._Arco_monumentale_-_DecArch_-_1-76.jpg,Arco Monumentale,Siria
+arco,Palmira,cornice,34.5509,38.2687,https://upload.wikimedia.org/wikipedia/commons/d/d3/Palmira._Arco_monumentale_-_DecArch_-_1-78.jpg,Arco Monumentale,Siria
+arco,Palmira,piedritto,34.5509,38.2687,https://upload.wikimedia.org/wikipedia/commons/9/94/Palmira._Arco_monumentale_-_DecArch_-_1-80.jpg,Arco Monumentale,Siria
+arco,Palmira,piedritto,34.5509,38.2687,https://upload.wikimedia.org/wikipedia/commons/e/e3/Palmira._Arco_monumentale_-_DecArch_-_1-81.jpg,Arco Monumentale,Siria
+arco,Palmira,piedritto,34.5509,38.2687,https://upload.wikimedia.org/wikipedia/commons/b/b6/Palmira._Arco_monumentale_-_DecArch_-_1-79.jpg,Arco Monumentale,Siria
+arco,Palmira,piedritto,34.5509,38.2687,https://upload.wikimedia.org/wikipedia/commons/3/33/Palmira._Arco_monumentale_-_DecArch_-_1-84.jpg,Arco Monumentale,Siria
+arco,Palmira,"piedritto, capitello, cuneo",34.5509,38.2687,https://upload.wikimedia.org/wikipedia/commons/4/49/Palmira._Arco_monumentale%2C_facciata_verso_tetrapilo_-_DecArch_-_1-19.jpg,Arco Monumentale,Siria
+arco,Palmira,"cuneo, chiave di volta, intradosso",34.5509,38.2687,https://upload.wikimedia.org/wikipedia/commons/c/cf/Palmira._Arco_monumentale%2C_facciata_verso_tetrapilo_fornice_centr_-_DecArch_-_1-85.jpg,Arco Monumentale,Siria
+arco,Palmira,"cuneo, piedritto",34.5509,38.2687,https://upload.wikimedia.org/wikipedia/commons/2/24/Palmira._Arco_monumentale%2C_facciata_verso_tetrapilo_front._lat_-_DecArch_-_1-82.jpg,Arco Monumentale,Siria
+arco,Palmira,architrave,34.5509,38.2687,https://upload.wikimedia.org/wikipedia/commons/e/e9/Palmira._Arco_monumentale%2C_facciata_verso_tetrapilo%2C_fornice_lat_-_DecArch_-_1-18.jpg,Arco Monumentale,Siria
+arco,Palmira,"cuneo, intradosso",34.5509,38.2687,https://upload.wikimedia.org/wikipedia/commons/2/2d/Palmira._Arco_monumentale%2C_lato_corto_maggiore_-_DecArch_-_1-88.jpg,Arco Monumentale,Siria
+arco,Palmira,"cornice, capitello",34.5509,38.2687,https://upload.wikimedia.org/wikipedia/commons/1/14/Palmira._Arco_monumentale%2C_lato_corto_maggiore%2C_interno_-_DecArch_-_1-86.jpg,Arco Monumentale,Siria
+arco,Palmira,"intradosso, chiave di volta",34.5508,38.2634,https://upload.wikimedia.org/wikipedia/commons/8/84/Palmira._Arco_di_passaggio_verso_la_via_colonnata_del_teatro_-_DecArch_-_1-57.jpg,Arco di passaggio al teatro,Siria
+castrum,Palmira,cornice,34.5548,38.2592,https://upload.wikimedia.org/wikipedia/commons/7/7b/Palmira._Campo_di_Diocleziano_-_DecArch_-_1-187.jpg,Campo di Diocleziano,Siria
+castrum,Palmira,architrave,34.5548,38.2592,https://upload.wikimedia.org/wikipedia/commons/5/5c/Palmira._Campo_di_Diocleziano_-_DecArch_-_1-190.jpg,Campo di Diocleziano,Siria
+castrum,Palmira,piedritto,34.5548,38.2592,https://upload.wikimedia.org/wikipedia/commons/3/33/Palmira._Campo_di_Diocleziano_-_DecArch_-_1-191.jpg,Campo di Diocleziano,Siria
+castrum,Palmira,trabeazione,34.5548,38.2592,https://upload.wikimedia.org/wikipedia/commons/6/67/Palmira._Campo_di_Diocleziano_-_DecArch_-_1-192.jpg,Campo di Diocleziano,Siria
+castrum,Palmira,base di colonna,34.5548,38.2592,https://upload.wikimedia.org/wikipedia/commons/4/46/Palmira._Campo_di_Diocleziano_-_DecArch_-_1-193.jpg,Campo di Diocleziano,Siria
+castrum,Palmira,cuneo,34.5548,38.2592,https://upload.wikimedia.org/wikipedia/commons/a/ae/Palmira._Campo_di_Diocleziano_-_DecArch_-_1-194.jpg,Campo di Diocleziano,Siria
+castrum,Palmira,cornice,34.5548,38.2592,https://upload.wikimedia.org/wikipedia/commons/2/20/Palmira._Campo_di_Diocleziano_-_DecArch_-_1-195.jpg,Campo di Diocleziano,Siria
+castrum,Palmira,base di colonna,34.5548,38.2592,https://upload.wikimedia.org/wikipedia/commons/d/de/Palmira._Campo_di_Diocleziano_-_DecArch_-_1-196.jpg,Campo di Diocleziano,Siria
+castrum,Palmira,trabeazione,34.5548,38.2592,https://upload.wikimedia.org/wikipedia/commons/f/f8/Palmira._Campo_di_Diocleziano_-_DecArch_-_1-197.jpg,Campo di Diocleziano,Siria
+castrum,Palmira,trabeazione,34.5548,38.2592,https://upload.wikimedia.org/wikipedia/commons/9/9d/Palmira._Campo_di_Diocleziano_-_DecArch_-_1-198.jpg,Campo di Diocleziano,Siria
+castrum,Palmira,capitello,34.5548,38.2592,https://upload.wikimedia.org/wikipedia/commons/5/5d/Palmira._Campo_di_Diocleziano_-_DecArch_-_1-201.jpg,Campo di Diocleziano,Siria
+castrum,Palmira,capitello,34.5548,38.2592,https://upload.wikimedia.org/wikipedia/commons/d/d5/Palmira._Campo_di_Diocleziano_-_DecArch_-_1-202.jpg,Campo di Diocleziano,Siria
+castrum,Palmira,capitello,34.5548,38.2592,https://upload.wikimedia.org/wikipedia/commons/a/ad/Palmira._Campo_di_Diocleziano_-_DecArch_-_1-203.jpg,Campo di Diocleziano,Siria
+castrum,Palmira,treazione,34.5548,38.2592,https://upload.wikimedia.org/wikipedia/commons/4/40/Palmira._Campo_di_Diocleziano_-_DecArch_-_1-204.jpg,Campo di Diocleziano,Siria
+castrum,Palmira,trabeazione,34.5548,38.2592,https://upload.wikimedia.org/wikipedia/commons/b/b1/Palmira._Campo_di_Diocleziano_-_DecArch_-_1-205.jpg,Campo di Diocleziano,Siria
+castrum,Palmira,capitello,34.5548,38.2592,https://upload.wikimedia.org/wikipedia/commons/4/42/Palmira._Campo_di_Diocleziano_-_DecArch_-_1-206.jpg,Campo di Diocleziano,Siria
+castrum,Palmira,capitello,34.5548,38.2592,https://upload.wikimedia.org/wikipedia/commons/7/72/Palmira._Campo_di_Diocleziano_-_DecArch_-_1-207.jpg,Campo di Diocleziano,Siria
+castrum,Palmira,capitello,34.5548,38.2592,https://upload.wikimedia.org/wikipedia/commons/a/a1/Palmira._Campo_di_Diocleziano_-_DecArch_-_1-208.jpg,Campo di Diocleziano,Siria
+castrum,Palmira,"capitello, cornice",34.5548,38.2592,https://upload.wikimedia.org/wikipedia/commons/f/f2/Palmira._Campo_di_Diocleziano%2C_Praetorium_-_DecArch_-_1-210.jpg,Campo di Diocleziano,Siria
+castrum,Palmira,"capitello, cornice",34.5548,38.2592,https://upload.wikimedia.org/wikipedia/commons/c/cb/Palmira._Campo_di_Diocleziano%2C_Praetorium_-_DecArch_-_1-211.jpg,Campo di Diocleziano,Siria
+castrum,Palmira,capitello,34.5548,38.2592,https://upload.wikimedia.org/wikipedia/commons/f/fd/Palmira._Campo_di_Diocleziano%2C_Praetorium_-_DecArch_-_1-212.jpg,Campo di Diocleziano,Siria
+castrum,Palmira,"base di colonna, capitello, colonna",34.5548,38.2592,https://upload.wikimedia.org/wikipedia/commons/9/9a/Palmira._Campo_di_Diocleziano%2C_propile._i_-_DecArch_-_1-135.jpg,Campo di Diocleziano,Siria
+castrum,Palmira,capitello,34.5548,38.2592,https://upload.wikimedia.org/wikipedia/commons/1/16/Palmira._Campo_di_Diocleziano%2C_tetrapilo_-_DecArch_-_1-131.jpg,Campo di Diocleziano,Siria
+castrum,Palmira,capitello,34.5548,38.2592,https://upload.wikimedia.org/wikipedia/commons/e/e6/Palmira._Campo_di_Diocleziano%2C_tetrapilo_-_DecArch_-_1-215.jpg,Campo di Diocleziano,Siria
+castrum,Palmira,cornice,34.5548,38.2592,https://upload.wikimedia.org/wikipedia/commons/6/63/Palmira._Campo_di_Diocleziano%2C_via_colonnata_di_accesso_-_DecArch_-_1-133.jpg,Campo di Diocleziano,Siria
+castrum,Palmira,trabeazione,34.5548,38.2592,https://upload.wikimedia.org/wikipedia/commons/c/c7/Palmira._Campo_di_Diocleziano._Alfa_29_-_DecArch_-_1-200.jpg,Campo di Diocleziano,Siria
+castrum,Palmira,trabeazione,34.5548,38.2592,https://upload.wikimedia.org/wikipedia/commons/9/98/Palmira._Campo_di_Diocleziano._Part.di_Alfa_29_-_DecArch_-_1-199.jpg,Campo di Diocleziano,Siria
+castrum,Palmira,trabeazione,34.55049,38.26691,https://upload.wikimedia.org/wikipedia/commons/1/18/Palmira._Agor%C3%A0_-_DecArch_-_1-112.jpg,Agorà di Palmira,Siria
+castrum,Palmira,trabeazione,34.55049,38.26691,https://upload.wikimedia.org/wikipedia/commons/5/52/Palmira._Agor%C3%A0_-_DecArch_-_1-113.jpg,Agorà di Palmira,Siria
+castrum,Palmira,trabeazione,34.55049,38.26691,https://upload.wikimedia.org/wikipedia/commons/0/00/Palmira._Agor%C3%A0_-_DecArch_-_1-114.jpg,Agorà di Palmira,Siria
+castrum,Palmira,trabeazione,34.55049,38.26691,https://upload.wikimedia.org/wikipedia/commons/1/14/Palmira._Agor%C3%A0_-_DecArch_-_1-115.jpg,Agorà di Palmira,Siria
+castrum,Palmira,trabeazione,34.55049,38.26691,https://upload.wikimedia.org/wikipedia/commons/6/6f/Palmira._Agor%C3%A0_-_DecArch_-_1-117.jpg,Agorà di Palmira,Siria
+castrum,Palmira,architrave,34.55049,38.26691,https://upload.wikimedia.org/wikipedia/commons/d/d6/Palmira._Agor%C3%A0%2C_sala_dei_banchetti_-_DecArch_-_1-111.jpg,Agorà di Palmira,Siria
+castrum,Palmira,cornice,34.55049,38.26691,https://upload.wikimedia.org/wikipedia/commons/7/76/Palmira._Agor%C3%A0._Bs_-_DecArch_-_1-118.jpg,Agorà di Palmira,Siria
+castrum,Palmira,cornice,34.55049,38.26691,https://upload.wikimedia.org/wikipedia/commons/e/ed/Palmira._Agor%C3%A0._Part.di_Y_35_-_DecArch_-_1-116.jpg,Agorà di Palmira,Siria
+tempio,Palmira,soffitto,34.54915,38.27055,https://upload.wikimedia.org/wikipedia/commons/d/da/Palmira._Cella_T_di_bel_-_DecArch_-_1-12.jpg,Tempio di Bel,Siria
+tempio,Palmira,trabeazione,34.54915,38.27055,https://upload.wikimedia.org/wikipedia/commons/5/58/Palmira._Cella_T._di_bel._Adyton_Nord_-_DecArch_-_1-14.jpg,Tempio di Bel,Siria
+tempio,Palmira,trabeazione,34.54915,38.27055,https://upload.wikimedia.org/wikipedia/commons/5/5e/Palmira._Cella_T._di_bel_-_DecArch_-_1-13.jpg,Tempio di Bel,Siria
+colonna ,Palmira,capitello,34.54892,38.26968,https://upload.wikimedia.org/wikipedia/commons/2/28/Palmira._Colonna_Onoraria_presso_porta_delle_carovane_-_DecArch_-_1-51.jpg,Colonna onoraria,Siria
+porta,Palmira,"trabeazione, capitello",34.5508,38.2634,https://upload.wikimedia.org/wikipedia/commons/0/06/Palmira._Coronamento_porta_regia_-_DecArch_-_1-126.jpg,Porta Regia,Siria
+colonnato,Palmira,capitello,34.55,38.27008,https://upload.wikimedia.org/wikipedia/commons/3/34/Palmira._Corte_a_peristilio_-_DecArch_-_1-108.jpg,Corte a Peristilio,Siria
+colonnato,Palmira,"base di colonna, colonna, capitello",34.55,38.27008,https://upload.wikimedia.org/wikipedia/commons/b/bc/Palmira._Corte_a_peristilio_-_DecArch_-_1-109.jpg,Corte a Peristilio,Siria
+colonnato,Palmira,"base di colonna, colonna, capitello",34.55,38.27008,https://upload.wikimedia.org/wikipedia/commons/b/b3/Palmira._Corte_a_peristilio_-_DecArch_-_1-110.jpg,Corte a Peristilio,Siria
+ninfeo,Palmira,architrave,34.5505,38.2687,https://upload.wikimedia.org/wikipedia/commons/8/84/Palmira._Ninfeo_-_DecArch_-_1-32.jpg,Ninfeo di Palmira,Siria
+ninfeo,Palmira,"architrave, base di colonna, colonna, capitello",34.5505,38.2687,https://upload.wikimedia.org/wikipedia/commons/c/c1/Palmira._Ninfeo_-_DecArch_-_1-34.jpg,Ninfeo di Palmira,Siria
+ninfeo,Palmira,capitello,34.5505,38.2687,https://upload.wikimedia.org/wikipedia/commons/f/f7/Palmira._Ninfeo_presso_tetrapilo_-_DecArch_-_1-103.jpg,Ninfeo di Palmira,Siria
+ninfeo,Palmira,cuneo,34.5505,38.2687,https://upload.wikimedia.org/wikipedia/commons/b/bd/Palmira._Ninfeo_presso_tetrapilo_-_DecArch_-_1-104.jpg,Ninfeo di Palmira,Siria
+ninfeo,Palmira,chiave di volta,34.5505,38.2687,https://upload.wikimedia.org/wikipedia/commons/6/6f/Palmira._Ninfeo_presso_tetrapilo_-_DecArch_-_1-105.jpg,Ninfeo di Palmira,Siria
+ninfeo,Palmira,trabeazione,34.5505,38.2687,https://upload.wikimedia.org/wikipedia/commons/4/45/Palmira._Ninfeo_presso_tetrapilo._Part.di_Z_05_-_DecArch_-_1-106.jpg,Ninfeo di Palmira,Siria
+ninfeo,Palmira,trabeazione,34.5505,38.2687,https://upload.wikimedia.org/wikipedia/commons/b/b9/Palmira._Ninfeo_presso_tetrapilo._Z_05_-_DecArch_-_1-107.jpg,Ninfeo di Palmira,Siria
+via colonnata,Palmira,trabeazione,34.5505,38.2687,https://upload.wikimedia.org/wikipedia/commons/d/d8/Palmira._Passaggio_alla_via_colonnata_del_teatro_-_DecArch_-_1-56.jpg,Via colonnata di Palmira,Siria
+teatro,Palmira,trabeazione,34.5505,38.2687,https://upload.wikimedia.org/wikipedia/commons/0/0c/Palmira._Portale_al_teatro_della_via_colonnata_-_DecArch_-_1-129.jpg,Teatro di Palmira,Siria
+teatro,Palmira,trabeazione,34.5508,38.2687,https://upload.wikimedia.org/wikipedia/commons/1/19/Palmira._Portale_al_teatro_della_via_colonnata_-_DecArch_-_1-130.jpg,Teatro di Palmira,Siria
+tempio,Palmira,capitello,34.5524,38.2672,https://upload.wikimedia.org/wikipedia/commons/6/61/Palmira._Sant.di_baal_Shamin_-_DecArch_-_1-168.jpg,Tempio di Baal Shamin ,Siria
+tempio,Palmira,capitello,34.5524,38.2672,https://upload.wikimedia.org/wikipedia/commons/8/88/Palmira._Sant.di_baal_Shamin%2C_corte_nord%2C_porticato_sud_-_DecArch_-_1-169.jpg,Tempio di Baal Shamin ,Siria
+tempio,Palmira,"capitello, colonna",34.5524,38.2672,https://upload.wikimedia.org/wikipedia/commons/8/89/Palmira._Sant.di_baal_Shamin%2C_corte_nord%2C_porticato_sud_-_DecArch_-_1-170.jpg,Tempio di Baal Shamin ,Siria
+tempio,Palmira,capitello,34.5524,38.2672,https://upload.wikimedia.org/wikipedia/commons/5/5a/Palmira._Sant.di_baal_Shamin%2C_corte_sud_-_DecArch_-_1-171.jpg,Tempio di Baal Shamin ,Siria
+tempio,Palmira,architrave,34.5524,38.2672,https://upload.wikimedia.org/wikipedia/commons/8/8c/Palmira._T._di_baal_Shamin%2C_porta_cella_-_DecArch_-_1-245.jpg,Tempio di Baal Shamin ,Siria
+tempio,Palmira,capitello,34.5524,38.2672,https://upload.wikimedia.org/wikipedia/commons/1/15/Palmira._T._di_baal_Shamin%2C_pronao_-_DecArch_-_1-177.jpg,Tempio di Baal Shamin ,Siria
+tempio,Palmira,trabeazione,34.5524,38.2672,https://upload.wikimedia.org/wikipedia/commons/c/c1/Palmira._T._di_Baal_Shamin%2C_trab.princ_-_DecArch_-_1-176.jpg,Tempio di Baal Shamin ,Siria
+tempio,Palmira,trabeazione,34.5524,38.2672,https://upload.wikimedia.org/wikipedia/commons/f/f8/Palmira._T._di_bel_-_DecArch_-_1-11.jpg,Tempio di Baal Shamin ,Siria
+tempio,Palmira,trabeazione,34.5524,38.2672,https://upload.wikimedia.org/wikipedia/commons/9/92/Palmira._T._di_Bel%2C_temenos_-_DecArch_-_1-41.jpg,Tempio di Baal Shamin ,Siria
+tempio,Palmira,cornice,34.5524,38.2672,https://upload.wikimedia.org/wikipedia/commons/f/f7/Palmira._T._di_baal_Shamin%2C_finestra_muro_cella_-_DecArch_-_1-175.jpg,Tempio di Baal Shamin ,Siria
+tempio,Palmira,cornice,34.5524,38.2672,https://upload.wikimedia.org/wikipedia/commons/1/14/Palmira._T._di_bel._Portale_d%27ingresso_-_DecArch_-_1-15.jpg,Tempio di Baal Shamin ,Siria
+tempio,Palmira,cornice,34.5524,38.2672,https://upload.wikimedia.org/wikipedia/commons/f/f2/Palmira._T._funerario_-_DecArch_-_1-159.jpg,Tempio Funerario,Siria
+tempio,Palmira,cornice,34.5524,38.2672,https://upload.wikimedia.org/wikipedia/commons/3/3e/Palmira._T._funerario_-_DecArch_-_1-160.jpg,Tempio Funerario,Siria
+tempio,Palmira,cornice,34.5524,38.2672,https://upload.wikimedia.org/wikipedia/commons/0/08/Palmira._T._funerario_-_DecArch_-_1-161.jpg,Tempio Funerario,Siria
+tempio,Palmira,capitello,34.5524,38.2672,https://upload.wikimedia.org/wikipedia/commons/b/bc/Palmira._T._funerario_-_DecArch_-_1-162.jpg,Tempio Funerario,Siria
+tempio,Palmira,cornice,34.5524,38.2672,https://upload.wikimedia.org/wikipedia/commons/a/a7/Palmira._T._funerario_in_rovina_-_DecArch_-_1-147.jpg,Tempio Funerario,Siria
+tempio,Palmira,cornice,34.5524,38.2672,https://upload.wikimedia.org/wikipedia/commons/e/e4/Palmira._T._funerario_in_rovina_-_DecArch_-_1-153.jpg,Tempio Funerario,Siria
+tempio,Palmira,trabeazione,34.5524,38.2672,https://upload.wikimedia.org/wikipedia/commons/7/7e/Palmira._T._funerario_in_rovina_-_DecArch_-_1-154.jpg,Tempio Funerario,Siria
+tempio,Palmira,capitello,34.5524,38.2672,https://upload.wikimedia.org/wikipedia/commons/4/40/Palmira._T._funerario_in_rovina_-_DecArch_-_1-156.jpg,Tempio Funerario,Siria
+tempio,Palmira,cornice,34.5524,38.2672,https://upload.wikimedia.org/wikipedia/commons/d/dd/Palmira._T._funerario_in_rovina._part.di_Beta_25_-_DecArch_-_1-141.jpg,Tempio Funerario,Siria
+tempio,Palmira,cornice,34.5524,38.2672,https://upload.wikimedia.org/wikipedia/commons/1/16/Palmira._T._funerario%2C_cornice_lati_cella_-_DecArch_-_1-158.jpg,Tempio Funerario,Siria
+tempio,Palmira,mensola,34.54915,38.27055,https://upload.wikimedia.org/wikipedia/commons/d/d5/Palmira._T.di_bel_porticato_ovest_-_DecArch_-_1-2.jpg,Tempio di Bel,Siria
+tempio,Palmira,"trabeazione, base dicolonna, colonna, capitello",34.5505,38.2687,https://upload.wikimedia.org/wikipedia/commons/9/94/Palmira._Teatro_-_DecArch_-_1-127.jpg,Teatro di Palmira,Siria
+tempio,Palmira,cornice,34.54915,38.27055,https://upload.wikimedia.org/wikipedia/commons/5/51/Palmira._Temenos_T._di_bel_ingresso_facciata_interna_lato_ovest_-_DecArch_-_1-3.jpg,Tempio di Bel,Siria
+tempio,Palmira,cornice,34.54915,38.27055,https://upload.wikimedia.org/wikipedia/commons/1/15/Palmira._Temenos_T._di_bel_ingresso_facciata_interna_lato_ovest_-_DecArch_-_1-4.jpg,Tempio di Bel,Siria
+tempio,Palmira,capitello,34.5542,38.2613,https://upload.wikimedia.org/wikipedia/commons/0/0e/Palmira._Tempio_di_Allat_-_DecArch_-_1-183.jpg,Tempio di Allat,Siria
+tempio,Palmira,capitello,34.5542,38.2613,https://upload.wikimedia.org/wikipedia/commons/c/c4/Palmira._Tempio_di_Allat_-_DecArch_-_1-189.jpg,Tempio di Allat,Siria
+tempio,Palmira,capitello,34.5542,38.2613,https://upload.wikimedia.org/wikipedia/commons/e/eb/Palmira._Tempio_di_Allat%2C_propilei_-_DecArch_-_1-185.jpg,Tempio di Allat,Siria
+terme,Palmira,capitello,34.5489,38.2703,https://upload.wikimedia.org/wikipedia/commons/6/67/Palmira._Terme_di_Diocleziano_-_DecArch_-_1-67.JPG,Terme di Diocleziano,Siria
+terme,Palmira,capitello,34.5489,38.2703,https://upload.wikimedia.org/wikipedia/commons/e/e9/Palmira._Terme_di_Diocleziano_-_DecArch_-_1-68.JPG,Terme di Diocleziano,Siria
+terme,Palmira,cornice,34.5489,38.2703,https://upload.wikimedia.org/wikipedia/commons/8/89/Palmira._Terme_di_Diocleziano._Part._di_X_33_-_DecArch_-_1-65.JPG,Terme di Diocleziano,Siria
+tetrapilo,Palmira,trabeazione,34.55197,38.2683,https://upload.wikimedia.org/wikipedia/commons/b/b4/Palmira._Tetrapilo_-_DecArch_-_1-94.jpg,Tetrapilo di Palmira,Siria
+tetrapilo,Palmira,"trabeazione, capitello",34.55197,38.2683,https://upload.wikimedia.org/wikipedia/commons/0/00/Palmira._Tetrapilo_-_DecArch_-_1-97.jpg,Tetrapilo di Palmira,Siria
+tetrapilo,Palmira,cornice,34.55197,38.2683,https://upload.wikimedia.org/wikipedia/commons/c/c7/Palmira._Tetrapilo._Part.di_Z_10_-_DecArch_-_1-95.jpg,Teatro di Palmira,Siria
+sepoltura,Palmira,cornice,34.5531,38.2653,https://upload.wikimedia.org/wikipedia/commons/5/58/Palmira._Tomba_a_ipogeo_-_DecArch_-_1-231.jpg,Tomba ad ipogeo,Siria
+sepoltura,Palmira,trabeazione,34.5531,38.2653,https://upload.wikimedia.org/wikipedia/commons/9/91/Palmira._Tomba_a_ipogeo_-_DecArch_-_1-233.jpg,Tomba ad ipogeo,Siria
+via colonnata,Palmira,"base di colonna, colonna, capitello, mensola, trabeazione",34.5508,38.2634,https://upload.wikimedia.org/wikipedia/commons/1/13/Palmira._Via_colonnata_del_teatro_-_DecArch_-_1-54.jpg,Via Colonnata di Palmira (vicino teatro),Siria
+via colonnata,Palmira,"base di colonna,colonna, capitello, trabeazione",34.55302,38.26562,https://upload.wikimedia.org/wikipedia/commons/4/4e/Palmira._Via_colonnata_dal_tetrapilo_all%27arco_-_DecArch_-_1-100.jpg,Via Colonnata di Palmira (tra tetrapilo e arco),Siria
+via colonnata,Palmira,"base di colonna,colonna, capitello, trabeazione,mensola",34.5508,38.2634,https://upload.wikimedia.org/wikipedia/commons/0/08/Palmira._Via_colonnata_del_teatro_-_DecArch_-_1-55.jpg,Via Colonnata di Palmira (vicino teatro),Siria
+via colonnata,Palmira,"base di colonna, colonna, capitello, trbeazione",34.55302,38.26562,https://upload.wikimedia.org/wikipedia/commons/a/a9/Palmira._Via_colonnata_dell%27_arco_-_DecArch_-_1-74.jpg,Via Colonnata di Palmira (tra tetrapilo e arco),Siria
+via colonnata,Palmira,"base di colonna, colonna, capitello, trabeazione",34.55302,38.26562,https://upload.wikimedia.org/wikipedia/commons/a/a3/Palmira._Via_colonnata_e_tetrapilo_-_DecArch_-_1-101.jpg,Via Colonnata di Palmira (tra tetrapilo e arco),Siria
+via colonnata,Palmira,"base di colonna, colonna, capitello, mensola",34.55302,38.26562,https://upload.wikimedia.org/wikipedia/commons/0/00/Palmira._Via_colonnata_e_tetrapilo_-_DecArch_-_1-102.jpg,Via Colonnata di Palmira (tra tetrapilo e arco),Siria
+via colonnata,Palmira,"base di colonna, capitello, colonna, mensola, trabeazione",34.55302,38.26562,https://upload.wikimedia.org/wikipedia/commons/a/ae/Palmira._Via_colonnata_Nord_o_arco._Dav_T.fun_-_DecArch_-_1-165.jpg,Via Colonnata di Palmira (tra tetrapilo e arco),Siria
+via colonnata,Palmira,"base di colonna, colonna, capitello, mensola",34.55478,38.26254,https://upload.wikimedia.org/wikipedia/commons/5/50/Palmira._Via_colonnata_Nord_T.funerario_-_DecArch_-_1-166.jpg,Via Colonnata di Palmira (vicino tempio funerario),Siria
+via colonnata,Palmira,capitello,34.5508,38.2634,https://upload.wikimedia.org/wikipedia/commons/e/e5/Palmira._Via_colonnata_presso_il_teatro_-_DecArch_-_1-47.jpg,Via Colonnata di Palmira (vicino teatro),Siria
+via colonnata,Palmira,"base di colonna, colonna, capitello, trabeazione",34.5508,38.2634,https://upload.wikimedia.org/wikipedia/commons/4/46/Palmira._Via_colonnata_presso_il_teatro_-_DecArch_-_1-49.jpg,Via Colonnata di Palmira (vicino teatro),Siria
+via colonnata,Palmira,"trabeazione, capitello",34.5508,38.2634,https://upload.wikimedia.org/wikipedia/commons/8/82/Palmira._Via_colonnata_presso_il_teatro_-_DecArch_-_1-48.jpg,Via Colonnata di Palmira (vicino teatro),Siria
+via colonnata,Palmira,"base di colonna, colonna, capitello, trabeazione, mensola",34.55302,38.26562,https://upload.wikimedia.org/wikipedia/commons/2/28/Palmira._Via_colonnata_tra_arco_e_tetrapilo_-_DecArch_-_1-73.jpg,Via Colonnata di Palmira (tra tetrapilo e arco),Siria
+via colonnata,Palmira,"base di colonna, colonna, capitello, trabezione",34.55302,38.26562,https://upload.wikimedia.org/wikipedia/commons/a/a6/Palmira._Via_colonnata_tra_arco_e_tetrapilo_-_DecArch_-_1-75.jpg,Via Colonnata di Palmira (tra tetrapilo e arco),Siria
+via colonnata,Palmira,capitello,34.55302,38.26562,https://upload.wikimedia.org/wikipedia/commons/a/a6/Palmira._Via_colonnata_tra_T._di_bel_e_Arco_-_DecArch_-_1-24.jpg,Via Colonnata di Palmira (tra tetrapilo e arco),Siria
+via colonnata,Palmira,trabeazione,34.54876,38.27127,https://upload.wikimedia.org/wikipedia/commons/b/b8/Palmira._Via_colonnata_tra_T._di_bel_e_Arco_-_DecArch_-_1-27.jpg,Via Colonnata di Palmira (tra arco e tempio di Bel),Siria
+via colonnata,Palmira,capitello,34.54876,38.27127,https://upload.wikimedia.org/wikipedia/commons/c/cb/Palmira._Via_colonnata_tra_T._di_bel_e_Arco_-_DecArch_-_1-30.jpg,Via Colonnata di Palmira (tra arco e tempio di Bel),Siria
+via colonnata,Palmira,trabeazione,34.5508,38.2634,https://upload.wikimedia.org/wikipedia/commons/0/06/Palmira._Via_colonnata_del_teatro_-_DecArch_-_1-53.jpg,Via Colonnata di Palmita (vicino teatro),Siria
+via colonnata,Palmira,capitello,34.54876,38.27127,https://upload.wikimedia.org/wikipedia/commons/2/20/Palmira._Via_colonnata_tra_T._di_bel_e_Arco_-_DecArch_-_1-31.jpg,Via Colonnata di Palmira (tra arco e tempio di Bel),Siria
+via colonnata,Palmira,cornice,34.54876,38.27127,https://upload.wikimedia.org/wikipedia/commons/3/3a/Palmira._Via_colonnata_tra_T._di_bel_e_Arco%2C_part_di_X_2_-_DecArch_-_1-25.jpg,Via Colonnata di Palmira (tra arco e tempio di Bel),Siria
+via colonnata,Palmira,cornice,34.54876,38.27127,https://upload.wikimedia.org/wikipedia/commons/a/a4/Palmira._Via_colonnata_tra_T._di_bel_e_Arco%2C_parto_di_W_37_-_DecArch_-_1-28.jpg,Via Colonnata di Palmira (tra arco e tempio di Bel),Siria
+via colonnata,Palmira,cornice,34.54876,38.27127,https://upload.wikimedia.org/wikipedia/commons/1/16/Palmira._Via_colonnata_tra_T._di_bel_e_Arco%2C_X_2_-_DecArch_-_1-26.jpg,Via Colonnata di Palmira (tra arco e tempio di Bel),Siria
+via colonnata,Palmira,trabeazione,34.55478,38.26254,https://upload.wikimedia.org/wikipedia/commons/4/45/Palmira._Via_colonnata_tra_T._funerario_e_campo_di_Diocleziano_-_DecArch_-_1-136.jpg,Via Colonnata di Palmira (vicino tempio funerario),Siria
+via colonnata,Palmira,capitello,34.55238,38.26075,https://upload.wikimedia.org/wikipedia/commons/1/14/Palmira._Via_colonnata_tra_T._funerario_e_campo_di_Diocleziano_-_DecArch_-_1-137.jpg,Via Colonnata di Palmira (vicino campo di Diocleaziano),Siria
+via colonnata,Palmira,"base di colonna, colonna, capitello, mensola",34.55238,38.26075,https://upload.wikimedia.org/wikipedia/commons/5/5f/Palmira._Via_colonnata_tra_T._funerario_e_campo_di_Diocleziano_-_DecArch_-_1-140.jpg,Via Colonnata di Palmira (vicino campo di Diocleaziano),Siria
+via colonnata,Palmira,"colonna, capitello, base di colonna, trabeazione",34.55238,38.26075,https://upload.wikimedia.org/wikipedia/commons/2/26/Palmira._Via_colonnata_tra_T._funerario_e_campo_di_Diocleziano_-_DecArch_-_1-139.jpg,Via Colonnata di Palmira (vicino campo di Diocleaziano),Siria
+via colonnata,Palmira,capitello,34.55238,38.26075,https://upload.wikimedia.org/wikipedia/commons/4/4b/Palmira._Via_colonnata_tra_T._funerario_e_campo_di_Diocleziano_-_DecArch_-_1-138.jpg,Via Colonnata di Palmira (vicino campo di Diocleaziano),Siria
+via colonnata,Palmira,base di colonna,34.55478,38.26254,https://upload.wikimedia.org/wikipedia/commons/4/43/Palmira._Via_colonnata_verso_T.funerario%2C_occupazione_strada_-_DecArch_-_1-93.jpg,Via Colonnata di Palmira (vicino tempio funerario),Siria
+via colonnata,Palmira,"colonna, capitello, trabeazione",34.55352,38.26131,https://upload.wikimedia.org/wikipedia/commons/f/ff/Palmira._Via_colonnata_verso_porta_di_Damasco_-_DecArch_-_1-182.jpg,Via Colonnata di Palmira (vicino porta di Damasco),Siria
+via colonnata,Palmira,capitello,34.5505,38.2687,https://upload.wikimedia.org/wikipedia/commons/7/7c/Palmira._Via_colonnata%2C_nord_esedra_-_DecArch_-_1-91.jpg,Via Colonnata di Palmira,Siria
+via colonnata,Palmira,trabeazione,34.5505,38.2687,https://upload.wikimedia.org/wikipedia/commons/e/e0/Palmira._Via_colonnata%2C_nord_esedra._Part.di_Z_24_-_DecArch_-_1-89.jpg,Via Colonnata di Palmira,Siria
+via colonnata,Palmira,trabeazione,34.5505,38.2687,https://upload.wikimedia.org/wikipedia/commons/b/bd/Palmira._Via_colonnata%2C_nord_esedra._Z_24_-_DecArch_-_1-90.jpg,Via Colonnata di Palmira,Siria
+chiesa,Aleppo,architrave,36.3342,36.8385,https://upload.wikimedia.org/wikipedia/commons/9/92/San_Simeone._1%C2%B0ordine_decorazione_esterna_abside_basilica_dx_-_DecArch_-_2-194.jpg,Santuario di S. Simeone,Siria
+chiesa,Aleppo,cornice,36.3342,36.8385,https://upload.wikimedia.org/wikipedia/commons/8/82/San_Simeone._Abside_basilica_destra_-_DecArch_-_2-198.jpg,Santuario di S. Simeone,Siria
+chiesa,Aleppo,cornice,36.3342,36.8385,https://upload.wikimedia.org/wikipedia/commons/b/ba/San_Simeone._Abside_basilica_dx_-_DecArch_-_2-200.jpg,Santuario di S. Simeone,Siria
+chiesa,Aleppo,cornice,36.3342,36.8385,https://upload.wikimedia.org/wikipedia/commons/1/14/San_Simeone._Decorazione_abside_esterna_ottagono_centrale_-_DecArch_-_2-190.jpg,Santuario di S. Simeone,Siria
+chiesa,Aleppo,"base di colonna, capitello, colonna, cornice",36.3342,36.8385,https://upload.wikimedia.org/wikipedia/commons/b/b1/San_Simeone._Esterno_abside_basilica_dx_-_DecArch_-_2-192.jpg,Santuario di S. Simeone,Siria
+chiesa,Aleppo,"cornice, capitello",36.3342,36.8385,https://upload.wikimedia.org/wikipedia/commons/2/27/San_Simeone._Nartece_-_DecArch_-_2-172.jpg,Santuario di S. Simeone,Siria
+chiesa,Aleppo,"trabeazione, capitello",36.3342,36.8385,https://upload.wikimedia.org/wikipedia/commons/7/78/San_Simeone._Nartece_-_DecArch_-_2-174.jpg,Santuario di S. Simeone,Siria
+chiesa,Aleppo,"cornice, base di colonna, colonna, capitello",36.3342,36.8385,https://upload.wikimedia.org/wikipedia/commons/e/e0/San_Simeone._Nartece_della_facciata_-_DecArch_-_2-170.jpg,Santuario di S. Simeone,Siria
+chiesa,Aleppo,cornice,36.3342,36.8385,https://upload.wikimedia.org/wikipedia/commons/8/80/San_Simeone._Nartece_sopra_il_portale_-_DecArch_-_2-176.jpg,Santuario di S. Simeone,Siria
+chiesa,Aleppo,"capitello, cornice",36.3342,36.8385,https://upload.wikimedia.org/wikipedia/commons/2/28/San_Simeone._nartece_finestra_laterale_-_DecArch_-_2-178.JPG,Santuario di S. Simeone,Siria
+chiesa,Aleppo,"base di colonna, capitello, cornice,  colonna",36.3342,36.8385,https://upload.wikimedia.org/wikipedia/commons/2/24/San_Simeone._Ottagono_centrale_-_DecArch_-_2-180.jpg,Santuario di S. Simeone,Siria
+chiesa,Aleppo,capitello,36.3342,36.8385,https://upload.wikimedia.org/wikipedia/commons/f/f6/San_Simeone._Ottagono_centrale_-_DecArch_-_2-182.jpg,Santuario di S. Simeone,Siria
+chiesa,Aleppo,architrave,36.3342,36.8385,https://upload.wikimedia.org/wikipedia/commons/c/c1/San_Simeone._Ottagono_centrale_-_DecArch_-_2-184.jpg,Santuario di S. Simeone,Siria
+chiesa,Aleppo,cornice,36.3342,36.8385,https://upload.wikimedia.org/wikipedia/commons/9/9f/Santuario_di_S._Simeone_-_DecArch_-_2-247.jpg,Santuario di S. Simeone,Siria
+chiesa,Aleppo,capitello,36.3342,36.8385,https://upload.wikimedia.org/wikipedia/commons/4/4f/Santuario_di_S._Simeone_-_DecArch_-_2-248.jpg,Santuario di S. Simeone,Siria
+chiesa,Aleppo,capitello,36.3342,36.8385,https://upload.wikimedia.org/wikipedia/commons/5/50/Santuario_di_S._Simeone_-_DecArch_-_2-250.jpg,Santuario di S. Simeone,Siria
+chiesa,Aleppo,cornice,36.3342,36.8385,https://upload.wikimedia.org/wikipedia/commons/8/89/Santuario_di_S._Simeone._Abside_basilica_dx_-_DecArch_-_2-251.jpg,Santuario di S. Simeone,Siria
+chiesa,Aleppo,cornice,36.3342,36.8385,https://upload.wikimedia.org/wikipedia/commons/1/16/Santuario_San_Simeone._Chiesa_esterna_-_DecArch_-_2-148.jpg,Santuario di S. Simeone,Siria
+chiesa,Aleppo,trabeazione,36.3342,36.8385,https://upload.wikimedia.org/wikipedia/commons/9/94/Santuario_San_Simeone._Chiesa_esterna._Portale_sul_fianco_-_DecArch_-_2-146.jpg,Santuario di S. Simeone,Siria
+chiesa,Aleppo,trabeazione,36.3342,36.8385,https://upload.wikimedia.org/wikipedia/commons/4/4b/Santuario_San_Simeone._Chiesa_esterna._Portale_sul_fianco_-_DecArch_-_2-150.jpg,Santuario di S. Simeone,Siria
+chiesa,Aleppo,"base di colonna, capitello, cornice,  colonna",36.3342,36.8385,https://upload.wikimedia.org/wikipedia/commons/0/0b/Santuario_San_Simeone._Facciata_ingresso_-_DecArch_-_2-160.jpg,Santuario di S. Simeone,Siria
+chiesa,Aleppo,capitello,36.3342,36.8385,https://upload.wikimedia.org/wikipedia/commons/1/12/Santuario_San_Simeone._Facciata_ingresso_-_DecArch_-_2-162.jpg,Santuario di S. Simeone,Siria
+chiesa,Aleppo,capitello,36.3342,36.8385,https://upload.wikimedia.org/wikipedia/commons/1/18/Santuario_San_Simeone._Facciata_ingresso_-_DecArch_-_2-164.jpg,Santuario di S. Simeone,Siria
+chiesa,Aleppo,cornice,36.3342,36.8385,https://upload.wikimedia.org/wikipedia/commons/6/62/Santuario_San_Simeone._Facciata_ingresso_-_DecArch_-_2-166.jpg,Santuario di S. Simeone,Siria
+chiesa,Aleppo,cornice,36.3342,36.8385,https://upload.wikimedia.org/wikipedia/commons/f/f4/Santuario_San_Simeone._Facciata_ingresso_-_DecArch_-_2-168.jpg,Santuario di S. Simeone,Siria
+chiesa,Aleppo,"base di colonna, capitello, cornice,  colonna",36.3342,36.8385,https://upload.wikimedia.org/wikipedia/commons/a/a3/Santuario_San_Simeone._Porta_ingresso_-_DecArch_-_2-152.jpg,Santuario di S. Simeone,Siria
+chiesa,Aleppo,capitello,36.3342,36.8385,https://upload.wikimedia.org/wikipedia/commons/5/57/Santuario_San_Simeone._Porta_ingresso_-_DecArch_-_2-154.jpg,Santuario di S. Simeone,Siria
+chiesa,Aleppo,"capitello, cornice",36.3342,36.8385,https://upload.wikimedia.org/wikipedia/commons/b/be/Santuario_San_Simeone._Porta_ingresso_-_DecArch_-_2-156.jpg,Santuario di S. Simeone,Siria
+chiesa,Sergiopoli,capitello,35.6171,38.7384,https://upload.wikimedia.org/wikipedia/commons/d/de/Sergiopolis._Basilica_centrale_-_DecArch_-_2-215.jpg,Basilica centrale,Siria
+chiesa,Sergiopoli,"peduccio, cornice",35.6171,38.7384,https://upload.wikimedia.org/wikipedia/commons/0/06/Sergiopolis._Basilica_centrle_-_DecArch_-_2-261.jpg,Basilica centrale,Siria
+porta,Sergiopoli,capitello,35.6171,38.7384,https://upload.wikimedia.org/wikipedia/commons/0/06/Sergiopolis._Basilica_centrle_-_DecArch_-_2-261.jpg,Porta Nord,Siria
+chiesa,Sergiopoli,cornice,35.6171,38.7384,https://upload.wikimedia.org/wikipedia/commons/3/32/Sergiopolis._Basilica_centrle_-_DecArch_-_2-262.jpg,Basilica centrale,Siria
+chiesa,Sergiopoli,cornice,35.6171,38.7384,https://upload.wikimedia.org/wikipedia/commons/1/14/Sergiopolis._Basilica_centrle_-_DecArch_-_2-263.jpg,Basilica centrale,Siria
+chiesa,Sergiopoli,base,35.6171,38.7384,https://upload.wikimedia.org/wikipedia/commons/7/78/Sergiopolis._Cattedrale_-_DecArch_-_2-252.jpg,Cattedrale di Sergiopoli,Siria
+chiesa,Sergiopoli,capitello,35.6171,38.7384,https://upload.wikimedia.org/wikipedia/commons/a/a5/Sergiopolis._Cattedrale_-_DecArch_-_2-253.jpg,Cattedrale di Sergiopoli,Siria
+chiesa,Sergiopoli,"capitello, cornice",35.6171,38.7384,https://upload.wikimedia.org/wikipedia/commons/b/bc/Sergiopolis._Cattedrale_-_DecArch_-_2-254.jpg,Cattedrale di Sergiopoli,Siria
+chiesa,Sergiopoli,cornice,35.6171,38.7384,https://upload.wikimedia.org/wikipedia/commons/1/1f/Sergiopolis._Martirion_-_DecArch_-_2-201.jpg,Martyrion,Siria
+chiesa,Sergiopoli,cornice,35.6171,38.7384,https://upload.wikimedia.org/wikipedia/commons/7/7a/Sergiopolis._Martirion_-_DecArch_-_2-202.jpg,Martyrion,Siria
+chiesa,Sergiopoli,trabeazione,35.6171,38.7384,https://upload.wikimedia.org/wikipedia/commons/d/d6/Sergiopolis._Martirion_-_DecArch_-_2-203.jpg,Martyrion,Siria
+chiesa,Sergiopoli,trabeazione,35.6171,38.7384,https://upload.wikimedia.org/wikipedia/commons/1/16/Sergiopolis._Martirion_-_DecArch_-_2-204.jpg,Martyrion,Siria
+chiesa,Sergiopoli,base di colonna,35.6171,38.7384,https://upload.wikimedia.org/wikipedia/commons/5/57/Sergiopolis._Martirion_-_DecArch_-_2-205.jpg,Martyrion,Siria
+chiesa,Sergiopoli,cornice,35.6171,38.7384,https://upload.wikimedia.org/wikipedia/commons/c/c5/Sergiopolis._Martirion_-_DecArch_-_2-206.jpg,Martyrion,Siria
+chiesa,Sergiopoli,capitello,35.6171,38.7384,https://upload.wikimedia.org/wikipedia/commons/e/ed/Sergiopolis._Martirion_-_DecArch_-_2-207.jpg,Martyrion,Siria
+chiesa,Sergiopoli,cornice,35.6171,38.7384,https://upload.wikimedia.org/wikipedia/commons/b/bf/Sergiopolis._Martirion_dec._abside_-_DecArch_-_2-260.jpg,Martyrion,Siria
+chiesa,Sergiopoli,"peduccio, cornice",35.6171,38.7384,https://upload.wikimedia.org/wikipedia/commons/5/56/Sergiopolis._Martirion._Decorazione_absidie_-_DecArch_-_2-210.jpg,Martyrion,Siria
+chiesa,Sergiopoli,cornice,35.6171,38.7384,https://upload.wikimedia.org/wikipedia/commons/3/35/Sergiopolis._Martirion._Decorazioni_absidi_laterali_%28forse%29_-_DecArch_-_2-208.jpg,Martyrion,Siria
+chiesa,Sergiopoli,"peduccio, cornice",35.6171,38.7384,https://upload.wikimedia.org/wikipedia/commons/6/61/Sergiopolis._Martirion._Decorazioni_absidi_laterali_%28forse%29_-_DecArch_-_2-209.jpg,Martyrion,Siria
+chiesa,Sergiopoli,cornice,35.6171,38.7384,https://upload.wikimedia.org/wikipedia/commons/2/2c/Sergiopolis._Martiryon_-_DecArch_-_2-267.jpg,Martyrion,Siria
+chiesa,Sergiopoli,architrave,35.6171,38.7384,https://upload.wikimedia.org/wikipedia/commons/d/dd/Sergiopolis._Martiryon_-_DecArch_-_2-268.jpg,Martyrion,Siria
+chiesa,Sergiopoli,architrave,35.6171,38.7384,https://upload.wikimedia.org/wikipedia/commons/a/a9/Sergiopolis._Martiryon_-_DecArch_-_2-269.jpg,Martyrion,Siria
+porta,Sergiopoli,peduccio,35.6171,38.7384,https://upload.wikimedia.org/wikipedia/commons/2/25/Sergiopolis._Porta_nord_-_DecArch_-_2-214.jpg,Porta Nord,Siria
+porta,Sergiopoli,cornice,35.6171,38.7384,https://upload.wikimedia.org/wikipedia/commons/5/58/Sergiopolis._Porta_nord_-_DecArch_-_2-216.jpg,Porta Nord,Siria
+porta,Sergiopoli,peduccio,35.6171,38.7384,https://upload.wikimedia.org/wikipedia/commons/3/3b/Sergiopolis._Porta_nord_-_DecArch_-_2-217.jpg,Porta Nord,Siria
+porta,Sergiopoli,capitello,35.6171,38.7384,https://upload.wikimedia.org/wikipedia/commons/8/8b/Sergiopolis._Porta_nord_-_DecArch_-_2-218.jpg,Porta Nord,Siria
+porta,Sergiopoli,"base di colonna, colonna, capitello, cornice",35.6171,38.7384,https://upload.wikimedia.org/wikipedia/commons/c/c3/Sergiopolis._Porta_nord_-_DecArch_-_2-220.jpg,Porta Nord,Siria
+porta,Sergiopoli,cornice,35.6171,38.7384,https://upload.wikimedia.org/wikipedia/commons/7/72/Sergiopolis._Porta_sud_-_DecArch_-_2-211.jpg,Porta Sud,Siria
+ninfeo,Gerasa,trabeazione,32.28065,35.89214,https://upload.wikimedia.org/wikipedia/commons/2/22/GerasaNinfeo-Trabeazione.jpg,Ninfeo di Gerasa,Giordania
+chiesa,Gerasa,trabeazione,32.28094,35.89066,https://upload.wikimedia.org/wikipedia/commons/5/5a/GerasaPropileiCattedrale.jpg,Cattedrale di Gerasa,Giordania
+tempio,Gerasa,cornice,32.28132,35.8914,https://upload.wikimedia.org/wikipedia/commons/c/c6/GerasaTempioArtemide-Propilei-Cornici.jpg,Tempio di Artemide,Giordania
+tempio,Gerasa,capitello,32.28132,35.8914,https://upload.wikimedia.org/wikipedia/commons/d/de/GerasaTempioArtemideCapitelli.jpg,Tempio di Artemide,Giordania
+via colonnata,Gerasa,"capitello, trabeazione",32.28131,35.8924,https://upload.wikimedia.org/wikipedia/commons/a/a8/GerasaViaColonnata.jpg,Via Colonnata di Gerasa,Giordania

@@ -14,6 +14,8 @@ import { MnMarkerComponent } from './mn-marker/mn-marker.component';
 import { MnStyleComponent } from './mn-style/mn-style.component';
 import { MnLayerswitcherComponent } from './mn-layerswitcher/mn-layerswitcher.component';
 import { MnSearchComponent } from './mn-search/mn-search.component';
+import { TypedPipe } from './cartouche/typed.pipe';
+
 
 const dec = [
   MnMapComponent,
@@ -25,7 +27,8 @@ const dec = [
   MnDatasourcefilterComponent,
   MnLayerswitcherComponent,
   MnSearchComponent,
-  CartoucheComponent
+  CartoucheComponent,
+  TypedPipe
 ];
 
 @NgModule({

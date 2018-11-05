@@ -22,9 +22,13 @@ export class MnGeoDatasourcesRegistryService extends MnRegistryService<any> {
   for(name: string): any {
     console.log('mn-geo-datasources', name);
     const f = super.for(name);
-    console.log('mn-geo-datasources', f);
-    const ds = new f();
-    ds.setup({http: this.http});
-    return ds;
+    if (typeof(f) === 'function') {
+      console.log('mn-geo-datasources', f);
+      const ds = new f();
+      ds.setup({http: this.http});
+      return ds;
+    } else {
+      return f;
+    }
   }
 }

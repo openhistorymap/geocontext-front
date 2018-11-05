@@ -59,7 +59,8 @@ export class LayersmanagerService {
         this.yayDataSource.forEach(item => {
           if (item.layer.getRequiresDatasources()) {
             console.log('adding', item);
-            this.addLayer(item);
+            const lyr = this.create(item);
+            this.flavour.addLayer(lyr);
           }
           console.log('done adding layers with datasources');
         });

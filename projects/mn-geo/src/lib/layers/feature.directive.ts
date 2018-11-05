@@ -39,7 +39,7 @@ export class FeatureLayer extends Layer {
       }
     };
     if (this.getConfiguration().styles.length > 0) {
-      const geojsonMarkerOptions = this.getConfiguration().styles[0].options;
+      const geojsonMarkerOptions = this.getConfiguration().styles.first.style.options;
       options['pointToLayer'] = function (feature, latlng) {
         return L.circleMarker(latlng, geojsonMarkerOptions);
       };

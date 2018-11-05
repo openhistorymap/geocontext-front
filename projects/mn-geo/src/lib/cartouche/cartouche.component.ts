@@ -39,8 +39,19 @@ export class CartoucheComponent implements OnInit {
     return ret;
   }
 
-  getKeys(dict) {
-    return Object.keys(dict);
+  getKeys(exclude: string[]) {
+    let ret = Object.keys(this.properties);
+    ret = ret.filter(x => {
+      let rr = true;
+      exclude.forEach(xx => {
+        console.log(xx, this.cols(xx), x, this.cols(xx).indexOf(x));
+        if (this.cols(xx).indexOf(x) >= 0) {
+          rr = false;
+        }
+      });
+      return rr;
+    });
+    return ret;
   }
 
 }

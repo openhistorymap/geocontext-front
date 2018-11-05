@@ -1,16 +1,8 @@
-import { Injectable } from '@angular/core';
-import {
-  HttpInterceptor,
-  HttpRequest,
-  HttpResponse,
-  HttpHandler,
-  HttpHeaderResponse,
-  HttpProgressEvent,
-  HttpSentEvent,
-  HttpUserEvent
-} from '@angular/common/http';
-import { of , Observable } from 'rxjs';
-import { tap, delay, mapTo, share } from 'rxjs/operators';
+import { MnCachingServiceConfiguration, MnCachingConfiguration } from './mn-caching.module';
+import { HttpHandler, HttpInterceptor, HttpRequest, HttpResponse } from '@angular/common/http';
+import { Injectable, Inject } from '@angular/core';
+import { Observable, of } from 'rxjs';
+import { share, tap } from 'rxjs/operators';
 
 export abstract class Cache {
   abstract get(req: HttpRequest < any > ): HttpResponse < any > | null;
@@ -23,9 +15,6 @@ export interface CacheEntry {
   entryTime: number;
 }
 
-export const MAX_CACHE_AGE = 20000;
-export const DELAY = 500;
-
 
 @Injectable()
 export class MnCachingService implements HttpInterceptor {
@@ -33,11 +22,15 @@ export class MnCachingService implements HttpInterceptor {
 
   constructor(
     private cache: CacheMapService,
-    private obs: ObservableMapService
+    private obs: ObservableMapService,
+    @Inject(MnCachingServiceConfiguration) private config: MnCachingConfiguration
   ) {}
 
   intercept(req: HttpRequest < any > , next: HttpHandler) {
     if (!this.isRequestCachable(req)) {
+      if (this.config.invalidationFunction) {
+        this.config.invalidationFunction(req);
+      }
       return next.handle(req);
     }
     const cachedResponse = this.cache.get(req);
@@ -66,20 +59,23 @@ export class MnCachingService implements HttpInterceptor {
   }
 
   private isRequestCachable(req: HttpRequest < any > ) {
-    return (req.method === 'GET');
+    return (this.config.cacheMethods.indexOf(req.method) >= 0);
   }
 }
 
 
 @Injectable()
 export class CacheMapService implements Cache {
+  constructor(
+    @Inject(MnCachingServiceConfiguration) private config
+  ) { }
   cacheMap = new Map < string, CacheEntry > ();
   get(req: HttpRequest < any > ): HttpResponse < any > | null {
     const entry = this.cacheMap.get(req.urlWithParams);
     if (!entry) {
       return null;
     }
-    const isExpired = (Date.now() - entry.entryTime) > MAX_CACHE_AGE;
+    const isExpired = (Date.now() - entry.entryTime) > this.config.maxCacheAge;
     return isExpired ? null : entry.response;
   }
   put(req: HttpRequest < any > , res: HttpResponse < any > ): void {
@@ -93,7 +89,7 @@ export class CacheMapService implements Cache {
   }
   private deleteExpiredCache() {
     this.cacheMap.forEach(entry => {
-      if ((Date.now() - entry.entryTime) > MAX_CACHE_AGE) {
+      if ((Date.now() - entry.entryTime) > this.config.maxCacheAge) {
         this.cacheMap.delete(entry.url);
       }
     });
@@ -106,6 +102,9 @@ export class CacheMapService implements Cache {
 
 @Injectable()
 export class ObservableMapService {
+  constructor(
+    @Inject(MnCachingServiceConfiguration) private config
+  ) { }
   cacheMap = new Map < string, Observable<any> > ();
   get(req: HttpRequest < any > ): Observable<any> | null {
     const entry = this.cacheMap.get(req.urlWithParams);
