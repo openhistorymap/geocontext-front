@@ -19,7 +19,9 @@
         </ng-template>
         <mn-layerswitcher [map]="map">
           <ng-template let-layer>
-            <mat-slide-toggle class="example-margin" color="primary" [checked]="layer.visible" (change)="toggleVisible(layer)"></mat-slide-toggle><gcx-legend [style]="layer.style"></gcx-legend>{{layer.name}}
+            <div>
+              <mat-slide-toggle class="example-margin" color="primary" [checked]="layer.visible" (change)="toggleVisible(layer)" ><gcx-legend [style]="layer.style"></gcx-legend>{{layer.name}}</mat-slide-toggle>
+            </div>
           </ng-template>
         </mn-layerswitcher>
       </mat-tab>

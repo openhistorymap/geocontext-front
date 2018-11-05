@@ -2,15 +2,15 @@ import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatExpansionModule } from '@angular/material/expansion';
 import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
 import { MatListModule } from '@angular/material/list';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTreeModule } from '@angular/material/tree';
-import {MatExpansionModule} from '@angular/material/expansion';
-
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { RouterModule } from '@angular/router';
 import { MnConfigurationRegsitryService, MnConfiguratorModule } from '@modalnodes/mn-configurator';
@@ -27,7 +27,6 @@ import { GCX_CORE_FILE, GcxCoreService } from './gcx-core.service';
 import { GcxLegendComponent } from './gcx-legend/gcx-legend.component';
 import { GcxMainComponent } from './gcx-main/gcx-main.component';
 import { GcxMapComponent } from './gcx-map/gcx-map.component';
-import {MatInputModule} from '@angular/material/input';
 
 
 
