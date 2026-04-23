@@ -19,6 +19,8 @@ Done:
 - [x] Port `mn-geo-layers` cores: `Layer` abstract, `LayersmanagerService`, `MnGeoLayersRegistryService`
 - [x] Port `mn-geo` container: `<mn-map>`, `<mn-layer>`, `<mn-datasource>`, `<mn-style>`, `MnMapFlavourDirective`, `DatasetRegistryService`
 - [x] Port `mn-geo-flavours-leaflet`: real Leaflet adapter (was an empty stub in legacy)
+- [x] Port `mn-geo-flavours-mapbox` to **MapLibre-GL** (library name kept for npm stability; directive is `[mnMapFlavourMaplibre]`). App defaults to this flavour.
+- [x] Introduce renderer-agnostic layer descriptors (`raster-tiles`, `vector-tiles`, `geojson-features`) in `mn-geo-layers`; OsmTiles + OfmTiles now emit descriptors that either flavour can render
 - [x] Port `mn-geo-layers-osm`: OSM tile classes + `provideMnGeoLayersOsm()`
 - [x] New `mn-geo-layers-ofm`: OpenFantasyMaps tiles + `provideMnGeoLayersOfm()`
 - [x] New `mn-geo-layers-geomqtt`: MQTT → GeoJSON live streams + `provideMnGeoLayersGeomqtt()`
@@ -37,7 +39,7 @@ Dropped (were empty scaffolds in legacy or dead-service):
 Not yet ported (stock `ng g library` scaffolds, do not treat as real code):
 - [ ] `mn-geo-datasources-{csv,firebase,shp,agentmap}` (firebase will stay empty — dep dropped)
 - [ ] `mn-geo-layers-{carto,ohm,c3d}`
-- [ ] `mn-geo-flavours-mapbox` (the lib name stays; implementation should be MapLibre-GL)
+- [ ] `mn-geo-layers-geomqtt`: descriptor-ify it so MapLibre can render it too (today it emits a mutable `L.FeatureGroup`, Leaflet-only)
 - [ ] `mn-map` (standalone Leaflet host), `mn-mapgl` (standalone MapLibre host)
 - [ ] `mn-caching`, `mn-lazy`, `mn-filesize`
 - [ ] `chcx-static` (dynamic routes from `/assets/chcx-static.json`), `chcx-main`, `chcx-about`
@@ -131,7 +133,19 @@ Each provider uses `provideAppInitializer(() => { inject(MnGeoLayersRegistryServ
 - `ngAfterContentInit` picks the first flavour from `contentChildren(MnMapFlavourDirective, { descendants: true })` and calls `flavour.setup(this)`.
 - The flavour's `setup` creates the underlying map (Leaflet/MapLibre/…) and calls back `host.ready()`, which feeds the collected datasources and layers into `DatasourcesmanagerService` / `LayersmanagerService`. The layers manager defers layers that require datasources until `DatasourcesmanagerService.fetchDatasources()` resolves.
 
-Adding a new rendering backend is a new `mn-geo-flavours-*` library; `mn-geo` does not need to change. The `[mnMapFlavourLeaflet]` directive uses `providers: [{ provide: MnMapFlavourDirective, useExisting: forwardRef(...) }]` so `<mn-map>`'s `contentChildren(MnMapFlavourDirective)` picks it up.
+Adding a new rendering backend is a new `mn-geo-flavours-*` library; `mn-geo` does not need to change. Each flavour directive (`[mnMapFlavourLeaflet]`, `[mnMapFlavourMaplibre]`) uses `providers: [{ provide: MnMapFlavourDirective, useExisting: forwardRef(...) }]` so `<mn-map>`'s `contentChildren(MnMapFlavourDirective)` picks it up.
+
+### Layer descriptors
+
+Layer classes should return renderer-agnostic descriptors from `create()`:
+
+```typescript
+{ kind: 'raster-tiles', id, urls, tileSize?, minZoom?, maxZoom?, attribution? }
+{ kind: 'vector-tiles', id, urls, styleLayers, minZoom?, maxZoom?, attribution? }
+{ kind: 'geojson-features', id, data, style?, onClick? }
+```
+
+Flavours translate descriptors into their native representations at `addLayer()` time (Leaflet → `L.tileLayer` / `L.geoJSON`; MapLibre → `addSource` + `addLayer` with GL style spec). Flavours also accept native renderer objects as a fallback — this is how `mn-geo-layers-geomqtt` works on Leaflet today, since its mutable `L.FeatureGroup` doesn't map cleanly to a descriptor. Descriptor-ify geomqtt when adding cross-flavour support for it.
 
 ### Application shell (`gcx-core`)
 
