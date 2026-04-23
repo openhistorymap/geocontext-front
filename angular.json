@@ -1544,6 +1544,39 @@
           }
         }
       }
+    },
+    "mn-registry": {
+      "projectType": "library",
+      "root": "projects/mn-registry",
+      "sourceRoot": "projects/mn-registry/src",
+      "prefix": "mn",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-angular:ng-packagr",
+          "options": {
+            "project": "projects/mn-registry/ng-package.json"
+          },
+          "configurations": {
+            "production": {
+              "tsConfig": "projects/mn-registry/tsconfig.lib.prod.json"
+            },
+            "development": {
+              "tsConfig": "projects/mn-registry/tsconfig.lib.json"
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "test": {
+          "builder": "@angular-devkit/build-angular:karma",
+          "options": {
+            "tsConfig": "projects/mn-registry/tsconfig.spec.json",
+            "polyfills": [
+              "zone.js",
+              "zone.js/testing"
+            ]
+          }
+        }
+      }
     }
   }
 }

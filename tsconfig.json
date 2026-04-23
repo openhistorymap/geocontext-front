@@ -115,6 +115,9 @@
       ],
       "@ohmap/ohm-core": [
         "./dist/ohm-core"
+      ],
+      "@modalnodes/mn-registry": [
+        "./dist/mn-registry"
       ]
     },
     "outDir": "./dist/out-tsc",
