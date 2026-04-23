@@ -1,59 +1,130 @@
-# GeocontextFront
+# GeoContext
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 19.2.24.
+GeoContext is a declarative, plugin-driven map application built on Angular 19.
+A single `<mn-map>` element composes a rendering **flavour** (Leaflet today,
+MapLibre GL planned), any number of **layers** (OSM, OpenFantasyMaps, GeoMQTT
+live streams, …), and **datasources** (CSV, GeoJSON, SHP, …). Layers and
+datasources come from their own libraries and self-register at bootstrap, so
+adding a new backend is one provider call, not a fork of the core.
 
-## Development server
+The repository is an Angular CLI monorepo: one shell app (`geocontext-front`),
+two secondary apps (`cityos-ng`, `ohm-front`), and ~25 libraries published
+under `@modalnodes/*`, `@geocontext/*`, and `@ohmap/*`.
 
-To start a local development server, run:
+## Layout
 
-```bash
-ng serve
+```
+src/                       app (geocontext-front)
+projects/
+  mn-registry/             plugin registry services
+  mn-geo/                  <mn-map> + flavour interface + projected children
+  mn-geo-datasources/      Datasource / RemoteHttpDatasource + manager
+  mn-geo-layers/           Layer abstract + manager + registry
+  mn-geo-layers-osm/       OSM tile layer   (provideMnGeoLayersOsm)
+  mn-geo-layers-ofm/       OpenFantasyMaps  (provideMnGeoLayersOfm)
+  mn-geo-layers-geomqtt/   MQTT → GeoJSON live stream
+  mn-geo-flavours-leaflet/ Leaflet adapter ([mnMapFlavourLeaflet])
+  gcx-core/                Material shell: toolbar + sidebar + router-outlet
+  chcx-static/             static-page route list
+  …                        see angular.json for the full set
+public/assets/gcx.json     runtime map config (center, datasources, layers)
+_legacy/                   frozen Angular 6 tree, kept while porting
 ```
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+Libraries resolve from `dist/<name>/` via `tsconfig.json` `paths`, so a
+library must be built before a consumer can import it.
 
-## Code scaffolding
+## Toolchain
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
-
-```bash
-ng generate component component-name
-```
-
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
-
-```bash
-ng generate --help
-```
-
-## Building
-
-To build the project run:
+- Angular 19.2, TypeScript 5.7, RxJS 7.8, zone.js 0.15, esbuild application
+  builder, Material 19.
+- **Node 20 required, via Docker.** The host's GLIBC (Ubuntu 18.04-era) can't
+  run Node 18+ binaries, so nvm isn't an option. Every command below runs
+  inside `node:20` with the repo mounted.
 
 ```bash
-ng build
+# Install dependencies (first time, and after package.json changes)
+docker run --rm -v "$PWD:/app" -w /app -u $(id -u):$(id -g) \
+  -e HOME=/tmp -e NG_CLI_ANALYTICS=false node:20 \
+  npm install
+
+# Dev server (http://localhost:4200)
+docker run --rm -v "$PWD:/app" -w /app -u $(id -u):$(id -g) \
+  -p 4200:4200 -e HOME=/tmp node:20 \
+  npx ng serve --host=0.0.0.0
+
+# Build a single library (rebuild downstream libs after changes)
+docker run --rm -v "$PWD:/app" -w /app -u $(id -u):$(id -g) \
+  -e HOME=/tmp node:20 \
+  npx ng build <lib-name>
+
+# Build the main app (production)
+docker run --rm -v "$PWD:/app" -w /app -u $(id -u):$(id -g) \
+  -e HOME=/tmp node:20 \
+  npx ng build
+
+# Per-project unit tests / lint
+docker run --rm -v "$PWD:/app" -w /app -u $(id -u):$(id -g) \
+  -e HOME=/tmp node:20 \
+  npx ng test <project>
 ```
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
+## How a map is composed
 
-## Running unit tests
+Runtime config in `public/assets/gcx.json`:
 
-To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
-
-```bash
-ng test
+```json
+{
+  "title": "GeoContext",
+  "center": [12.4964, 41.9028],
+  "startzoom": 5, "minzoom": 1, "maxzoom": 19,
+  "datasources": [],
+  "layers": [
+    { "name": "OpenStreetMap", "type": "osm-tiled" }
+  ]
+}
 ```
 
-## Running end-to-end tests
+The shell reads that file, feeds the center + zoom into `<mn-map>`, and
+projects each `layers[*]` entry as a `<mn-layer>` whose `type` is looked up
+in the `MnGeoLayersRegistryService`. The registry is populated at bootstrap
+by `provideMnGeoLayersOsm()`, `provideMnGeoLayersOfm()`, etc. in
+`src/app/app.config.ts` — adding a layer source is a one-line provider call.
 
-For end-to-end (e2e) testing, run:
+The rendering backend is chosen by which flavour directive is placed inside
+`<gcx-map>`:
 
-```bash
-ng e2e
+```html
+<gcx-map>
+  <div mnMapFlavourLeaflet></div>   <!-- or [mnMapFlavourMaplibre] once ported -->
+</gcx-map>
 ```
 
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
+`gcx-core` stays renderer-agnostic — swapping Leaflet for MapLibre is a
+change in the app's `MapRouteComponent`, not in `gcx-map`.
 
-## Additional Resources
+## Rewrite status
 
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+This branch (`rewrite/angular-latest`) is a ground-up port of the original
+Angular 6 monorepo. The plugin architecture is preserved; the module system
+is standalone; registration side-effects moved from NgModule constructors to
+`provideAppInitializer()` functions.
+
+**Ported:** `mn-registry`, `mn-geo-{datasources,layers}`, `mn-geo`,
+`mn-geo-flavours-leaflet`, `mn-geo-layers-osm`, `mn-geo-layers-ofm`,
+`mn-geo-layers-geomqtt`, `gcx-core`.
+
+**Not yet ported:** the remaining datasource/layer libraries, the MapLibre
+flavour, `chcx-static` routes, `chcx-main`, `chcx-about`, `ohm-core`,
+`c3d-core`, and the two secondary apps (`cityos-ng`, `ohm-front`).
+
+**Dropped:** Stamen (service deprecated 2023), the modes / transformer
+matrix libraries (empty scaffolds in legacy), `angularfire2` / Firebase
+(not needed), `@angular/flex-layout` (deprecated), Protractor (EOL).
+
+See `_legacy/` for the original Angular 6 source and `CLAUDE.md` for porting
+notes.
+
+## License
+
+See `LICENSE`.
