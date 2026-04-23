@@ -1,8 +1,122 @@
-/* To learn more about Typescript configuration file: https://www.typescriptlang.org/docs/handbook/tsconfig-json.html. */
-/* To learn more about Angular compiler options: https://angular.dev/reference/configs/angular-compiler-options. */
 {
   "compileOnSave": false,
   "compilerOptions": {
+    "paths": {
+      "@ohmap/c3d-core": [
+        "./dist/c3d-core"
+      ],
+      "@ohmap/chcx-about": [
+        "./dist/chcx-about"
+      ],
+      "@ohmap/chcx-main": [
+        "./dist/chcx-main"
+      ],
+      "@ohmap/chcx-static": [
+        "./dist/chcx-static"
+      ],
+      "@geocontext/gcx-core": [
+        "./dist/gcx-core"
+      ],
+      "@modalnodes/mn-caching": [
+        "./dist/mn-caching"
+      ],
+      "@modalnodes/mn-filesize": [
+        "./dist/mn-filesize"
+      ],
+      "@modalnodes/mn-geo": [
+        "./dist/mn-geo"
+      ],
+      "@modalnodes/mn-geo-datasources": [
+        "./dist/mn-geo-datasources"
+      ],
+      "@modalnodes/mn-geo-datasources-agentmap": [
+        "./dist/mn-geo-datasources-agentmap"
+      ],
+      "@modalnodes/mn-geo-datasources-csv": [
+        "./dist/mn-geo-datasources-csv"
+      ],
+      "@modalnodes/mn-geo-datasources-firebase": [
+        "./dist/mn-geo-datasources-firebase"
+      ],
+      "@modalnodes/mn-geo-datasources-shp": [
+        "./dist/mn-geo-datasources-shp"
+      ],
+      "@modalnodes/mn-geo-flavours": [
+        "./dist/mn-geo-flavours"
+      ],
+      "@modalnodes/mn-geo-flavours-leaflet": [
+        "./dist/mn-geo-flavours-leaflet"
+      ],
+      "@modalnodes/mn-geo-flavours-mapbox": [
+        "./dist/mn-geo-flavours-mapbox"
+      ],
+      "@modalnodes/mn-geo-layers": [
+        "./dist/mn-geo-layers"
+      ],
+      "@modalnodes/mn-geo-layers-c3d": [
+        "./dist/mn-geo-layers-c3d"
+      ],
+      "@modalnodes/mn-geo-layers-carto": [
+        "./dist/mn-geo-layers-carto"
+      ],
+      "@modalnodes/mn-geo-layers-ohm": [
+        "./dist/mn-geo-layers-ohm"
+      ],
+      "@modalnodes/mn-geo-layers-osm": [
+        "./dist/mn-geo-layers-osm"
+      ],
+      "@modalnodes/mn-geo-layers-stamen": [
+        "./dist/mn-geo-layers-stamen"
+      ],
+      "@modalnodes/mn-geo-modes": [
+        "./dist/mn-geo-modes"
+      ],
+      "@modalnodes/mn-geo-modes-m25d": [
+        "./dist/mn-geo-modes-m25d"
+      ],
+      "@modalnodes/mn-geo-modes-m2d": [
+        "./dist/mn-geo-modes-m2d"
+      ],
+      "@modalnodes/mn-geo-modes-m3d": [
+        "./dist/mn-geo-modes-m3d"
+      ],
+      "@modalnodes/mn-geo-transformers": [
+        "./dist/mn-geo-transformers"
+      ],
+      "@modalnodes/mn-geo-transformers-agentmap-m2d-leaflet": [
+        "./dist/mn-geo-transformers-agentmap-m2d-leaflet"
+      ],
+      "@modalnodes/mn-geo-transformers-agentmap-m3d-mapbox": [
+        "./dist/mn-geo-transformers-agentmap-m3d-mapbox"
+      ],
+      "@modalnodes/mn-geo-transformers-c3d-m3d-leaflet": [
+        "./dist/mn-geo-transformers-c3d-m3d-leaflet"
+      ],
+      "@modalnodes/mn-geo-transformers-leaflet": [
+        "./dist/mn-geo-transformers-leaflet"
+      ],
+      "@modalnodes/mn-geo-transformers-mapbox": [
+        "./dist/mn-geo-transformers-mapbox"
+      ],
+      "@modalnodes/mn-geo-transformers-osm-leaflet": [
+        "./dist/mn-geo-transformers-osm-leaflet"
+      ],
+      "@modalnodes/mn-geo-transformers-stamen-leaflet": [
+        "./dist/mn-geo-transformers-stamen-leaflet"
+      ],
+      "@modalnodes/mn-lazy": [
+        "./dist/mn-lazy"
+      ],
+      "@modalnodes/mn-map": [
+        "./dist/mn-map"
+      ],
+      "@modalnodes/mn-mapgl": [
+        "./dist/mn-mapgl"
+      ],
+      "@ohmap/ohm-core": [
+        "./dist/ohm-core"
+      ]
+    },
     "outDir": "./dist/out-tsc",
     "strict": true,
     "noImplicitOverride": true,

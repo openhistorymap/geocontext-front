@@ -1,0 +1,7 @@
+{
+  "$schema": "../../node_modules/ng-packagr/ng-package.schema.json",
+  "dest": "../../dist/mn-geo-transformers-osm-leaflet",
+  "lib": {
+    "entryFile": "src/public-api.ts"
+  }
+}
