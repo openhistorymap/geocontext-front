@@ -28,27 +28,8 @@ jobs:
       - name: Install
         run: npm ci --no-audit --no-fund
 
-      - name: Build ported libraries
-        env:
-          LIBS: >-
-            mn-registry
-            mn-geo-datasources
-            mn-geo-layers
-            mn-geo
-            mn-geo-flavours-leaflet
-            mn-geo-layers-osm
-            mn-geo-layers-ofm
-            mn-geo-layers-geomqtt
-            gcx-core
-        run: |
-          for lib in $LIBS; do
-            echo "::group::ng build $lib"
-            npx ng build "$lib"
-            echo "::endgroup::"
-          done
-
-      - name: Build app
-        run: npx ng build --configuration=production
+      - name: Build ported libraries + app
+        run: ./scripts/build-ported.sh
 
       - name: Upload dist
         if: matrix.node == '20'
