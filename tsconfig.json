@@ -65,45 +65,6 @@
       "@modalnodes/mn-geo-layers-osm": [
         "./dist/mn-geo-layers-osm"
       ],
-      "@modalnodes/mn-geo-layers-stamen": [
-        "./dist/mn-geo-layers-stamen"
-      ],
-      "@modalnodes/mn-geo-modes": [
-        "./dist/mn-geo-modes"
-      ],
-      "@modalnodes/mn-geo-modes-m25d": [
-        "./dist/mn-geo-modes-m25d"
-      ],
-      "@modalnodes/mn-geo-modes-m2d": [
-        "./dist/mn-geo-modes-m2d"
-      ],
-      "@modalnodes/mn-geo-modes-m3d": [
-        "./dist/mn-geo-modes-m3d"
-      ],
-      "@modalnodes/mn-geo-transformers": [
-        "./dist/mn-geo-transformers"
-      ],
-      "@modalnodes/mn-geo-transformers-agentmap-m2d-leaflet": [
-        "./dist/mn-geo-transformers-agentmap-m2d-leaflet"
-      ],
-      "@modalnodes/mn-geo-transformers-agentmap-m3d-mapbox": [
-        "./dist/mn-geo-transformers-agentmap-m3d-mapbox"
-      ],
-      "@modalnodes/mn-geo-transformers-c3d-m3d-leaflet": [
-        "./dist/mn-geo-transformers-c3d-m3d-leaflet"
-      ],
-      "@modalnodes/mn-geo-transformers-leaflet": [
-        "./dist/mn-geo-transformers-leaflet"
-      ],
-      "@modalnodes/mn-geo-transformers-mapbox": [
-        "./dist/mn-geo-transformers-mapbox"
-      ],
-      "@modalnodes/mn-geo-transformers-osm-leaflet": [
-        "./dist/mn-geo-transformers-osm-leaflet"
-      ],
-      "@modalnodes/mn-geo-transformers-stamen-leaflet": [
-        "./dist/mn-geo-transformers-stamen-leaflet"
-      ],
       "@modalnodes/mn-lazy": [
         "./dist/mn-lazy"
       ],
