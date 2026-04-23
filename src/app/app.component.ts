@@ -1,12 +1,14 @@
 import { Component } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { MnMapComponent, MnLayerComponent } from '@modalnodes/mn-geo';
+import { MnGeoFlavoursLeafletDirective } from '@modalnodes/mn-geo-flavours-leaflet';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet],
+  standalone: true,
+  imports: [MnMapComponent, MnLayerComponent, MnGeoFlavoursLeafletDirective],
   templateUrl: './app.component.html',
-  styleUrl: './app.component.scss'
+  styleUrl: './app.component.scss',
 })
 export class AppComponent {
-  title = 'geocontext-front';
+  readonly center: [number, number] = [34.7324, 36.7137];
 }
