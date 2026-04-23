@@ -1,19 +1,15 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 
 @Component({
-  selector: 'lib-mn-geo-datasources-shp',
+  selector: 'mn-mn-geo-datasources-shp',
+  imports: [],
   template: `
     <p>
       mn-geo-datasources-shp works!
     </p>
   `,
-  styles: []
+  styles: ``
 })
-export class MnGeoDatasourcesShpComponent implements OnInit {
-
-  constructor() { }
-
-  ngOnInit() {
-  }
+export class MnGeoDatasourcesShpComponent {
 
 }

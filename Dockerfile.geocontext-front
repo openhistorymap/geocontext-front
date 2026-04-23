@@ -2,8 +2,6 @@ FROM nginx:alpine
 
 WORKDIR /usr/share/nginx/html/
 
-COPY ./dist/geocontext-front/ .
+COPY ./dist/geocontext-front/browser/ .
 
-RUN chmod 777 *
-
-CMD nginx -g "daemon off;"
+CMD ["nginx", "-g", "daemon off;"]

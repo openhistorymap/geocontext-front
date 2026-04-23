@@ -1,85 +1,87 @@
-import { HttpClient, HttpHandler, HttpClientModule } from '@angular/common/http';
-import { Injectable, Injector, ReflectiveInjector, Inject } from '@angular/core';
-import { Observable } from 'rxjs';
-import { tap, map } from 'rxjs/operators';
+import { Injectable, inject } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable, of } from 'rxjs';
+import { tap } from 'rxjs/operators';
 
 export interface IDatasource {
-    getName(): string;
-    getConf(): any;
+  getName(): string;
+  getConf(): any;
 
-    fetchData(): any| Observable<any>;
-    prepareData(data: any): any;
-    getData(): any;
+  fetchData(): Observable<any>;
+  prepareData(data: any): any;
+  getData(): any;
 
-    isReady(): boolean;
+  isReady(): boolean;
 }
 
 export interface IDatasourceSetter {
-    setName(name: string);
-    setConf(conf: any);
-    setup(setup: any);
+  setName(name: string): void;
+  setConf(conf: any): void;
+  setup(setup: Record<string, unknown>): void;
 }
 
 export abstract class Datasource implements IDatasource, IDatasourceSetter {
-    protected _ready = false;
-    protected _name: string;
-    protected _conf: any;
-    protected _data: any;
+  protected _ready = false;
+  protected _name = '';
+  protected _conf: any = {};
+  protected _data: any;
 
-    getName() {
-        return this._name;
-    }
+  getName(): string {
+    return this._name;
+  }
+  setName(name: string): void {
+    this._name = name;
+  }
 
-    setName(name: string) {
-        this._name = name;
-    }
+  getConf(): any {
+    return this._conf;
+  }
+  setConf(conf: any): void {
+    this._conf = conf;
+  }
 
+  fetchData(): Observable<any> {
+    this._data = this.prepareData(this._data);
+    this._ready = true;
+    return of(this._data);
+  }
 
-    getConf() {
-        return this._conf;
-    }
+  abstract prepareData(data: any): any;
 
-    setConf(conf: any) {
-        this._conf = conf;
-    }
+  getData(): any {
+    return this._data;
+  }
 
-    fetchData(): any {
-        this._data = this.prepareData(this._data);
-        this._ready = true;
-    }
+  isReady(): boolean {
+    return this._ready;
+  }
 
-    abstract prepareData(data: any): any;
-
-    getData() {
-        return this._data;
-    }
-
-    isReady() {
-        return this._ready;
-    }
-
-    setup(setup: any) {}
-
+  setup(_setup: Record<string, unknown>): void {
+    // subclasses override
+  }
 }
 
 @Injectable()
 export abstract class RemoteHttpDatasource extends Datasource {
-    protected http: HttpClient;
+  protected http: HttpClient | null = null;
 
-    setup(setup: any) {
-        for (const k in Object.keys(setup)) {
-            if (setup.hasOwnProperty(Object.keys(setup)[k])) {
-                this[Object.keys(setup)[k]] = setup[Object.keys(setup)[k]];
-            }
-        }
+  override setup(setup: Record<string, unknown>): void {
+    for (const [k, v] of Object.entries(setup ?? {})) {
+      (this as any)[k] = v;
     }
+  }
 
-    fetchData(): Observable<any> {
-        return this.http.get(this._conf.source).pipe(tap(data => {
-            this._data = this.prepareData(data);
-            this._ready = true;
-        }));
+  override fetchData(): Observable<any> {
+    if (!this.http) {
+      throw new Error('RemoteHttpDatasource: HttpClient not injected — did the registry call setup({http})?');
     }
+    return this.http.get(this._conf.source).pipe(
+      tap((data) => {
+        this._data = this.prepareData(data);
+        this._ready = true;
+      })
+    );
+  }
 
-    abstract prepareData(data: any): any;
+  abstract override prepareData(data: any): any;
 }

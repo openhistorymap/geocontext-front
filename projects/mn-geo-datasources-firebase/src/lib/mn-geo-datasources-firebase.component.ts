@@ -1,19 +1,15 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 
 @Component({
-  selector: 'lib-mn-geo-datasources-firebase',
+  selector: 'mn-mn-geo-datasources-firebase',
+  imports: [],
   template: `
     <p>
       mn-geo-datasources-firebase works!
     </p>
   `,
-  styles: []
+  styles: ``
 })
-export class MnGeoDatasourcesFirebaseComponent implements OnInit {
-
-  constructor() { }
-
-  ngOnInit() {
-  }
+export class MnGeoDatasourcesFirebaseComponent {
 
 }

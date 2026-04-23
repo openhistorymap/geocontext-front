@@ -1,15 +1,16 @@
-import { TestBed, inject } from '@angular/core/testing';
+import { TestBed } from '@angular/core/testing';
 
 import { MnGeoDatasourcesShpService } from './mn-geo-datasources-shp.service';
 
 describe('MnGeoDatasourcesShpService', () => {
+  let service: MnGeoDatasourcesShpService;
+
   beforeEach(() => {
-    TestBed.configureTestingModule({
-      providers: [MnGeoDatasourcesShpService]
-    });
+    TestBed.configureTestingModule({});
+    service = TestBed.inject(MnGeoDatasourcesShpService);
   });
 
-  it('should be created', inject([MnGeoDatasourcesShpService], (service: MnGeoDatasourcesShpService) => {
+  it('should be created', () => {
     expect(service).toBeTruthy();
-  }));
+  });
 });

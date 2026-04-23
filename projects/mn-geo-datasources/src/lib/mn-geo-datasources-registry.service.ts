@@ -1,34 +1,31 @@
+import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Injectable, Injector } from '@angular/core';
 import { MnRegistryService, MnMetaRegistryService } from '@modalnodes/mn-registry';
 import { Datasource } from './datasource';
 
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable({ providedIn: 'root' })
 export class MnGeoDatasourcesRegistryService extends MnRegistryService<any> {
+  private readonly meta = inject(MnMetaRegistryService);
+  private readonly http = inject(HttpClient);
 
-  constructor(
-    private meta: MnMetaRegistryService,
-    private http: HttpClient,
-    private injector: Injector
-  ) {
+  constructor() {
     super();
     this.meta.register('mn-geo-datasets', this);
     this.meta.registerName('mn-geo-datasets', this);
     this.meta.registerTags(['datasets'], this);
   }
 
-  for(name: string): any {
-    console.log('mn-geo-datasources', name);
-    const f = super.for(name);
-    if (typeof(f) === 'function') {
-      console.log('mn-geo-datasources', f);
-      const ds = new f();
-      ds.setup({http: this.http});
+  /**
+   * If the registered entry is a Datasource class, instantiate and wire HTTP.
+   * If it's already resolved data, pass it through.
+   */
+  override for(name: string): any {
+    const entry = super.for(name);
+    if (typeof entry === 'function') {
+      const ds = new (entry as new () => Datasource)();
+      ds.setup({ http: this.http });
       return ds;
-    } else {
-      return f;
     }
+    return entry;
   }
 }

@@ -1,53 +1,50 @@
-import { filter, tap } from 'rxjs/operators';
-import { forkJoin, Observable } from 'rxjs';
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
+import { forkJoin, Observable, of } from 'rxjs';
+import { tap } from 'rxjs/operators';
 import { MnGeoDatasourcesRegistryService } from './mn-geo-datasources-registry.service';
+import { MnGeoDatasourcesConfRegistryService } from './mn-geo-datasources-conf-registry.service';
 import { Datasource } from './datasource';
 
-import { DataModel } from 'datamodel';
-import { MnGeoDatasourcesConfRegistryService } from './mn-geo-datasources-conf-registry.service';
+export interface DatasourceDeclaration {
+  name: string;
+  type: string;
+  conf: any;
+}
 
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable({ providedIn: 'root' })
 export class DatasourcesmanagerService {
+  private readonly dsreg = inject(MnGeoDatasourcesRegistryService);
+  private readonly dscreg = inject(MnGeoDatasourcesConfRegistryService);
 
-  ds_temp = [];
-  lmgr: any;
+  private readonly pending: Datasource[] = [];
+  private lmgr: any;
 
-  constructor(
-    private dsreg: MnGeoDatasourcesRegistryService,
-    private dscreg: MnGeoDatasourcesConfRegistryService
-  ) { }
-
-  setLayermanager(lmgr: any) {
+  setLayermanager(lmgr: any): void {
     this.lmgr = lmgr;
   }
 
-  addDatasource(item) {
-    const dd = this.dsreg.for(item.type);
-    const da = dd as Datasource;
-    console.log('datasource', da);
-    da.setName(item.name);
-    da.setConf(item.conf);
-    this.ds_temp.push(da);
+  addDatasource(item: DatasourceDeclaration): void {
+    const ds = this.dsreg.for(item.type) as Datasource;
+    ds.setName(item.name);
+    ds.setConf(item.conf);
+    this.pending.push(ds);
     this.dscreg.register(item.name, item.conf);
   }
 
-  fetchDatasources(): Observable<any> {
-    return forkJoin(...this.ds_temp.map((x: Datasource) => {
-      return x.fetchData();
-    })).pipe(
-      tap((r) => {
-        r.map((o, j) => {
-          this.dsreg.register(this.ds_temp[j].getName(), o);
+  fetchDatasources(): Observable<unknown[]> {
+    if (this.pending.length === 0) {
+      return of([]);
+    }
+    return forkJoin(this.pending.map((ds) => ds.fetchData())).pipe(
+      tap((results) => {
+        results.forEach((data, i) => {
+          this.dsreg.register(this.pending[i].getName(), data);
         });
       })
     );
   }
 
-  getDatasource(dsName) {
-    return this.dsreg.for(dsName);
+  getDatasource(name: string): any {
+    return this.dsreg.for(name);
   }
-
 }

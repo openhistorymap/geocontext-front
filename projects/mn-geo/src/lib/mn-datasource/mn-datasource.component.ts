@@ -1,17 +1,17 @@
-import { Component, OnInit, ViewChild, Input } from '@angular/core';
+import { Component, input } from '@angular/core';
 
+/**
+ * Declarative datasource entry projected into `<mn-map>`. The map container
+ * collects these and forwards them to `DatasourcesmanagerService` during
+ * `ready()`.
+ */
 @Component({
   selector: 'mn-datasource',
+  standalone: true,
   template: '',
-  styleUrls: ['./mn-datasource.component.css']
 })
-export class MnDatasourceComponent implements OnInit {
-  @Input() type;
-  @Input() name;
-  @Input() conf;
-
-  constructor() { }
-
-  ngOnInit() { }
-
+export class MnDatasourceComponent {
+  readonly name = input<string>('');
+  readonly type = input<string>('');
+  readonly conf = input<any>({});
 }

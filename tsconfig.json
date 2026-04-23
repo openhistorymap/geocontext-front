@@ -1,151 +1,111 @@
 {
   "compileOnSave": false,
   "compilerOptions": {
-    "baseUrl": "./",
-    "outDir": "./dist/out-tsc",
-    "sourceMap": true,
-    "declaration": false,
-    "moduleResolution": "node",
-    "emitDecoratorMetadata": true,
-    "experimentalDecorators": true,
-    "target": "es5",
-    "typeRoots": [
-      "node_modules/@types"
-    ],
-    "lib": [
-      "es2017",
-      "dom"
-    ],
     "paths": {
-      "@modalnodes/mn-geo": [
-        "dist/mn-geo"
-      ],
-      "@modalnodes/mn-map": [
-        "dist/mn-map"
-      ],
-      "@modalnodes/mn-mapgl": [
-        "dist/mn-mapgl"
-      ],
-      "@modalnodes/mn-geo-layers": [
-        "dist/mn-geo-layers"
-      ],
-      "@modalnodes/mn-geo-layers-osm": [
-        "dist/mn-geo-layers-osm"
-      ],
-      "@modalnodes/mn-geo-layers-stamen": [
-        "dist/mn-geo-layers-stamen"
-      ],
-      "@modalnodes/mn-geo-datasources": [
-        "dist/mn-geo-datasources"
-      ],
-      "@geocontext/gcx-core": [
-        "dist/gcx-core"
-      ],
-      "@ohmap/ohm-core": [
-        "dist/ohm-core"
-      ],
       "@ohmap/c3d-core": [
-        "dist/c3d-core"
-      ],
-      "@ohmap/chcx-main": [
-        "dist/chcx-main"
-      ],
-      "@modalnodes/mn-geo-layers-carto": [
-        "dist/mn-geo-layers-carto"
+        "./dist/c3d-core"
       ],
       "@ohmap/chcx-about": [
-        "dist/chcx-about"
+        "./dist/chcx-about"
       ],
-      "@ohmap/chcx-about/*": [
-        "dist/chcx-about/*"
+      "@ohmap/chcx-main": [
+        "./dist/chcx-main"
       ],
       "@ohmap/chcx-static": [
-        "dist/chcx-static"
+        "./dist/chcx-static"
       ],
-      "@ohmap/chcx-static/*": [
-        "dist/chcx-static/*"
-      ],
-      "@modalnodes/mn-geo-datasources-csv": [
-        "dist/mn-geo-datasources-csv"
-      ],
-      "@modalnodes/mn-geo-datasources-csv/*": [
-        "dist/mn-geo-datasources-csv/*"
-      ],
-      "@ohmap/mn-geo-layers-ohm": [
-        "dist/mn-geo-layers-ohm"
-      ],
-      "@modalnodes/mn-geo-layers-c3d": [
-        "dist/mn-geo-layers-c3d"
-      ],
-      "@modalnodes/mn-geo-modes": [
-        "dist/mn-geo-modes"
-      ],
-      "@modalnodes/mn-geo-modes-m2d": [
-        "dist/mn-geo-modes-m2d"
-      ],
-      "@modalnodes/mn-geo-modes-m25d": [
-        "dist/mn-geo-modes-m25d"
-      ],
-      "@modalnodes/mn-geo-modes-m3d": [
-        "dist/mn-geo-modes-m3d"
-      ],
-      "@modalnodes/mn-geo-flavours": [
-        "dist/mn-geo-flavours"
-      ],
-      "@modalnodes/mn-geo-transformers": [
-        "dist/mn-geo-transformers"
-      ],
-      "@modalnodes/mn-geo-transformers-osm-leaflet": [
-        "dist/mn-geo-transformers-osm-leaflet"
-      ],
-      "@modalnodes/mn-geo-flavours-leaflet": [
-        "dist/mn-geo-flavours-leaflet"
-      ],
-      "@modalnodes/mn-geo-flavours-mapbox": [
-        "dist/mn-geo-flavours-mapbox"
-      ],
-      "@modalnodes/mn-geo-transformers-stamen-leaflet": [
-        "dist/mn-geo-transformers-stamen-leaflet"
-      ],
-      "@modalnodes/mn-geo-datasources-shp": [
-        "dist/mn-geo-datasources-shp"
-      ],
-      "@modalnodes/mn-geo-datasources-firebase": [
-        "dist/mn-geo-datasources-firebase"
-      ],
-      "@modalnodes/mn-geo-transformers-c3d-m3d-leaflet": [
-        "dist/mn-geo-transformers-c3d-m3d-leaflet"
-      ],
-      "@modalnodes/mn-geo-transformers-leaflet": [
-        "dist/mn-geo-transformers-leaflet"
-      ],
-      "@modalnodes/mn-geo-transformers-mapbox": [
-        "dist/mn-geo-transformers-mapbox"
-      ],
-      "@modalnodes/mn-geo-datasources-agentmap": [
-        "dist/mn-geo-datasources-agentmap"
-      ],
-      "@modalnodes/mn-geo-transformers-agentmap-m2d-leaflet": [
-        "dist/mn-geo-transformers-agentmap-m2d-leaflet"
-      ],
-      "@modalnodes/mn-geo-transformers-agentmap-m3d-mapbox": [
-        "dist/mn-geo-transformers-agentmap-m3d-mapbox"
+      "@geocontext/gcx-core": [
+        "./dist/gcx-core"
       ],
       "@modalnodes/mn-caching": [
-        "dist/mn-caching"
+        "./dist/mn-caching"
+      ],
+      "@modalnodes/mn-filesize": [
+        "./dist/mn-filesize"
+      ],
+      "@modalnodes/mn-geo": [
+        "./dist/mn-geo"
+      ],
+      "@modalnodes/mn-geo-datasources": [
+        "./dist/mn-geo-datasources"
+      ],
+      "@modalnodes/mn-geo-datasources-agentmap": [
+        "./dist/mn-geo-datasources-agentmap"
+      ],
+      "@modalnodes/mn-geo-datasources-csv": [
+        "./dist/mn-geo-datasources-csv"
+      ],
+      "@modalnodes/mn-geo-datasources-firebase": [
+        "./dist/mn-geo-datasources-firebase"
+      ],
+      "@modalnodes/mn-geo-datasources-shp": [
+        "./dist/mn-geo-datasources-shp"
+      ],
+      "@modalnodes/mn-geo-flavours": [
+        "./dist/mn-geo-flavours"
+      ],
+      "@modalnodes/mn-geo-flavours-leaflet": [
+        "./dist/mn-geo-flavours-leaflet"
+      ],
+      "@modalnodes/mn-geo-flavours-mapbox": [
+        "./dist/mn-geo-flavours-mapbox"
+      ],
+      "@modalnodes/mn-geo-layers": [
+        "./dist/mn-geo-layers"
+      ],
+      "@modalnodes/mn-geo-layers-c3d": [
+        "./dist/mn-geo-layers-c3d"
+      ],
+      "@modalnodes/mn-geo-layers-carto": [
+        "./dist/mn-geo-layers-carto"
+      ],
+      "@modalnodes/mn-geo-layers-ohm": [
+        "./dist/mn-geo-layers-ohm"
+      ],
+      "@modalnodes/mn-geo-layers-osm": [
+        "./dist/mn-geo-layers-osm"
       ],
       "@modalnodes/mn-lazy": [
-        "dist/mn-lazy"
+        "./dist/mn-lazy"
       ],
-      "mn-filesize": [
-        "dist/mn-filesize"
+      "@modalnodes/mn-map": [
+        "./dist/mn-map"
       ],
-      "mn-geo-layers-components": [
-        "dist/mn-geo-layers-components"
+      "@modalnodes/mn-mapgl": [
+        "./dist/mn-mapgl"
       ],
-      "mn-geo-datasources-components": [
-        "dist/mn-geo-datasources-components"
+      "@ohmap/ohm-core": [
+        "./dist/ohm-core"
+      ],
+      "@modalnodes/mn-registry": [
+        "./dist/mn-registry"
+      ],
+      "@modalnodes/mn-geo-layers-ofm": [
+        "./dist/mn-geo-layers-ofm"
+      ],
+      "@modalnodes/mn-geo-layers-geomqtt": [
+        "./dist/mn-geo-layers-geomqtt"
       ]
-    }
+    },
+    "outDir": "./dist/out-tsc",
+    "strict": true,
+    "noImplicitOverride": true,
+    "noPropertyAccessFromIndexSignature": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "skipLibCheck": true,
+    "isolatedModules": true,
+    "esModuleInterop": true,
+    "experimentalDecorators": true,
+    "moduleResolution": "bundler",
+    "importHelpers": true,
+    "target": "ES2022",
+    "module": "ES2022"
+  },
+  "angularCompilerOptions": {
+    "enableI18nLegacyMessageIdFormat": false,
+    "strictInjectionParameters": true,
+    "strictInputAccessModifiers": true,
+    "strictTemplates": true
   }
 }

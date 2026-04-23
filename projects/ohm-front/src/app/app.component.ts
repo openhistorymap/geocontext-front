@@ -1,10 +1,12 @@
 import { Component } from '@angular/core';
+import { RouterOutlet } from '@angular/router';
 
 @Component({
   selector: 'ohm-root',
+  imports: [RouterOutlet],
   templateUrl: './app.component.html',
-  styleUrls: ['./app.component.css']
+  styleUrl: './app.component.scss'
 })
 export class AppComponent {
-  title = 'ohm';
+  title = 'ohm-front';
 }

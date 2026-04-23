@@ -1,19 +1,15 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 
 @Component({
-  selector: 'lib-mn-geo-datasources-agentmap',
+  selector: 'mn-mn-geo-datasources-agentmap',
+  imports: [],
   template: `
     <p>
       mn-geo-datasources-agentmap works!
     </p>
   `,
-  styles: []
+  styles: ``
 })
-export class MnGeoDatasourcesAgentmapComponent implements OnInit {
-
-  constructor() { }
-
-  ngOnInit() {
-  }
+export class MnGeoDatasourcesAgentmapComponent {
 
 }

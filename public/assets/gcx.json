@@ -1,0 +1,16 @@
+{
+  "title": "GeoContext",
+  "type": "2d",
+  "center": [12.4964, 41.9028],
+  "minzoom": 1,
+  "startzoom": 5,
+  "maxzoom": 19,
+  "search": true,
+  "datasources": [],
+  "layers": [
+    {
+      "name": "OpenStreetMap",
+      "type": "osm-tiled"
+    }
+  ]
+}

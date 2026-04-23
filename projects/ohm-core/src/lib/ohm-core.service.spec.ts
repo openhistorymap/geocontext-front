@@ -1,15 +1,16 @@
-import { TestBed, inject } from '@angular/core/testing';
+import { TestBed } from '@angular/core/testing';
 
 import { OhmCoreService } from './ohm-core.service';
 
 describe('OhmCoreService', () => {
+  let service: OhmCoreService;
+
   beforeEach(() => {
-    TestBed.configureTestingModule({
-      providers: [OhmCoreService]
-    });
+    TestBed.configureTestingModule({});
+    service = TestBed.inject(OhmCoreService);
   });
 
-  it('should be created', inject([OhmCoreService], (service: OhmCoreService) => {
+  it('should be created', () => {
     expect(service).toBeTruthy();
-  }));
+  });
 });

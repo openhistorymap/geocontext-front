@@ -1,15 +1,16 @@
-import { TestBed, inject } from '@angular/core/testing';
+import { TestBed } from '@angular/core/testing';
 
 import { MnGeoLayersCartoService } from './mn-geo-layers-carto.service';
 
 describe('MnGeoLayersCartoService', () => {
+  let service: MnGeoLayersCartoService;
+
   beforeEach(() => {
-    TestBed.configureTestingModule({
-      providers: [MnGeoLayersCartoService]
-    });
+    TestBed.configureTestingModule({});
+    service = TestBed.inject(MnGeoLayersCartoService);
   });
 
-  it('should be created', inject([MnGeoLayersCartoService], (service: MnGeoLayersCartoService) => {
+  it('should be created', () => {
     expect(service).toBeTruthy();
-  }));
+  });
 });

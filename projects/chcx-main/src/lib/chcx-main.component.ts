@@ -1,19 +1,15 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 
 @Component({
-  selector: 'lib-chcx-main',
+  selector: 'chcx-chcx-main',
+  imports: [],
   template: `
     <p>
       chcx-main works!
     </p>
   `,
-  styles: []
+  styles: ``
 })
-export class ChcxMainComponent implements OnInit {
-
-  constructor() { }
-
-  ngOnInit() {
-  }
+export class ChcxMainComponent {
 
 }

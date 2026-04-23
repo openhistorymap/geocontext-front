@@ -1,103 +1,97 @@
-import { DatasourcesmanagerService } from '@modalnodes/mn-geo-datasources';
 import { EventEmitter } from '@angular/core';
-import { MnRegistryService } from '@modalnodes/mn-registry';
+import { DatasourcesmanagerService } from '@modalnodes/mn-geo-datasources';
 
 export interface ILayer {
-    getName(): string;
-    setName(name: string);
+  getName(): string;
+  setName(name: string): void;
 
-    getType(): string;
-    getUpdateable(): boolean;
-    update(bbox: number[]|{n, e, s, w}, zoom: number, confs?: any): any;
+  getType(): string;
+  getUpdateable(): boolean;
+  update(bbox: number[] | { n: number; e: number; s: number; w: number }, zoom: number, confs?: any): any;
 
-    setConfiguration(conf: any);
-    getConfiguration(): any;
+  setConfiguration(conf: any): void;
+  getConfiguration(): any;
 
-    create(): any;
+  create(): any;
 
-    getDatasourceManager(): DatasourcesmanagerService;
-    getRequiresDatasources(): boolean;
+  getDatasourceManager(): DatasourcesmanagerService;
+  getRequiresDatasources(): boolean;
 
-    featureClicked(feat: any);
+  featureClicked(feat: any): void;
 }
 
 export interface ILayerConfigurator {
-    setType(type: string);
-    setUpdateable(b: boolean);
-    setDatasourceManager(repo: any);
-    setRequiresDatasources(b: boolean);
-    setClickable(ee: EventEmitter<any>);
+  setType(type: string): void;
+  setUpdateable(b: boolean): void;
+  setDatasourceManager(repo: DatasourcesmanagerService): void;
+  setRequiresDatasources(b: boolean): void;
+  setClickable(ee: EventEmitter<any>): void;
 }
 
 export abstract class Layer implements ILayer, ILayerConfigurator {
-    private _name: string;
-    private _type: string;
-    private _conf: any;
-    private _updateable = false;
+  private _name = '';
+  private _type = '';
+  private _conf: any;
+  private _updateable = false;
+  private _repo!: DatasourcesmanagerService;
+  private _requiresDS = false;
+  private _ee?: EventEmitter<any>;
 
+  setName(name: string): void {
+    this._name = name;
+  }
+  getName(): string {
+    return this._name;
+  }
 
-    private _repo: DatasourcesmanagerService;
-    private _requiresDS: boolean;
+  setConfiguration(conf: any): void {
+    this._conf = conf;
+  }
+  getConfiguration(): any {
+    return this._conf;
+  }
 
-    private _ee: EventEmitter<any>;
+  getType(): string {
+    return this._type;
+  }
+  setType(type: string): void {
+    this._type = type;
+  }
 
-    setName(name: string) {
-        this._name = name;
-    }
-    getName() {
-        return this._name;
-    }
+  getUpdateable(): boolean {
+    return this._updateable;
+  }
+  setUpdateable(updateable: boolean): void {
+    this._updateable = updateable;
+  }
 
-    setConfiguration(conf: any) {
-        this._conf = conf;
+  update(_bbox: number[] | { n: number; e: number; s: number; w: number }, _zoom: number, _confs?: any): any {
+    if (this._updateable) {
+      throw new Error(`Layer "${this._name}" declared updateable, yet no "update" method is defined.`);
     }
-    getConfiguration(): any {
-        return this._conf;
-    }
+  }
 
-    getType() {
-        return this._type;
-    }
+  setDatasourceManager(repo: DatasourcesmanagerService): void {
+    this._repo = repo;
+  }
+  getDatasourceManager(): DatasourcesmanagerService {
+    return this._repo;
+  }
 
-    setType(type: string) {
-        this._type = type;
-    }
+  setRequiresDatasources(b: boolean): void {
+    this._requiresDS = b;
+  }
+  getRequiresDatasources(): boolean {
+    return this._requiresDS;
+  }
 
-    getUpdateable() {
-      return this._updateable;
-    }
+  setClickable(ee: EventEmitter<any>): void {
+    this._ee = ee;
+  }
 
-    setUpdateable(updateable: boolean) {
-      this._updateable = updateable;
-    }
+  featureClicked(feat: any): void {
+    this._ee?.emit(feat);
+  }
 
-    update(bbox: number[], zoom: number, confs?: any) {
-      if (this._updateable) {
-        throw new Error('Layer declared updateable, yet no "update" method is defined!');
-      }
-    }
-
-    setDatasourceManager(repo: any) {
-        this._repo = repo;
-    }
-    getDatasourceManager(): DatasourcesmanagerService {
-        return this._repo;
-    }
-
-    setRequiresDatasources(b: boolean) {
-        this._requiresDS = b;
-    }
-    getRequiresDatasources(): boolean {
-        return this._requiresDS;
-    }
-
-    setClickable(ee: EventEmitter<any>) {
-        this._ee = ee;
-    }
-
-    featureClicked(feat) {
-        this._ee.emit(feat);
-    }
-
-    abstract create(): any;
+  abstract create(): any;
 }

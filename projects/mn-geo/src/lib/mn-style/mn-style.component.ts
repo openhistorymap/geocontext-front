@@ -1,16 +1,15 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, input } from '@angular/core';
 
+/**
+ * Declarative style descriptor projected inside `<mn-layer>` children of
+ * `<mn-map>`. Flavours read the `style` payload when building their
+ * renderer-specific representation of a layer.
+ */
 @Component({
-  selector: 'mn-map mn-style',
+  selector: 'mn-style',
+  standalone: true,
   template: '',
-  styleUrls: ['./mn-style.component.css']
 })
-export class MnStyleComponent implements OnInit {
-
-  @Input() style;
-  constructor() { }
-
-  ngOnInit() {
-  }
-
+export class MnStyleComponent {
+  readonly style = input<any>();
 }

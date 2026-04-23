@@ -1,15 +1,16 @@
-import { TestBed, inject } from '@angular/core/testing';
+import { TestBed } from '@angular/core/testing';
 
 import { MnMapglService } from './mn-mapgl.service';
 
 describe('MnMapglService', () => {
+  let service: MnMapglService;
+
   beforeEach(() => {
-    TestBed.configureTestingModule({
-      providers: [MnMapglService]
-    });
+    TestBed.configureTestingModule({});
+    service = TestBed.inject(MnMapglService);
   });
 
-  it('should be created', inject([MnMapglService], (service: MnMapglService) => {
+  it('should be created', () => {
     expect(service).toBeTruthy();
-  }));
+  });
 });

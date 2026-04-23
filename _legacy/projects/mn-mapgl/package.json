@@ -1,0 +1,10 @@
+{
+  "name": "@modalnodes/mn-mapgl",
+  "version": "0.1.0",
+  "peerDependencies": {
+    "@angular/common": "^6.0.0-rc.0 || ^6.0.0",
+    "@angular/core": "^6.0.0-rc.0 || ^6.0.0",
+    "mapbox-gl": "^0.45.0",
+    "@modalnodes/mn-geo": "^0.0.1"
+  }
+}

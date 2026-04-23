@@ -1,19 +1,15 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 
 @Component({
-  selector: 'lib-mn-geo-layers-ohm',
+  selector: 'mn-mn-geo-layers-ohm',
+  imports: [],
   template: `
     <p>
       mn-geo-layers-ohm works!
     </p>
   `,
-  styles: []
+  styles: ``
 })
-export class MnGeoLayersOhmComponent implements OnInit {
-
-  constructor() { }
-
-  ngOnInit() {
-  }
+export class MnGeoLayersOhmComponent {
 
 }

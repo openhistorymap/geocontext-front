@@ -1,25 +1,34 @@
-import { ChcxConfiguratorService } from '@ohmap/chcx-static';
-import { Component, OnInit } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { firstValueFrom } from 'rxjs';
+import { GcxMainComponent, GcxRouteItem } from '@geocontext/gcx-core';
+
+interface StaticPage {
+  target: string;
+  title: string;
+  icon?: string;
+}
 
 @Component({
   selector: 'app-root',
-  templateUrl: './app.component.html',
-  styleUrls: ['./app.component.css']
+  standalone: true,
+  imports: [GcxMainComponent],
+  template: `<gcx-main [title]="title()" [items]="items()" />`,
 })
 export class AppComponent implements OnInit {
-  title = 'app';
-  data: any = {};
+  private readonly http = inject(HttpClient);
 
-  constructor(
-    private http: HttpClient,
-    public chcxStatic: ChcxConfiguratorService
-  ) { }
+  readonly title = signal<string>('GeoContext');
+  readonly items = signal<GcxRouteItem[]>([]);
 
-  ngOnInit() {
-    this.http.get('/assets/data.json').subscribe(data => {
-      this.data = data;
-    });
+  async ngOnInit(): Promise<void> {
+    try {
+      const pages = await firstValueFrom(
+        this.http.get<Record<string, StaticPage>>('/assets/chcx-static.json')
+      );
+      this.items.set(Object.values(pages ?? {}));
+    } catch {
+      // Config absent during early rewrite — toolbar still shows Map.
+    }
   }
-
 }

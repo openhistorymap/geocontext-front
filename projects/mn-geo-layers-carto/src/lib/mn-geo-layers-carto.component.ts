@@ -1,19 +1,15 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 
 @Component({
-  selector: 'lib-mn-geo-layers-carto',
+  selector: 'mn-mn-geo-layers-carto',
+  imports: [],
   template: `
     <p>
       mn-geo-layers-carto works!
     </p>
   `,
-  styles: []
+  styles: ``
 })
-export class MnGeoLayersCartoComponent implements OnInit {
-
-  constructor() { }
-
-  ngOnInit() {
-  }
+export class MnGeoLayersCartoComponent {
 
 }

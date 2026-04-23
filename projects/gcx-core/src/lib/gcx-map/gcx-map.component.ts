@@ -1,86 +1,193 @@
-import { GcxCoreService } from './../gcx-core.service';
-import { MnMapComponent, MnLayerComponent } from '@modalnodes/mn-geo';
-import { Component, OnInit, ContentChild, Input, QueryList, ContentChildren, AfterViewInit, Injectable } from '@angular/core';
+import { Component, inject, OnInit, signal, viewChild } from '@angular/core';
+import { JsonPipe } from '@angular/common';
+import { MatSidenavModule } from '@angular/material/sidenav';
+import { MatTabsModule } from '@angular/material/tabs';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatIconModule } from '@angular/material/icon';
+import { MatListModule } from '@angular/material/list';
+import {
+  MnMapComponent,
+  MnLayerComponent,
+  MnDatasourceComponent,
+  MnStyleComponent,
+} from '@modalnodes/mn-geo';
+import { GcxCoreService } from '../gcx-core.service';
+import { GcxLegendComponent } from '../gcx-legend/gcx-legend.component';
 
+interface ConfiguredLayer {
+  name: string;
+  type: string;
+  datasource?: string;
+  style?: any;
+  visible: boolean;
+}
+
+interface ConfiguredDatasource {
+  name: string;
+  type: string;
+  conf: any;
+}
+
+/**
+ * Map page: Material drawer with layer list + tab panels on the left,
+ * `<mn-map>` filling the right. Reads datasources/layers from
+ * GcxCoreService (backed by /assets/gcx.json).
+ *
+ * The concrete flavour (Leaflet / MapLibre) is NOT embedded here —
+ * consumers project one via `<gcx-map><div mnMapFlavourLeaflet></div></gcx-map>`
+ * so the shell stays renderer-agnostic.
+ */
 @Component({
-  selector: 'gcx-gcx-map',
-  templateUrl: './gcx-map.component.html',
-  styleUrls: ['./gcx-map.component.css']
+  selector: 'gcx-map',
+  standalone: true,
+  imports: [
+    JsonPipe,
+    MatSidenavModule,
+    MatTabsModule,
+    MatSlideToggleModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatIconModule,
+    MatListModule,
+    MnMapComponent,
+    MnLayerComponent,
+    MnDatasourceComponent,
+    MnStyleComponent,
+    GcxLegendComponent,
+  ],
+  template: `
+    <mat-drawer-container class="gcx-map-container" hasBackdrop="false">
+      <mat-drawer mode="side" [opened]="gcx.sidebarOpen()">
+        <form class="gcx-search-form">
+          <mat-form-field appearance="outline" subscriptSizing="dynamic">
+            <mat-label>Search</mat-label>
+            <input matInput type="search" />
+          </mat-form-field>
+        </form>
+        <mat-tab-group [selectedIndex]="selectedTab()">
+          <mat-tab>
+            <ng-template mat-tab-label>
+              <mat-icon title="Layers">layers</mat-icon>
+            </ng-template>
+            <div class="gcx-layers-panel">
+              @for (layer of layers(); track layer.name) {
+                <mat-slide-toggle
+                  color="primary"
+                  [checked]="layer.visible"
+                  (change)="toggleVisible(layer)"
+                >
+                  <gcx-legend [style]="layer.style" />
+                  {{ layer.name }}
+                </mat-slide-toggle>
+              }
+            </div>
+          </mat-tab>
+          <mat-tab [disabled]="!selectedItem()">
+            <ng-template mat-tab-label>
+              <mat-icon title="Info">place</mat-icon>
+            </ng-template>
+            <pre class="gcx-info">{{ selectedItem() | json }}</pre>
+          </mat-tab>
+        </mat-tab-group>
+      </mat-drawer>
+      <mat-drawer-content>
+        <mn-map
+          #map
+          [center]="center()"
+          [startzoom]="startzoom()"
+          [minzoom]="minzoom()"
+          [maxzoom]="maxzoom()"
+          height="100%"
+        >
+          <ng-content select="[mnMapFlavour], [mnMapFlavourLeaflet], [mnMapFlavourMapbox], [mnMapFlavourMaplibre]" />
+          @for (ds of datasources(); track ds.name) {
+            <mn-datasource [name]="ds.name" [type]="ds.type" [conf]="ds.conf" />
+          }
+          @for (layer of layers(); track layer.name) {
+            @if (layer.visible) {
+              <mn-layer
+                [name]="layer.name"
+                [type]="layer.type"
+                [datasource]="layer.datasource"
+                (layerClicked)="onFeature($event)"
+              >
+                @if (layer.style) {
+                  <mn-style [style]="layer.style" />
+                }
+              </mn-layer>
+            }
+          }
+        </mn-map>
+      </mat-drawer-content>
+    </mat-drawer-container>
+  `,
+  styles: [
+    `
+      :host,
+      .gcx-map-container {
+        display: block;
+        width: 100%;
+        height: 100%;
+      }
+      mat-drawer {
+        width: 330px;
+      }
+      .gcx-search-form {
+        padding: 8px;
+      }
+      .gcx-layers-panel {
+        padding: 8px;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+      .gcx-info {
+        padding: 8px;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+    `,
+  ],
 })
-export class GcxMapComponent implements OnInit, AfterViewInit {
-  @Input() data: any;
+export class GcxMapComponent implements OnInit {
+  readonly gcx = inject(GcxCoreService);
 
-  @Input() center = { lon: 0, lat: 0 };
-  @Input() startzoom = 1;
-  @Input() minzoom = 1;
-  @Input() maxzoom = 1;
-  @Input() layers = 1;
+  readonly map = viewChild<MnMapComponent>('map');
 
-  @ContentChild('map') map: MnMapComponent;
+  readonly center = signal<any>([0, 0]);
+  readonly startzoom = signal<number>(1);
+  readonly minzoom = signal<number>(1);
+  readonly maxzoom = signal<number>(19);
 
-  selected_item = null;
-  selected_coll = true;
+  readonly datasources = signal<ConfiguredDatasource[]>([]);
+  readonly layers = signal<ConfiguredLayer[]>([]);
 
-  is_opened = true;
-  show_layers = [];
-  active = '';
-  selectedTab = 1;
+  readonly selectedTab = signal<number>(0);
+  readonly selectedItem = signal<any>(null);
 
-  lyrs = [];
-  dtss = [];
-
-  constructor(
-    private gcx: GcxCoreService
-  ) { }
-
-  ngOnInit() {
-    this.gcx.sidebarToggled.subscribe(data => {
-      this.is_opened = data;
-    });
-
-    try {
-      this.lyrs = this.gcx.getConf('layers');
-      this.dtss = this.gcx.getConf('datasources');
-      this.center = this.gcx.getConf('center');
-      this.startzoom = this.gcx.getConf('startzoom');
-      this.minzoom = this.gcx.getConf('minzoom');
-      this.maxzoom = this.gcx.getConf('maxzoom');
-      this.lyrs.forEach(x => {
-        x.visible = true;
-      });
-    } catch (ex) {
-      console.log(ex);
-    }
+  async ngOnInit(): Promise<void> {
+    const conf = await this.gcx.load();
+    this.center.set(conf.center ?? [0, 0]);
+    this.startzoom.set(conf.startzoom ?? 1);
+    this.minzoom.set(conf.minzoom ?? 1);
+    this.maxzoom.set(conf.maxzoom ?? 19);
+    this.datasources.set(conf.datasources ?? []);
+    this.layers.set(
+      (conf.layers ?? []).map((l: any) => ({ ...l, visible: true }))
+    );
   }
 
-  toggleVisible(layer) {
-    layer.visible = !layer.visible;
-    // this.map.toggleVisibility(layer);
+  toggleVisible(layer: ConfiguredLayer): void {
+    this.layers.update((list) =>
+      list.map((l) => (l.name === layer.name ? { ...l, visible: !l.visible } : l))
+    );
   }
 
-  setup(center, startzoom, minzoom, maxzoom, layers) {
-    this.center = center;
-    this.startzoom = startzoom;
-    this.minzoom = minzoom;
-    this.maxzoom = maxzoom;
-  }
-
-  autoload () {
-  }
-
-  ngAfterViewInit() {
-    // this.show_layers = this.map.getLayers();
-  }
-
-  show(event) {
-    console.log('click', event);
-    this.selectedTab = 2;
+  onFeature(event: any): void {
+    this.selectedTab.set(1);
+    this.selectedItem.set(event);
     this.gcx.openSidebar();
-    this.selected_item = event;
   }
-
-  getKeys(data) {
-    return Object.keys(data);
-  }
-
 }

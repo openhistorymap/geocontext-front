@@ -1,33 +1,57 @@
-import { MnConfiguratorService } from '@modalnodes/mn-configurator';
-import { Observable, BehaviorSubject } from 'rxjs';
-import { Injectable } from '@angular/core';
+import { Injectable, inject, signal } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { firstValueFrom } from 'rxjs';
 
 export const GCX_CORE_FILE = '/assets/gcx.json';
 
-@Injectable({
-  providedIn: 'root'
-})
+export interface GcxConfig {
+  title?: string;
+  type?: string;
+  center?: [number, number] | { lat: number; lon: number };
+  minzoom?: number;
+  startzoom?: number;
+  maxzoom?: number;
+  search?: boolean;
+  datasources?: any[];
+  layers?: any[];
+  [k: string]: any;
+}
+
+@Injectable({ providedIn: 'root' })
 export class GcxCoreService {
+  private readonly http = inject(HttpClient);
 
-  private is_open = false;
-  private sidebarToggledSource = new BehaviorSubject<boolean>(this.is_open);
-  public sidebarToggled = this.sidebarToggledSource.asObservable();
+  readonly sidebarOpen = signal(false);
 
-  constructor(
-    private conf: MnConfiguratorService
-  ) { }
+  private _config: GcxConfig | null = null;
+  private _pending: Promise<GcxConfig> | null = null;
 
-  public toggleSidebar() {
-    this.is_open = !this.is_open;
-    this.sidebarToggledSource.next(this.is_open);
+  toggleSidebar(): void {
+    this.sidebarOpen.update((v) => !v);
+  }
+  openSidebar(): void {
+    this.sidebarOpen.set(true);
+  }
+  closeSidebar(): void {
+    this.sidebarOpen.set(false);
   }
 
-  public openSidebar() {
-    this.is_open = true;
-    this.sidebarToggledSource.next(this.is_open);
+  async load(file: string = GCX_CORE_FILE): Promise<GcxConfig> {
+    if (this._config) return this._config;
+    if (!this._pending) {
+      this._pending = firstValueFrom(this.http.get<GcxConfig>(file)).then((cfg) => {
+        this._config = cfg ?? {};
+        return this._config;
+      });
+    }
+    return this._pending;
   }
 
-  public getConf(name: string) {
-    return this.conf.getConfiguration(name, GCX_CORE_FILE);
+  getConf<T = any>(key: string): T | undefined {
+    return this._config?.[key] as T | undefined;
+  }
+
+  snapshot(): GcxConfig | null {
+    return this._config;
   }
 }

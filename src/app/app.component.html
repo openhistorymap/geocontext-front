@@ -1,4 +1,4 @@
-<gcx-main [autoload]="true"
-    [items]="chcxStatic.getRoutes()">
-    
-</gcx-main>
+<mn-map [center]="center" [startzoom]="7" [minzoom]="1" [maxzoom]="19" height="100vh">
+  <div mnMapFlavourLeaflet></div>
+  <mn-layer name="OSM" type="osm-tiled" />
+</mn-map>
