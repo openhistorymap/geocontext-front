@@ -79,6 +79,12 @@
       ],
       "@modalnodes/mn-registry": [
         "./dist/mn-registry"
+      ],
+      "@modalnodes/mn-geo-layers-ofm": [
+        "./dist/mn-geo-layers-ofm"
+      ],
+      "@modalnodes/mn-geo-layers-geomqtt": [
+        "./dist/mn-geo-layers-geomqtt"
       ]
     },
     "outDir": "./dist/out-tsc",

@@ -10,6 +10,7 @@
   },
   "private": true,
   "dependencies": {
+    "@angular/animations": "^19.2.21",
     "@angular/cdk": "^19.2.19",
     "@angular/common": "^19.2.0",
     "@angular/compiler": "^19.2.0",
@@ -20,8 +21,10 @@
     "@angular/platform-browser-dynamic": "^19.2.0",
     "@angular/router": "^19.2.0",
     "@turf/turf": "^7.3.5",
+    "datamodel": "^2.0.2",
     "leaflet": "^1.9.4",
     "maplibre-gl": "^5.23.0",
+    "mqtt": "^5.15.1",
     "papaparse": "^5.5.3",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",
