@@ -1,9 +1,14 @@
-import * as L from 'leaflet';
-import { Layer } from '@modalnodes/mn-geo-layers';
+import { Layer, RasterTilesDescriptor } from '@modalnodes/mn-geo-layers';
 
 const OSM_URL = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+const OSM_SUBDOMAINS = 'abc';
 const OSM_ATTRIBUTION =
-  'Map data © <a href="https://openstreetmap.org">OpenStreetMap</a> contributors';
+  '© <a href="https://openstreetmap.org">OpenStreetMap</a> contributors';
+
+function expandSubdomains(template: string, subdomains: string): string[] {
+  if (!template.includes('{s}')) return [template];
+  return [...subdomains].map((s) => template.replace('{s}', s));
+}
 
 export class OsmTiles extends Layer {
   constructor() {
@@ -11,12 +16,20 @@ export class OsmTiles extends Layer {
     this.setRequiresDatasources(false);
   }
 
-  override create(): L.Layer {
-    return L.tileLayer(OSM_URL, {
-      minZoom: 1,
-      maxZoom: 19,
-      attribution: OSM_ATTRIBUTION,
-    });
+  override create(): RasterTilesDescriptor {
+    const conf = this.getConfiguration() ?? {};
+    const template: string = conf.url ?? OSM_URL;
+    const subdomains: string = conf.subdomains ?? OSM_SUBDOMAINS;
+    return {
+      kind: 'raster-tiles',
+      id: this.getName() || 'osm',
+      urls: expandSubdomains(template, subdomains),
+      tileSize: conf.tileSize ?? 256,
+      minZoom: conf.minZoom ?? 1,
+      maxZoom: conf.maxZoom ?? 19,
+      attribution: conf.attribution ?? OSM_ATTRIBUTION,
+      subdomains,
+    };
   }
 }
 

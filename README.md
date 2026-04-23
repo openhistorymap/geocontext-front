@@ -1,11 +1,14 @@
 # GeoContext
 
 GeoContext is a declarative, plugin-driven map application built on Angular 19.
-A single `<mn-map>` element composes a rendering **flavour** (Leaflet today,
-MapLibre GL planned), any number of **layers** (OSM, OpenFantasyMaps, GeoMQTT
-live streams, …), and **datasources** (CSV, GeoJSON, SHP, …). Layers and
-datasources come from their own libraries and self-register at bootstrap, so
-adding a new backend is one provider call, not a fork of the core.
+A single `<mn-map>` element composes a rendering **flavour** (MapLibre GL by
+default, Leaflet available), any number of **layers** (OSM, OpenFantasyMaps,
+GeoMQTT live streams, …), and **datasources** (CSV, GeoJSON, SHP, …). Layer
+classes emit renderer-agnostic descriptors (`raster-tiles`, `vector-tiles`,
+`geojson-features`); flavours translate descriptors into their native
+representations. Layers and datasources come from their own libraries and
+self-register at bootstrap, so adding a new backend is one provider call,
+not a fork of the core.
 
 The repository is an Angular CLI monorepo: one shell app (`geocontext-front`),
 two secondary apps (`cityos-ng`, `ohm-front`), and ~25 libraries published
@@ -24,6 +27,8 @@ projects/
   mn-geo-layers-ofm/       OpenFantasyMaps  (provideMnGeoLayersOfm)
   mn-geo-layers-geomqtt/   MQTT → GeoJSON live stream
   mn-geo-flavours-leaflet/ Leaflet adapter ([mnMapFlavourLeaflet])
+  mn-geo-flavours-mapbox/  MapLibre-GL adapter ([mnMapFlavourMaplibre]; lib
+                           name kept for npm stability)
   gcx-core/                Material shell: toolbar + sidebar + router-outlet
   chcx-static/             static-page route list
   …                        see angular.json for the full set
@@ -96,12 +101,15 @@ The rendering backend is chosen by which flavour directive is placed inside
 
 ```html
 <gcx-map>
-  <div mnMapFlavourLeaflet></div>   <!-- or [mnMapFlavourMaplibre] once ported -->
+  <div mnMapFlavourMaplibre></div>  <!-- or [mnMapFlavourLeaflet] -->
 </gcx-map>
 ```
 
-`gcx-core` stays renderer-agnostic — swapping Leaflet for MapLibre is a
-change in the app's `MapRouteComponent`, not in `gcx-map`.
+`gcx-core` stays renderer-agnostic — swapping MapLibre for Leaflet is a
+change in the app's `MapRouteComponent`, not in `gcx-map`. The default
+`MapRouteComponent` uses MapLibre; switch to Leaflet if you need `geomqtt`
+live-stream layers (those still emit native Leaflet objects until we
+descriptor-ify them).
 
 ## Rewrite status
 
@@ -111,12 +119,15 @@ is standalone; registration side-effects moved from NgModule constructors to
 `provideAppInitializer()` functions.
 
 **Ported:** `mn-registry`, `mn-geo-{datasources,layers}`, `mn-geo`,
-`mn-geo-flavours-leaflet`, `mn-geo-layers-osm`, `mn-geo-layers-ofm`,
-`mn-geo-layers-geomqtt`, `gcx-core`.
+`mn-geo-flavours-leaflet`, `mn-geo-flavours-mapbox` (MapLibre-GL inside),
+`mn-geo-layers-osm`, `mn-geo-layers-ofm`, `mn-geo-layers-geomqtt`,
+`gcx-core`.
 
-**Not yet ported:** the remaining datasource/layer libraries, the MapLibre
-flavour, `chcx-static` routes, `chcx-main`, `chcx-about`, `ohm-core`,
-`c3d-core`, and the two secondary apps (`cityos-ng`, `ohm-front`).
+**Not yet ported:** the remaining datasource/layer libraries (`-csv`,
+`-shp`, `-agentmap`, `-carto`, `-ohm`, `-c3d`), `chcx-static` routes,
+`chcx-main`, `chcx-about`, `ohm-core`, `c3d-core`, and the two secondary
+apps (`cityos-ng`, `ohm-front`). GeoMQTT's descriptor-emission also
+pending — it's Leaflet-only for now.
 
 **Dropped:** Stamen (service deprecated 2023), the modes / transformer
 matrix libraries (empty scaffolds in legacy), `angularfire2` / Firebase

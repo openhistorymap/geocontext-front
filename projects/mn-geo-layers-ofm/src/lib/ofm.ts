@@ -1,11 +1,10 @@
-import * as L from 'leaflet';
-import { Layer } from '@modalnodes/mn-geo-layers';
+import { Layer, RasterTilesDescriptor } from '@modalnodes/mn-geo-layers';
 
-/**
- * OpenFantasyMaps tile layer. The XYZ URL template, zoom bounds, and
- * attribution come from the layer `conf` so the same class can back any
- * OFM backend (main grid, OHM variant, fantasy renders).
- */
+function expandSubdomains(template: string, subdomains?: string): string[] {
+  if (!subdomains || !template.includes('{s}')) return [template];
+  return [...subdomains].map((s) => template.replace('{s}', s));
+}
+
 export class OfmTiles extends Layer {
   static readonly DEFAULT_URL = 'https://tiles.openfantasymaps.org/{z}/{x}/{y}.png';
   static readonly DEFAULT_ATTRIBUTION =
@@ -16,14 +15,18 @@ export class OfmTiles extends Layer {
     this.setRequiresDatasources(false);
   }
 
-  override create(): L.Layer {
+  override create(): RasterTilesDescriptor {
     const conf = this.getConfiguration() ?? {};
-    return L.tileLayer(conf.url ?? OfmTiles.DEFAULT_URL, {
+    const template: string = conf.url ?? OfmTiles.DEFAULT_URL;
+    return {
+      kind: 'raster-tiles',
+      id: this.getName() || 'ofm',
+      urls: expandSubdomains(template, conf.subdomains),
+      tileSize: conf.tileSize ?? 256,
       minZoom: conf.minZoom ?? 1,
       maxZoom: conf.maxZoom ?? 18,
       attribution: conf.attribution ?? OfmTiles.DEFAULT_ATTRIBUTION,
       subdomains: conf.subdomains,
-      tileSize: conf.tileSize ?? 256,
-    });
+    };
   }
 }

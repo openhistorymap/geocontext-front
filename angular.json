@@ -29,7 +29,8 @@
             "tsConfig": "tsconfig.app.json",
             "inlineStyleLanguage": "scss",
             "allowedCommonJsDependencies": [
-              "leaflet"
+              "leaflet",
+              "maplibre-gl"
             ],
             "assets": [
               {
@@ -40,6 +41,7 @@
             "styles": [
               "@angular/material/prebuilt-themes/azure-blue.css",
               "node_modules/leaflet/dist/leaflet.css",
+              "node_modules/maplibre-gl/dist/maplibre-gl.css",
               "src/styles.scss"
             ],
             "scripts": []
@@ -49,7 +51,7 @@
               "budgets": [
                 {
                   "type": "initial",
-                  "maximumWarning": "2MB",
+                  "maximumWarning": "3MB",
                   "maximumError": "4MB"
                 },
                 {
@@ -969,7 +971,7 @@
               "budgets": [
                 {
                   "type": "initial",
-                  "maximumWarning": "2MB",
+                  "maximumWarning": "3MB",
                   "maximumError": "4MB"
                 },
                 {
@@ -1064,7 +1066,7 @@
               "budgets": [
                 {
                   "type": "initial",
-                  "maximumWarning": "2MB",
+                  "maximumWarning": "3MB",
                   "maximumError": "4MB"
                 },
                 {
