@@ -1,0 +1,69 @@
+name: Publish libraries
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+    inputs:
+      dry-run:
+        description: 'Dry-run (npm publish --dry-run)'
+        type: boolean
+        default: false
+
+jobs:
+  publish:
+    name: Publish to npm
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          registry-url: 'https://registry.npmjs.org'
+          cache: npm
+
+      - name: Install
+        run: npm ci --no-audit --no-fund
+
+      - name: Build ported libraries + app
+        run: ./scripts/build-ported.sh
+
+      - name: Publish libraries
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          DRY_RUN: ${{ github.event.inputs.dry-run || 'false' }}
+        run: |
+          set -euo pipefail
+          LIBS=(
+            mn-registry
+            mn-geo-datasources
+            mn-geo-layers
+            mn-geo
+            mn-geo-flavours-leaflet
+            mn-geo-flavours-mapbox
+            mn-geo-layers-osm
+            mn-geo-layers-ofm
+            mn-geo-layers-geomqtt
+            gcx-core
+          )
+          for lib in "${LIBS[@]}"; do
+            dist="dist/$lib"
+            if [ ! -d "$dist" ]; then
+              echo "::error::missing $dist — build step did not produce it"
+              exit 1
+            fi
+            name=$(node -p "require('./$dist/package.json').name")
+            version=$(node -p "require('./$dist/package.json').version")
+            echo "::group::publish $name@$version"
+            flags=()
+            [ "$DRY_RUN" = "true" ] && flags+=(--dry-run)
+            if npm view "$name@$version" version >/dev/null 2>&1; then
+              echo "$name@$version already published — skipping"
+            else
+              npm publish "$dist" --provenance "${flags[@]}"
+            fi
+            echo "::endgroup::"
+          done
