@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { MnRegistryService, MnMetaRegistryService } from '@modalnodes/mn-registry';
+import { MnRegistryService, MnMetaRegistryService } from '@openhistorymap/mn-registry';
 import { Layer } from './layer.interface';
 
 @Injectable({ providedIn: 'root' })

@@ -1,5 +1,5 @@
 import { EnvironmentProviders, inject, provideAppInitializer } from '@angular/core';
-import { MnGeoLayersRegistryService } from '@modalnodes/mn-geo-layers';
+import { MnGeoLayersRegistryService } from '@openhistorymap/mn-geo-layers';
 import { OsmOverpass, OsmTiles, OsmVectors } from './osm';
 
 /**

@@ -12,7 +12,7 @@ import {
   MnLayerComponent,
   MnDatasourceComponent,
   MnStyleComponent,
-} from '@modalnodes/mn-geo';
+} from '@openhistorymap/mn-geo';
 import { GcxCoreService } from '../gcx-core.service';
 import { GcxLegendComponent } from '../gcx-legend/gcx-legend.component';
 

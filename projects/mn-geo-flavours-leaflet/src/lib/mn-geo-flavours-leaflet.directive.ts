@@ -1,7 +1,7 @@
 import { Directive, forwardRef } from '@angular/core';
 import * as L from 'leaflet';
-import { MnMapComponent, MnMapFlavourDirective } from '@modalnodes/mn-geo';
-import { isLayerDescriptor, LayerDescriptor } from '@modalnodes/mn-geo-layers';
+import { MnMapComponent, MnMapFlavourDirective } from '@openhistorymap/mn-geo';
+import { isLayerDescriptor, LayerDescriptor } from '@openhistorymap/mn-geo-layers';
 
 /**
  * Leaflet implementation of the MnGeoFlavour interface. Attach inside a

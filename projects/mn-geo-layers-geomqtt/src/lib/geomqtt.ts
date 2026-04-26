@@ -1,6 +1,6 @@
 import * as L from 'leaflet';
 import mqtt, { MqttClient } from 'mqtt';
-import { Layer } from '@modalnodes/mn-geo-layers';
+import { Layer } from '@openhistorymap/mn-geo-layers';
 
 export interface GeoMqttConf {
   broker: string;

@@ -1,7 +1,7 @@
 import { Directive, forwardRef, OnDestroy } from '@angular/core';
 import maplibregl, { Map as MaplibreMap, StyleSpecification } from 'maplibre-gl';
-import { MnMapComponent, MnMapFlavourDirective } from '@modalnodes/mn-geo';
-import { isLayerDescriptor, LayerDescriptor } from '@modalnodes/mn-geo-layers';
+import { MnMapComponent, MnMapFlavourDirective } from '@openhistorymap/mn-geo';
+import { isLayerDescriptor, LayerDescriptor } from '@openhistorymap/mn-geo-layers';
 
 /**
  * MapLibre-GL implementation of the MnGeoFlavour interface. Attach inside

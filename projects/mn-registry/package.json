@@ -1,5 +1,5 @@
 {
-  "name": "@modalnodes/mn-registry",
+  "name": "@openhistorymap/mn-registry",
   "version": "0.1.0",
   "peerDependencies": {
     "@angular/common": "^19.2.0",

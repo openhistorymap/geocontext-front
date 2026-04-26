@@ -1,7 +1,7 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
-import { GcxMainComponent, GcxRouteItem } from '@geocontext/gcx-core';
+import { GcxMainComponent, GcxRouteItem } from '@openhistorymap/gcx-core';
 
 interface StaticPage {
   target: string;

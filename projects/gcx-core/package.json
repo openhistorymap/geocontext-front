@@ -1,5 +1,5 @@
 {
-  "name": "@geocontext/gcx-core",
+  "name": "@openhistorymap/gcx-core",
   "version": "0.1.0",
   "peerDependencies": {
     "@angular/common": "^19.2.0",

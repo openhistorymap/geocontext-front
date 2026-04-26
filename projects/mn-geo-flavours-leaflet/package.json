@@ -1,5 +1,5 @@
 {
-  "name": "@modalnodes/mn-geo-flavours-leaflet",
+  "name": "@openhistorymap/mn-geo-flavours-leaflet",
   "version": "0.1.0",
   "peerDependencies": {
     "@angular/common": "^19.2.0",

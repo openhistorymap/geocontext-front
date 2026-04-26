@@ -1,4 +1,4 @@
-import { Layer, RasterTilesDescriptor } from '@modalnodes/mn-geo-layers';
+import { Layer, RasterTilesDescriptor } from '@openhistorymap/mn-geo-layers';
 
 function expandSubdomains(template: string, subdomains?: string): string[] {
   if (!subdomains || !template.includes('{s}')) return [template];

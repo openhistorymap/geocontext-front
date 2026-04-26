@@ -1,5 +1,5 @@
 {
-  "name": "@modalnodes/mn-geo-layers-osm",
+  "name": "@openhistorymap/mn-geo-layers-osm",
   "version": "0.1.0",
   "peerDependencies": {
     "@angular/common": "^19.2.0",

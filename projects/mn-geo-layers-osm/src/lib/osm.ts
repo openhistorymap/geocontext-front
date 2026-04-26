@@ -1,4 +1,4 @@
-import { Layer, RasterTilesDescriptor } from '@modalnodes/mn-geo-layers';
+import { Layer, RasterTilesDescriptor } from '@openhistorymap/mn-geo-layers';
 
 const OSM_URL = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
 const OSM_SUBDOMAINS = 'abc';
