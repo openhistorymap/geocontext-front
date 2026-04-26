@@ -65,7 +65,7 @@ jobs:
             if npm view "$name@$version" version --registry=https://npm.pkg.github.com >/dev/null 2>&1; then
               echo "$name@$version already published — skipping"
             else
-              npm publish "$dist" --provenance "${flags[@]}"
+              npm publish "$dist" "${flags[@]}"
             fi
             echo "::endgroup::"
           done
