@@ -11,8 +11,8 @@ import {
   OnInit,
 } from '@angular/core';
 import { NgStyle } from '@angular/common';
-import { DatasourcesmanagerService } from '@modalnodes/mn-geo-datasources';
-import { LayersmanagerService } from '@modalnodes/mn-geo-layers';
+import { DatasourcesmanagerService } from '@openhistorymap/mn-geo-datasources';
+import { LayersmanagerService } from '@openhistorymap/mn-geo-layers';
 import { DatasetRegistryService } from '../dataset-registry.service';
 import { MnMapFlavourDirective } from '../mn-map-flavour.directive';
 import { MnLayerComponent } from '../mn-layer/mn-layer.component';

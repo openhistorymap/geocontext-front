@@ -7,7 +7,7 @@ import {
   input,
   Output,
 } from '@angular/core';
-import { MnGeoLayersRegistryService, Layer } from '@modalnodes/mn-geo-layers';
+import { MnGeoLayersRegistryService, Layer } from '@openhistorymap/mn-geo-layers';
 import { MnStyleComponent } from '../mn-style/mn-style.component';
 
 /**

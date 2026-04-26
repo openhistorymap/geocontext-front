@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { MnRegistryService, MnMetaRegistryService } from '@modalnodes/mn-registry';
+import { MnRegistryService, MnMetaRegistryService } from '@openhistorymap/mn-registry';
 import { Datasource } from './datasource';
 
 @Injectable({ providedIn: 'root' })

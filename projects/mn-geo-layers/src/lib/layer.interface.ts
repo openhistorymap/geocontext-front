@@ -1,5 +1,5 @@
 import { EventEmitter } from '@angular/core';
-import { DatasourcesmanagerService } from '@modalnodes/mn-geo-datasources';
+import { DatasourcesmanagerService } from '@openhistorymap/mn-geo-datasources';
 
 export interface ILayer {
   getName(): string;

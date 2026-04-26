@@ -1,11 +1,11 @@
 import { Component } from '@angular/core';
-import { GcxMapComponent } from '@geocontext/gcx-core';
-import { MnGeoFlavoursMaplibreDirective } from '@modalnodes/mn-geo-flavours-mapbox';
+import { GcxMapComponent } from '@openhistorymap/gcx-core';
+import { MnGeoFlavoursMaplibreDirective } from '@openhistorymap/mn-geo-flavours-mapbox';
 
 /**
  * Thin wrapper that chooses the rendering flavour for `<gcx-map>`.
  * Default is MapLibre-GL. Swap `MnGeoFlavoursMaplibreDirective` for
- * `MnGeoFlavoursLeafletDirective` (from `@modalnodes/mn-geo-flavours-leaflet`)
+ * `MnGeoFlavoursLeafletDirective` (from `@openhistorymap/mn-geo-flavours-leaflet`)
  * if a given deployment needs Leaflet — e.g. to keep GeoMQTT layers working
  * (GeoMQTT still emits Leaflet-native objects; descriptor support is a
  * follow-up).

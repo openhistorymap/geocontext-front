@@ -1,5 +1,5 @@
 {
-  "name": "@modalnodes/mn-geo-datasources-shp",
+  "name": "@openhistorymap/mn-geo-datasources-shp",
   "version": "0.0.1",
   "peerDependencies": {
     "@angular/common": "^19.2.0",

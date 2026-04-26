@@ -1,5 +1,5 @@
 {
-  "name": "@modalnodes/mn-geo-datasources-agentmap",
+  "name": "@openhistorymap/mn-geo-datasources-agentmap",
   "version": "0.0.1",
   "peerDependencies": {
     "@angular/common": "^19.2.0",

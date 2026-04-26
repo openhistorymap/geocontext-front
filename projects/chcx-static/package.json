@@ -1,5 +1,5 @@
 {
-  "name": "@ohmap/chcx-static",
+  "name": "@openhistorymap/chcx-static",
   "version": "0.0.1",
   "peerDependencies": {
     "@angular/common": "^19.2.0",

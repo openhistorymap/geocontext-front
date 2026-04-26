@@ -1,5 +1,5 @@
 {
-  "name": "@modalnodes/mn-mapgl",
+  "name": "@openhistorymap/mn-mapgl",
   "version": "0.0.1",
   "peerDependencies": {
     "@angular/common": "^19.2.0",

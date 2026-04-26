@@ -1,6 +1,6 @@
 {
-  "name": "@modalnodes/mn-geo-flavours-leaflet",
-  "version": "0.0.1",
+  "name": "@openhistorymap/mn-geo-flavours-leaflet",
+  "version": "0.1.0",
   "peerDependencies": {
     "@angular/common": "^19.2.0",
     "@angular/core": "^19.2.0"
@@ -8,5 +8,8 @@
   "dependencies": {
     "tslib": "^2.3.0"
   },
-  "sideEffects": false
+  "sideEffects": false,
+  "publishConfig": {
+    "access": "public"
+  }
 }

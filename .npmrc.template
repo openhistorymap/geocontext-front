@@ -1,2 +1,2 @@
-always-auth=true
-//registry.npmjs.org/:_authToken=${API_TOKEN}
+@openhistorymap:registry=https://npm.pkg.github.com
+//npm.pkg.github.com/:_authToken=${GITHUB_TOKEN}

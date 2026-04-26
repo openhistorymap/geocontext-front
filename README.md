@@ -11,8 +11,8 @@ self-register at bootstrap, so adding a new backend is one provider call,
 not a fork of the core.
 
 The repository is an Angular CLI monorepo: one shell app (`geocontext-front`),
-two secondary apps (`cityos-ng`, `ohm-front`), and ~25 libraries published
-under `@modalnodes/*`, `@geocontext/*`, and `@ohmap/*`.
+two secondary apps (`cityos-ng`, `ohm-front`), and ~25 libraries published to
+**GitHub Packages** under a single `@openhistorymap/*` scope.
 
 ## Layout
 
@@ -135,6 +135,34 @@ matrix libraries (empty scaffolds in legacy), `angularfire2` / Firebase
 
 See `_legacy/` for the original Angular 6 source and `CLAUDE.md` for porting
 notes.
+
+## Publishing and consuming packages
+
+All libraries publish to **GitHub Packages** under `@openhistorymap/*`
+(matching the repo owner, which is what the automatic `GITHUB_TOKEN` in
+Actions can write to).
+
+Publishing from CI: tag a release and the `Publish libraries` workflow
+walks every ported library and publishes with `--provenance`. The job is
+idempotent — `<name>@<version>` pairs already on the registry are skipped.
+
+```bash
+git tag v0.1.0 && git push origin v0.1.0
+# or Actions tab → Publish libraries → Run workflow (optionally dry-run)
+```
+
+Consuming the packages from another project: add a `.npmrc` that pins
+the `@openhistorymap` scope to GitHub Packages (see `.npmrc.template`),
+then export a `GITHUB_TOKEN` with at least `read:packages` scope.
+
+```
+@openhistorymap:registry=https://npm.pkg.github.com
+//npm.pkg.github.com/:_authToken=${GITHUB_TOKEN}
+```
+
+```bash
+npm install @openhistorymap/mn-geo @openhistorymap/mn-geo-flavours-leaflet
+```
 
 ## License
 
