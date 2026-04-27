@@ -14,4 +14,9 @@ export interface MnGeoFlavour {
 
   addDatasource(datasource: any): void;
   removeDatasource(id: any): void;
+
+  /** Show / hide a previously added layer by descriptor id (typically the
+   *  layer name). Optional: a flavour that doesn't support live toggling
+   *  may omit it. */
+  setLayerVisibility?(id: string, visible: boolean): void;
 }

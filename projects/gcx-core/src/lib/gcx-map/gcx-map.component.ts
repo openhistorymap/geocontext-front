@@ -160,18 +160,19 @@ interface ConfiguredDatasource {
             <mn-datasource [name]="ds.name" [type]="ds.type" [conf]="ds.conf" />
           }
           @for (layer of layers(); track layer.name) {
-            @if (layer.visible) {
-              <mn-layer
-                [name]="layer.name"
-                [type]="layer.type"
-                [datasource]="layer.datasource"
-                (layerClicked)="onFeature($event)"
-              >
-                @if (layer.style) {
-                  <mn-style [style]="layer.style" />
-                }
-              </mn-layer>
-            }
+            <!-- Always render — visibility is toggled on the flavour via
+                 setLayerVisibility, not by removing the mn-layer (which
+                 would orphan the underlying renderer state). -->
+            <mn-layer
+              [name]="layer.name"
+              [type]="layer.type"
+              [datasource]="layer.datasource"
+              (layerClicked)="onFeature($event)"
+            >
+              @if (layer.style) {
+                <mn-style [style]="layer.style" />
+              }
+            </mn-layer>
           }
         </mn-map>
       </mat-drawer-content>
@@ -208,6 +209,11 @@ interface ConfiguredDatasource {
       }
       .gcx-search-form {
         padding: 8px;
+        box-sizing: border-box;
+        width: 100%;
+      }
+      .gcx-search-form mat-form-field {
+        width: 100%;
       }
       .gcx-layers-panel {
         padding: 8px;
@@ -318,9 +324,14 @@ export class GcxMapComponent {
   }
 
   toggleVisible(layer: ConfiguredLayer): void {
+    const next = !layer.visible;
     this.layers.update((list) =>
-      list.map((l) => (l.name === layer.name ? { ...l, visible: !l.visible } : l)),
+      list.map((l) => (l.name === layer.name ? { ...l, visible: next } : l)),
     );
+    // Tell the active flavour to show/hide the rendered layer in place —
+    // re-rendering the mn-layer through @if would re-create the layer and
+    // lose subscriptions / source state.
+    this.flavour()?.setLayerVisibility?.(layer.name, next);
   }
 
   onFeature(event: any): void {

@@ -115,13 +115,29 @@ export class MnGeoFlavoursMaplibreDirective extends MnMapFlavourDirective implem
     if (!id) return;
     this.subscriptions.get(id)?.();
     this.subscriptions.delete(id);
-    if (this.ownedLayerIds.has(id) && this._map.getLayer(id)) {
-      this._map.removeLayer(id);
-      this.ownedLayerIds.delete(id);
+    // GeoJSON descriptors fan out into <id>-circle/-line/-fill GL layers;
+    // remove them all.
+    for (const layerId of [id, `${id}-circle`, `${id}-line`, `${id}-fill`]) {
+      if (this.ownedLayerIds.has(layerId) && this._map.getLayer(layerId)) {
+        this._map.removeLayer(layerId);
+        this.ownedLayerIds.delete(layerId);
+      }
     }
     if (this.ownedSourceIds.has(id) && this._map.getSource(id)) {
       this._map.removeSource(id);
       this.ownedSourceIds.delete(id);
+    }
+  }
+
+  override setLayerVisibility(id: string, visible: boolean): void {
+    if (!this._map) return;
+    const visibility = visible ? 'visible' : 'none';
+    // Toggle the descriptor id itself (raster/vector single-layer case)
+    // plus the geojson sublayers if they exist.
+    for (const layerId of [id, `${id}-circle`, `${id}-line`, `${id}-fill`]) {
+      if (this._map.getLayer(layerId)) {
+        this._map.setLayoutProperty(layerId, 'visibility', visibility);
+      }
     }
   }
 

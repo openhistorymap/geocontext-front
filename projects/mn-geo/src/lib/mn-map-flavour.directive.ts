@@ -18,4 +18,14 @@ export abstract class MnMapFlavourDirective implements MnGeoFlavour {
   abstract removeLayer(id: any): void;
   abstract addDatasource(datasource: any): void;
   abstract removeDatasource(id: any): void;
+
+  /**
+   * Show or hide a layer that was previously added with `addLayer`. The
+   * `id` is the descriptor's id (FeatureLayer uses the layer name). The
+   * default is a no-op so flavours that don't support visibility toggling
+   * still satisfy the interface; concrete flavours override.
+   */
+  setLayerVisibility(_id: string, _visible: boolean): void {
+    /* override in concrete flavour */
+  }
 }

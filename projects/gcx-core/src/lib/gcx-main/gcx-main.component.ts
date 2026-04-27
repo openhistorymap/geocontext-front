@@ -4,6 +4,7 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { GcxCoreService } from '../gcx-core.service';
+import { GCX_VERSION } from '../version';
 
 export interface GcxRouteItem {
   title: string;
@@ -69,11 +70,14 @@ export interface GcxRouteItem {
         flex-direction: column;
       }
       .gcx-footer {
-        background: #fff;
-        border-top: 1px solid #444;
+        background: var(--mat-sys-surface, #fff);
+        color: var(--mat-sys-on-surface-variant, rgba(0, 0, 0, 0.6));
+        border-top: 1px solid var(--mat-sys-outline-variant, rgba(0, 0, 0, 0.12));
         text-align: center;
-        font-size: 0.8em;
-        padding: 4px 0;
+        /* Inherit the rest of the interface's typography (Roboto via the
+         *  Material theme) instead of forcing a different font stack. */
+        font: var(--mat-sys-label-medium, 500 0.75rem/1rem Roboto, sans-serif);
+        padding: 6px 0;
       }
     `,
   ],
@@ -83,7 +87,8 @@ export class GcxMainComponent {
 
   readonly title = input<string>('GeoContext');
   readonly items = input<GcxRouteItem[]>([]);
-  readonly version = '0.1.0';
+  /** Engine version, baked in from `version.ts` at publish time. */
+  readonly version = GCX_VERSION;
 
   /** Repo-aware path prefix. `/<user>/<project>` in repo mode, empty
    *  array in local mode (so subsequent segments form `/map`, `/static/X`). */
