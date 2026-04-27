@@ -5,6 +5,17 @@ import { GcxCoreService, GCX_JSDELIVR_BASE } from '@openhistorymap/gcx-core';
 
 export const CHCX_STATIC_FILE = '/assets/chcx-static.json';
 
+/**
+ * Filenames probed at the repo root when GcxCoreService.currentRepo() is
+ * set. `geocontext-static.json` is the preferred (modern) name; the legacy
+ * `chcx-static.json` is kept for backwards compatibility with older repos.
+ * Mirrors GCX_REPO_CANDIDATE_PATHS in @openhistorymap/gcx-core.
+ */
+export const CHCX_STATIC_CANDIDATE_PATHS = [
+  'geocontext-static.json',
+  'chcx-static.json',
+] as const;
+
 export interface ChcxStaticPage {
   target: string;
   title?: string;
@@ -16,15 +27,18 @@ export interface ChcxStaticPage {
 }
 
 /**
- * Loads `chcx-static.json` once and caches by source URL. Two source modes:
+ * Loads the static-page registry once and caches by source URL. Two modes:
  *
- *   - **local**: defaults to `/assets/chcx-static.json`.
- *   - **repo**: when GcxCoreService.currentRepo() is set, fetches
- *     `chcx-static.json` from the same repo via jsdelivr.
+ *   - **local**: single candidate `/assets/chcx-static.json`.
+ *   - **repo**: when GcxCoreService.currentRepo() is set, probes
+ *     `geocontext-static.json` first then falls back to `chcx-static.json`
+ *     via jsdelivr — non-404 errors propagate immediately so real
+ *     CORS/server failures aren't masked. If both 404, the registry
+ *     resolves to an empty map (legitimate "no static pages").
  *
  * Repo mode is picked up automatically — the gcx-core map route already
- * sets `currentRepo` when the URL is `/:user/:project/map`, and the static
- * route inherits the same context.
+ * sets `currentRepo` when the URL is `/:user/:project/map`, and
+ * ChcxStaticpageComponent does the same when it sees those route params.
  */
 @Injectable({ providedIn: 'root' })
 export class ChcxStaticService {
@@ -40,24 +54,16 @@ export class ChcxStaticService {
   /** Lazily load the static-page registry. Re-fetches when the source URL
    *  changes (e.g. navigating between repos). */
   async load(): Promise<Record<string, ChcxStaticPage>> {
-    const url = this.sourceUrl();
+    const candidates = this.candidateUrls();
+    const cacheKey = candidates[0];
     const cached = this._pages();
-    if (this._loadedFor === url && cached) return cached;
+    if (this._loadedFor === cacheKey && cached) return cached;
 
-    this._loadedFor = url;
-    this._pending = firstValueFrom(this.http.get<Record<string, ChcxStaticPage>>(url))
-      .then((pages) => {
-        this._pages.set(pages ?? {});
-        return pages ?? {};
-      })
-      .catch((err) => {
-        // Missing chcx-static.json is normal in repo mode; expose empty list.
-        if (err?.status === 404) {
-          this._pages.set({});
-          return {};
-        }
-        throw err;
-      });
+    this._loadedFor = cacheKey;
+    this._pending = this.fetchFirstAvailable(candidates).then((pages) => {
+      this._pages.set(pages);
+      return pages;
+    });
     return this._pending;
   }
 
@@ -75,10 +81,33 @@ export class ChcxStaticService {
     return pages[target] ?? null;
   }
 
-  private sourceUrl(): string {
+  private candidateUrls(): string[] {
     const repo = this.gcx.currentRepo();
-    if (!repo) return CHCX_STATIC_FILE;
+    if (!repo) return [CHCX_STATIC_FILE];
     const branch = repo.branch ?? 'HEAD';
-    return `${GCX_JSDELIVR_BASE}/${repo.user}/${repo.project}@${branch}/chcx-static.json`;
+    const base = `${GCX_JSDELIVR_BASE}/${repo.user}/${repo.project}@${branch}`;
+    return CHCX_STATIC_CANDIDATE_PATHS.map((p) => `${base}/${p}`);
+  }
+
+  private async fetchFirstAvailable(
+    urls: string[],
+  ): Promise<Record<string, ChcxStaticPage>> {
+    let last404: any;
+    for (const url of urls) {
+      try {
+        const pages = await firstValueFrom(
+          this.http.get<Record<string, ChcxStaticPage>>(url),
+        );
+        return pages ?? {};
+      } catch (e: any) {
+        if (e?.status === 404) {
+          last404 = e;
+          continue;
+        }
+        throw e;
+      }
+    }
+    // All candidates 404'd — legitimate "no static pages defined".
+    return {};
   }
 }
