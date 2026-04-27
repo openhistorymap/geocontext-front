@@ -61,10 +61,33 @@ export class ChcxStaticService {
 
     this._loadedFor = cacheKey;
     this._pending = this.fetchFirstAvailable(candidates).then((pages) => {
-      this._pages.set(pages);
-      return pages;
+      const resolved = this.rewriteContentUrls(pages);
+      this._pages.set(resolved);
+      return resolved;
     });
     return this._pending;
+  }
+
+  /**
+   * Rewrites every `mode: 'file'` page's `content` URL through
+   * `GcxCoreService.resolveAssetUrl`, so:
+   *   - `/assets/about.html` in repo mode → jsdelivr current-repo's asset
+   *   - `/<user>/<project>/assets/about.html` → jsdelivr that repo's asset
+   *   - absolute http(s) URLs → unchanged
+   * `mode: 'raw'` entries are left alone.
+   */
+  private rewriteContentUrls(
+    pages: Record<string, ChcxStaticPage>,
+  ): Record<string, ChcxStaticPage> {
+    const out: Record<string, ChcxStaticPage> = {};
+    for (const [key, page] of Object.entries(pages)) {
+      if (page?.mode === 'file' && typeof page.content === 'string') {
+        out[key] = { ...page, content: this.gcx.resolveAssetUrl(page.content) };
+      } else {
+        out[key] = page;
+      }
+    }
+    return out;
   }
 
   /** All registered pages as an array (for toolbar items, sidebars, …). */
