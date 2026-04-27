@@ -1,25 +1,25 @@
 import { Component, computed, input } from '@angular/core';
 
 /**
- * Minimal style preview swatch for a layer legend row. Reads the same
- * `style.options` block that the flavours render with so the toggle and
- * the points on the map agree visually.
+ * Layer legend swatch. Renders the marker fill colour from `style.options`
+ * as a small filled disc with a thin ink stroke — same visual logic as the
+ * point markers on the map, scaled down to a sidebar legend.
  */
 @Component({
   selector: 'gcx-legend',
   standalone: true,
   template: `
-    <span class="swatch" [style.background]="color()"></span>
+    <span class="swatch" [style.background]="color()" [style.border-color]="strokeColor()"></span>
   `,
   styles: [
     `
       .swatch {
         display: inline-block;
-        width: 14px;
-        height: 14px;
-        margin-right: 8px;
-        border: 1px solid rgba(0, 0, 0, 0.25);
+        width: 12px;
+        height: 12px;
         border-radius: 50%;
+        border: 1px solid var(--gcx-ink-soft);
+        box-shadow: 0 0 0 2px var(--gcx-paper);
         vertical-align: middle;
       }
     `,
@@ -35,7 +35,12 @@ export class GcxLegendComponent {
       s?.fillColor ??
       s?.options?.color ??
       s?.color ??
-      '#888'
+      'transparent'
     );
+  });
+
+  readonly strokeColor = computed<string>(() => {
+    const s = this.style();
+    return s?.options?.color ?? s?.color ?? 'var(--gcx-ink-soft)';
   });
 }

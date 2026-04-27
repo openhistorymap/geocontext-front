@@ -76,71 +76,75 @@ interface ConfiguredDatasource {
       <ng-content select="[mnMapFlavour], [mnMapFlavourLeaflet], [mnMapFlavourMapbox], [mnMapFlavourMaplibre]" />
     </div>
     <mat-drawer-container class="gcx-map-container" hasBackdrop="false">
-      <mat-drawer mode="side" [opened]="gcx.sidebarOpen()">
-        <form class="gcx-search-form" (submit)="$event.preventDefault()">
-          <mat-form-field appearance="outline" subscriptSizing="dynamic">
-            <mat-icon matPrefix>search</mat-icon>
-            <mat-label>Filter layers</mat-label>
-            <input
-              matInput
-              type="search"
-              [ngModel]="searchTerm()"
-              (ngModelChange)="searchTerm.set($event)"
-              name="search"
-              autocomplete="off"
-            />
-            @if (searchTerm()) {
-              <button
-                matSuffix
-                mat-icon-button
-                type="button"
-                aria-label="Clear search"
-                (click)="searchTerm.set('')"
-              >
-                <mat-icon>close</mat-icon>
-              </button>
-            }
-          </mat-form-field>
+      <mat-drawer class="gcx-sidebar" mode="side" [opened]="gcx.sidebarOpen()">
+        <header class="gcx-side-head">
+          <span class="gcx-side-folio">№ {{ layers().length }}</span>
+          <span class="gcx-side-eyebrow">Layers · Atlas</span>
+        </header>
+        <form class="gcx-search" (submit)="$event.preventDefault()">
+          <span class="gcx-search-icon" aria-hidden="true">⌕</span>
+          <input
+            class="gcx-search-input"
+            type="search"
+            placeholder="Filter layers…"
+            [ngModel]="searchTerm()"
+            (ngModelChange)="searchTerm.set($event)"
+            name="search"
+            autocomplete="off"
+          />
+          @if (searchTerm()) {
+            <button
+              class="gcx-search-clear"
+              type="button"
+              aria-label="Clear search"
+              (click)="searchTerm.set('')"
+            >×</button>
+          }
         </form>
-        <mat-tab-group [selectedIndex]="selectedTab()" (selectedIndexChange)="selectedTab.set($event)">
-          <mat-tab>
-            <ng-template mat-tab-label>
-              <mat-icon title="Layers">layers</mat-icon>
-            </ng-template>
-            <div class="gcx-layers-panel">
+        <mat-tab-group
+          class="gcx-side-tabs"
+          [selectedIndex]="selectedTab()"
+          (selectedIndexChange)="selectedTab.set($event)"
+        >
+          <mat-tab label="Layers">
+            <div class="gcx-layers">
               @for (layer of filteredLayers(); track layer.name) {
-                <mat-slide-toggle
-                  color="primary"
-                  [checked]="layer.visible"
-                  (change)="toggleVisible(layer)"
-                >
+                <label class="gcx-layer">
                   <gcx-legend [style]="layer.style" />
-                  {{ layer.name }}
-                </mat-slide-toggle>
+                  <span class="gcx-layer-name">{{ layer.name }}</span>
+                  @if (layer.datasource) {
+                    <span class="gcx-layer-source">{{ layer.datasource }}</span>
+                  }
+                  <mat-slide-toggle
+                    class="gcx-layer-toggle"
+                    [checked]="layer.visible"
+                    (change)="toggleVisible(layer)"
+                    [aria-label]="'Toggle ' + layer.name"
+                  />
+                </label>
               } @empty {
-                <p class="gcx-layers-empty">No matching layers.</p>
+                <p class="gcx-empty">No matching layers.</p>
               }
             </div>
           </mat-tab>
-          <mat-tab [disabled]="!selectedItem()">
-            <ng-template mat-tab-label>
-              <mat-icon title="Details">place</mat-icon>
-            </ng-template>
-            <div class="gcx-info">
+          <mat-tab label="Details" [disabled]="!selectedItem()">
+            <div class="gcx-detail">
               @if (selectedItem(); as feat) {
                 @if (selectedTitle(); as t) {
-                  <h3 class="gcx-info-title">{{ t }}</h3>
+                  <h3 class="gcx-detail-title">{{ t }}</h3>
                 }
                 @if (propertyEntries().length) {
-                  <dl class="gcx-info-properties">
+                  <dl class="gcx-detail-properties">
                     @for (entry of propertyEntries(); track entry[0]) {
                       <dt>{{ entry[0] }}</dt>
                       <dd>{{ entry[1] }}</dd>
                     }
                   </dl>
                 } @else {
-                  <p class="gcx-layers-empty">No properties.</p>
+                  <p class="gcx-empty">No properties recorded.</p>
                 }
+              } @else {
+                <p class="gcx-empty">Select a feature on the map to see its properties here.</p>
               }
             </div>
           </mat-tab>
@@ -191,7 +195,7 @@ interface ConfiguredDatasource {
       }
       /* mat-drawer-content needs explicit height + flex column so
          <mn-map> can fill it. Without this, Material's drawer-content
-         collapses to its content height (the sidebar) on first paint. */
+         collapses to its content height on first paint. */
       ::ng-deep .gcx-map-container .mat-drawer-content {
         display: flex;
         flex-direction: column;
@@ -202,53 +206,208 @@ interface ConfiguredDatasource {
         min-height: 0;
         display: block;
       }
-      mat-drawer {
-        width: 330px;
+
+      /* --- Sidebar (an editorial column, not a Material drawer) ------- */
+      .gcx-sidebar {
+        width: 320px;
+        padding: 0;
+        background: var(--gcx-paper);
+        border-right: 1px solid var(--gcx-rule);
       }
-      .gcx-search-form {
-        padding: 8px;
-        box-sizing: border-box;
-        width: 100%;
+      ::ng-deep .gcx-sidebar.mat-drawer {
+        background: var(--gcx-paper);
       }
-      .gcx-search-form mat-form-field {
-        width: 100%;
-      }
-      .gcx-layers-panel {
-        padding: 8px;
+      ::ng-deep .gcx-sidebar > .mat-drawer-inner-container {
         display: flex;
         flex-direction: column;
-        gap: 8px;
+        gap: 0;
+        padding: 0;
+        overflow: hidden;
       }
-      .gcx-layers-empty {
-        color: rgba(0, 0, 0, 0.55);
+
+      .gcx-side-head {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        padding: 18px 20px 8px;
+        border-bottom: 1px dashed var(--gcx-rule);
+      }
+      .gcx-side-folio {
+        font-family: var(--gcx-display);
         font-style: italic;
+        font-size: 1.1rem;
+        color: var(--gcx-accent);
+        font-variant-numeric: oldstyle-nums tabular-nums;
+      }
+      .gcx-side-eyebrow {
+        font-family: var(--gcx-body);
+        font-size: 10.5px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.14em;
+        color: var(--gcx-ink-faint);
+      }
+
+      /* Search row: a single underline, not a Material outlined input. */
+      .gcx-search {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 20px 12px;
+        border-bottom: 1px solid var(--gcx-rule);
+      }
+      .gcx-search-icon {
+        font-size: 18px;
+        color: var(--gcx-ink-faint);
+      }
+      .gcx-search-input {
+        flex: 1 1 auto;
+        appearance: none;
+        background: transparent;
+        border: 0;
         padding: 4px 0;
-        margin: 0;
+        font: 400 var(--gcx-text-base) / 1.4 var(--gcx-body);
+        color: var(--gcx-ink);
+        outline: none;
+        border-bottom: 1px solid transparent;
+        transition: border-color 120ms ease;
       }
-      .gcx-info {
-        padding: 12px 16px;
-        overflow-y: auto;
+      .gcx-search-input::placeholder {
+        color: var(--gcx-ink-faint);
+        font-style: italic;
       }
-      .gcx-info-title {
-        margin: 0 0 12px;
+      .gcx-search-input:focus {
+        border-bottom-color: var(--gcx-accent);
+      }
+      .gcx-search-input::-webkit-search-cancel-button { display: none; }
+      .gcx-search-clear {
+        appearance: none;
+        background: transparent;
+        border: 0;
+        cursor: pointer;
+        padding: 0 6px;
+        font: 400 18px / 1 var(--gcx-display);
+        color: var(--gcx-ink-faint);
+      }
+      .gcx-search-clear:hover { color: var(--gcx-accent-deep); }
+
+      /* Tabs adapt — the tabbed strip stays Material for a11y but its
+         look is heavily neutralised in styles.scss. */
+      ::ng-deep .gcx-side-tabs .mat-mdc-tab-header {
+        border-bottom: 1px solid var(--gcx-rule);
+      }
+      ::ng-deep .gcx-side-tabs .mat-mdc-tab .mdc-tab__text-label {
+        font-family: var(--gcx-body) !important;
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--gcx-ink-soft);
+      }
+      ::ng-deep .gcx-side-tabs .mat-mdc-tab.mdc-tab--active .mdc-tab__text-label {
+        color: var(--gcx-accent-deep) !important;
+      }
+      ::ng-deep .gcx-side-tabs .mdc-tab-indicator__content--underline {
+        --mdc-tab-indicator-active-indicator-color: var(--gcx-accent);
+      }
+
+      /* --- Layers list — typographic rows, dashed dividers ------------ */
+      .gcx-layers {
+        padding: 8px 0 14px;
+      }
+      .gcx-layer {
+        display: grid;
+        grid-template-columns: 22px 1fr auto;
+        grid-template-rows: auto auto;
+        column-gap: 12px;
+        align-items: center;
+        padding: 10px 20px;
+        border-bottom: 1px dashed var(--gcx-rule);
+        cursor: pointer;
+        transition: background 120ms ease;
+      }
+      .gcx-layer:hover { background: var(--gcx-paper-soft); }
+      .gcx-layer gcx-legend {
+        grid-row: 1 / span 2;
+        align-self: center;
+      }
+      .gcx-layer-name {
+        font-family: var(--gcx-display);
         font-size: 1.05rem;
         font-weight: 500;
+        color: var(--gcx-ink);
+        line-height: 1.2;
       }
-      .gcx-info-properties {
+      .gcx-layer-source {
+        grid-column: 2;
+        font-family: var(--gcx-body);
+        font-size: 11px;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--gcx-ink-faint);
+        margin-top: 2px;
+      }
+      .gcx-layer-toggle {
+        grid-column: 3;
+        grid-row: 1 / span 2;
+        align-self: center;
+      }
+
+      .gcx-empty {
+        padding: 16px 20px;
+        margin: 0;
+        font-family: var(--gcx-display);
+        font-style: italic;
+        font-size: 0.95rem;
+        color: var(--gcx-ink-faint);
+      }
+
+      /* --- Detail panel (selected feature) ---------------------------- */
+      .gcx-detail {
+        padding: 18px 20px 24px;
+        overflow-y: auto;
+      }
+      .gcx-detail-title {
+        margin: 0 0 4px;
+        font-family: var(--gcx-display);
+        font-weight: 500;
+        font-size: 1.35rem;
+        line-height: 1.15;
+        color: var(--gcx-ink);
+      }
+      .gcx-detail-title::after {
+        content: '';
+        display: block;
+        width: 28px;
+        height: 2px;
+        margin-top: 10px;
+        margin-bottom: 14px;
+        background: var(--gcx-accent);
+      }
+      .gcx-detail-properties {
         margin: 0;
         display: grid;
         grid-template-columns: minmax(80px, 35%) 1fr;
         column-gap: 12px;
-        row-gap: 6px;
+        row-gap: 8px;
         font-size: 0.875rem;
       }
-      .gcx-info-properties dt {
-        font-weight: 500;
-        color: rgba(0, 0, 0, 0.65);
+      .gcx-detail-properties dt {
+        font-family: var(--gcx-body);
+        font-size: 10.5px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: var(--gcx-ink-faint);
+        padding-top: 2px;
         word-break: break-word;
       }
-      .gcx-info-properties dd {
+      .gcx-detail-properties dd {
         margin: 0;
+        font-family: var(--gcx-display);
+        font-size: 0.95rem;
+        color: var(--gcx-ink);
         word-break: break-word;
       }
     `,
