@@ -136,6 +136,30 @@ matrix libraries (empty scaffolds in legacy), `angularfire2` / Firebase
 See `_legacy/` for the original Angular 6 source and `CLAUDE.md` for porting
 notes.
 
+## Repo-driven views
+
+Any public GitHub repo with a `geocontext.json` at its root can be rendered
+by GeoContext directly — no fork, no build:
+
+```
+<domain>/<user>/<project>/map
+<domain>/<user>/<project>/map?branch=<ref>&path=<file>
+```
+
+The route loads the config from
+`https://cdn.jsdelivr.net/gh/<user>/<project>@<branch>/<path>` (defaults
+`HEAD` and `geocontext.json`). Datasource references inside the config are
+rewritten by `GcxCoreService.resolveAssetUrl`:
+
+- Absolute URLs pass through.
+- `/<user>/<project>/assets/<file>` (with optional `@<branch>` after project)
+  resolves to that repo's asset on jsdelivr — works across repos.
+- `/assets/<file>` while in repo mode resolves to the *current* repo's
+  matching asset, so existing JSON written for local mode keeps working.
+
+`assets` is reserved at the workspace root (it's not a valid GitHub
+username), so `/<user>/<project>/map` and `/assets/<…>` never collide.
+
 ## Publishing and consuming packages
 
 All libraries publish to **GitHub Packages** under `@openhistorymap/*`
