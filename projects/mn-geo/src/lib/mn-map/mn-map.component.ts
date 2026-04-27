@@ -1,14 +1,15 @@
 import {
-  AfterContentInit,
+  afterNextRender,
   Component,
+  contentChildren,
+  effect,
   ElementRef,
   EventEmitter,
   inject,
   input,
+  OnInit,
   Output,
   viewChild,
-  contentChildren,
-  OnInit,
 } from '@angular/core';
 import { NgStyle } from '@angular/common';
 import { DatasourcesmanagerService } from '@openhistorymap/mn-geo-datasources';
@@ -19,10 +20,15 @@ import { MnLayerComponent } from '../mn-layer/mn-layer.component';
 import { MnDatasourceComponent } from '../mn-datasource/mn-datasource.component';
 
 /**
- * Declarative map host. Projects a single `[mnMapFlavour]` child (the
- * renderer adapter) plus any number of `<mn-layer>` / `<mn-datasource>`
- * children, wires the manager services together, and defers bootstrap to
- * `ready()` which the flavour calls back once the underlying map is live.
+ * Declarative map host. Picks up its rendering flavour from one of:
+ *   - `[flavour]` input (set by an outer wrapper that needs to relay a
+ *     content-projected directive — e.g. `<gcx-map>`),
+ *   - or a direct content child marked with `[mnMapFlavour*]`.
+ *
+ * The flavour's `setup(this)` is called once both the flavour and the
+ * `<div #map>` element are available; it owns instantiating the underlying
+ * Leaflet/MapLibre map and calls `host.ready()` when projected
+ * datasources/layers should be flushed in.
  */
 @Component({
   selector: 'mn-map',
@@ -33,7 +39,7 @@ import { MnDatasourceComponent } from '../mn-datasource/mn-datasource.component'
     <div #map [ngStyle]="{ width: width(), height: height() }"></div>
   `,
 })
-export class MnMapComponent implements OnInit, AfterContentInit {
+export class MnMapComponent implements OnInit {
   // deliberately retained so flavours/consumers can read the shared caches
   readonly datasetRegistry = inject(DatasetRegistryService);
   private readonly dsMgr = inject(DatasourcesmanagerService);
@@ -52,7 +58,12 @@ export class MnMapComponent implements OnInit, AfterContentInit {
   @Output() mapMoveEnd = new EventEmitter<any>();
   @Output() mapMoveStart = new EventEmitter<any>();
 
-  readonly flavour = contentChildren(MnMapFlavourDirective, { descendants: true });
+  readonly flavourChildren = contentChildren(MnMapFlavourDirective, { descendants: true });
+  /** External relay (e.g. `<gcx-map>` forwards a content-projected
+   *  directive that wouldn't otherwise reach `mn-map`'s content query). */
+  readonly flavourInput = input<MnMapFlavourDirective | undefined>(undefined, {
+    alias: 'flavour',
+  });
   readonly datasources = contentChildren(MnDatasourceComponent);
   readonly layers = contentChildren(MnLayerComponent);
 
@@ -60,20 +71,37 @@ export class MnMapComponent implements OnInit, AfterContentInit {
   readonly stylesElement = viewChild<ElementRef<HTMLElement>>('styles');
 
   private _flavour: MnMapFlavourDirective | undefined;
+  private _setupDone = false;
+
+  constructor() {
+    // Setup runs as soon as both flavour and the map element are populated,
+    // regardless of which lifecycle phase resolves them. Effect re-runs on
+    // any signal change so contentChildren / viewChild / input arrival
+    // order doesn't matter.
+    effect(() => {
+      if (this._setupDone) return;
+      const flavour = this.flavourInput() ?? this.flavourChildren()[0];
+      const elementRef = this.mapElement();
+      if (!flavour || !elementRef?.nativeElement) return;
+      this._setupDone = true;
+      this._flavour = flavour;
+      this.lyrMgr.setFlavour(flavour);
+      flavour.setup(this);
+    });
+
+    afterNextRender(() => {
+      if (!this._setupDone) {
+        console.warn(
+          '<mn-map>: no flavour directive ([mnMapFlavourLeaflet] / ' +
+            '[mnMapFlavourMaplibre]) found and no [flavour] input provided.',
+        );
+      }
+    });
+  }
 
   ngOnInit(): void {
     this.dsMgr.setLayermanager(this.lyrMgr);
     this.lyrMgr.setDatasourcemanager(this.dsMgr);
-  }
-
-  ngAfterContentInit(): void {
-    const flavour = this.flavour()[0];
-    if (!flavour) {
-      throw new Error('<mn-map> requires a child directive marked with [mnMapFlavour].');
-    }
-    this._flavour = flavour;
-    this.lyrMgr.setFlavour(flavour);
-    flavour.setup(this);
   }
 
   /** Called by the flavour once its underlying map is ready to accept layers. */

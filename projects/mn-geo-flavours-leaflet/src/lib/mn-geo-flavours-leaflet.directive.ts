@@ -9,8 +9,9 @@ import { isLayerDescriptor, LayerDescriptor } from '@openhistorymap/mn-geo-layer
  * it as `MnMapFlavourDirective` so `<mn-map>`'s contentChildren query picks
  * it up as the active flavour.
  *
- * Coordinate convention: `center` on `<mn-map>` is [lon, lat] (matches the
- * legacy `/assets/gcx.json` format); Leaflet takes [lat, lng] so we swap.
+ * Coordinate convention: `center` is `[lat, lon]` (matches everyday human
+ * convention "44°N 13°E" and Leaflet's own LatLng order). Object form
+ * `{lat, lon}` also accepted.
  */
 @Directive({
   selector: '[mnMapFlavourLeaflet]',
@@ -60,9 +61,9 @@ export class MnGeoFlavoursLeafletDirective extends MnMapFlavourDirective {
     }
 
     const center = host.center() ?? [0, 0];
-    const [lng, lat] = Array.isArray(center)
+    const [lat, lng] = Array.isArray(center)
       ? center
-      : [center.lon ?? center.lng ?? 0, center.lat ?? 0];
+      : [center.lat ?? 0, center.lon ?? center.lng ?? 0];
 
     this._map = L.map(element, {
       center: [lat, lng],
