@@ -26,6 +26,7 @@ export class MnGeoFlavoursMaplibreDirective extends MnMapFlavourDirective implem
   private _map: MaplibreMap | undefined;
   private readonly ownedSourceIds = new Set<string>();
   private readonly ownedLayerIds = new Set<string>();
+  private readonly subscriptions = new Map<string, () => void>();
 
   get maplibreMap(): MaplibreMap | undefined {
     return this._map;
@@ -79,6 +80,8 @@ export class MnGeoFlavoursMaplibreDirective extends MnMapFlavourDirective implem
     if (!this._map) return;
     const id = typeof input === 'string' ? input : (input as { id?: string })?.id;
     if (!id) return;
+    this.subscriptions.get(id)?.();
+    this.subscriptions.delete(id);
     if (this.ownedLayerIds.has(id) && this._map.getLayer(id)) {
       this._map.removeLayer(id);
       this.ownedLayerIds.delete(id);
@@ -97,6 +100,14 @@ export class MnGeoFlavoursMaplibreDirective extends MnMapFlavourDirective implem
   }
 
   ngOnDestroy(): void {
+    for (const unsub of this.subscriptions.values()) {
+      try {
+        unsub();
+      } catch {
+        // ignore
+      }
+    }
+    this.subscriptions.clear();
     this._map?.remove();
     this._map = undefined;
   }
@@ -213,6 +224,16 @@ export class MnGeoFlavoursMaplibreDirective extends MnMapFlavourDirective implem
               if (feat) desc.onClick!(feat);
             });
           }
+        }
+
+        if (desc.subscribe) {
+          // Live channel: each push replaces the source's data; the
+          // existing GL layers (circle/line/fill) re-render automatically.
+          const unsub = desc.subscribe((data) => {
+            const src = map.getSource(id) as maplibregl.GeoJSONSource | undefined;
+            src?.setData(data);
+          });
+          this.subscriptions.set(id, unsub);
         }
         return;
       }

@@ -24,9 +24,33 @@ import { isLayerDescriptor, LayerDescriptor } from '@openhistorymap/mn-geo-layer
 })
 export class MnGeoFlavoursLeafletDirective extends MnMapFlavourDirective {
   private _map: L.Map | undefined;
+  /** Tracks live-update teardowns by the layer group they belong to so
+   *  removeLayer can also unsubscribe. */
+  private readonly subscriptions = new Map<L.Layer, () => void>();
 
   get leafletMap(): L.Map | undefined {
     return this._map;
+  }
+
+  private geoJsonOptionsFromStyle(style: any): L.GeoJSONOptions {
+    const o = style.options ?? {};
+    return {
+      pointToLayer: (_feature, latlng) =>
+        L.circleMarker(latlng, {
+          radius: o.radius ?? 4,
+          fillColor: o.fillColor ?? '#099092',
+          color: o.color ?? '#000',
+          weight: o.weight ?? 1,
+          opacity: o.opacity ?? 1,
+          fillOpacity: o.fillOpacity ?? 0.6,
+        }),
+      style: () => ({
+        color: o.color ?? '#333',
+        weight: o.weight ?? 2,
+        fillColor: o.fillColor ?? '#099092',
+        fillOpacity: o.fillOpacity ?? 0.4,
+      }),
+    };
   }
 
   override setup(host: MnMapComponent): void {
@@ -62,7 +86,10 @@ export class MnGeoFlavoursLeafletDirective extends MnMapFlavourDirective {
   override removeLayer(input: unknown): void {
     if (!this._map) return;
     if (input && typeof input === 'object' && 'remove' in input) {
-      this._map.removeLayer(input as L.Layer);
+      const layer = input as L.Layer;
+      this.subscriptions.get(layer)?.();
+      this.subscriptions.delete(layer);
+      this._map.removeLayer(layer);
     }
   }
 
@@ -87,11 +114,26 @@ export class MnGeoFlavoursLeafletDirective extends MnMapFlavourDirective {
         });
       }
       case 'geojson-features': {
-        return L.geoJSON(desc.data, {
-          onEachFeature: desc.onClick
-            ? (feature, layer) => layer.on('click', () => desc.onClick!(feature))
-            : undefined,
-        });
+        const opts: L.GeoJSONOptions = desc.style?.options
+          ? this.geoJsonOptionsFromStyle(desc.style)
+          : {};
+        if (desc.onClick) {
+          opts.onEachFeature = (feature, layer) =>
+            layer.on('click', () => desc.onClick!(feature));
+        }
+        const group = L.featureGroup();
+        L.geoJSON(desc.data, opts).addTo(group);
+        if (desc.subscribe) {
+          // Live channel: replace the projected geojson layer on each push.
+          // Returned teardown is held alongside the group so removeLayer
+          // can stop the subscription.
+          const unsub = desc.subscribe((data) => {
+            group.clearLayers();
+            L.geoJSON(data, opts).addTo(group);
+          });
+          this.subscriptions.set(group, unsub);
+        }
+        return group;
       }
       case 'vector-tiles': {
         console.warn('mn-geo-flavours-leaflet: vector-tiles descriptor not supported; use maplibre flavour.');

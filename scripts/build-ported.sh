@@ -15,8 +15,11 @@ LIBS=(
   mn-geo-flavours-mapbox
   mn-geo-layers-osm
   mn-geo-layers-ofm
+  mn-geo-layers-carto
   mn-geo-layers-geomqtt
+  mn-geo-datasources-csv
   gcx-core
+  chcx-static
 )
 
 for lib in "${LIBS[@]}"; do

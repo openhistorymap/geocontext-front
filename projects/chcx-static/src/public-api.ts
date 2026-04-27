@@ -1,6 +1,3 @@
-/*
- * Public API Surface of chcx-static
- */
-
 export * from './lib/chcx-static.service';
-export * from './lib/chcx-static.component';
+export * from './lib/chcx-staticpage.component';
+export * from './lib/chcx-static.routes';
