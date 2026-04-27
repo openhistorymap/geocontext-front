@@ -2,7 +2,12 @@ import { Component, computed, DestroyRef, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
 import { combineLatest } from 'rxjs';
-import { GcxCoreService, GcxMapComponent } from '@openhistorymap/gcx-core';
+import {
+  GcxCoreService,
+  GcxMapComponent,
+  GCX_JSDELIVR_BASE,
+  GCX_REPO_CANDIDATE_PATHS,
+} from '@openhistorymap/gcx-core';
 import { MnGeoFlavoursMaplibreDirective } from '@openhistorymap/mn-geo-flavours-mapbox';
 
 /**
@@ -25,7 +30,8 @@ import { MnGeoFlavoursMaplibreDirective } from '@openhistorymap/mn-geo-flavours-
       <div class="repo-msg repo-error">
         <strong>Could not load {{ user() }}/{{ project() }}</strong>
         <p>{{ message() }}</p>
-        <small>Tried: <code>{{ tried() }}</code></small>
+        <small>Tried:</small>
+        <pre>{{ tried() }}</pre>
       </div>
     } @else {
       <div class="repo-msg">Loading {{ user() }}/{{ project() }}…</div>
@@ -41,7 +47,14 @@ import { MnGeoFlavoursMaplibreDirective } from '@openhistorymap/mn-geo-flavours-
         margin: 0 auto;
       }
       .repo-error { color: #b00020; }
-      .repo-msg code { word-break: break-all; }
+      .repo-msg pre {
+        background: #f5f5f5;
+        padding: 8px;
+        border-radius: 4px;
+        white-space: pre-wrap;
+        word-break: break-all;
+        font-size: 0.85em;
+      }
     `,
   ],
 })
@@ -75,10 +88,9 @@ export class RepoMapRouteComponent {
           .catch((err: any) => {
             this.message.set(err?.message ?? String(err));
             const ref = branch ?? 'HEAD';
-            const file = path ?? 'geocontext.json';
-            this.tried.set(
-              `https://cdn.jsdelivr.net/gh/${user}/${project}@${ref}/${file}`,
-            );
+            const base = `${GCX_JSDELIVR_BASE}/${user}/${project}@${ref}`;
+            const paths = path ? [path] : [...GCX_REPO_CANDIDATE_PATHS];
+            this.tried.set(paths.map((p) => `${base}/${p}`).join('\n'));
             this.status.set('error');
           });
       });

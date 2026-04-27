@@ -5,6 +5,11 @@ import { firstValueFrom } from 'rxjs';
 export const GCX_CORE_FILE = '/assets/gcx.json';
 export const GCX_JSDELIVR_BASE = 'https://cdn.jsdelivr.net/gh';
 
+/** Filenames probed at a repo root when the caller didn't pass an explicit
+ *  `path`. `geocontext.json` is preferred; `gcx.json` is the legacy name and
+ *  kept for backwards compatibility with older repos. */
+export const GCX_REPO_CANDIDATE_PATHS = ['geocontext.json', 'gcx.json'] as const;
+
 export interface GcxConfig {
   title?: string;
   type?: string;
@@ -60,14 +65,15 @@ export class GcxCoreService {
    * context is remembered so asset URLs in the config can be rewritten.
    */
   async load(source?: GcxLoadSource): Promise<GcxConfig> {
-    const { configUrl, repo } = this.resolveLoadSource(source);
+    const { candidates, repo } = this.resolveLoadSource(source);
+    const cacheKey = candidates[0];
 
     const cached = this._config();
-    if (this._loadedFor === configUrl && cached) return cached;
+    if (this._loadedFor === cacheKey && cached) return cached;
 
-    this._loadedFor = configUrl;
+    this._loadedFor = cacheKey;
     this.currentRepo.set(repo);
-    this._pending = firstValueFrom(this.http.get<GcxConfig>(configUrl)).then((cfg) => {
+    this._pending = this.fetchFirstAvailable(candidates).then((cfg) => {
       const rewritten = this.rewriteAssetPaths(cfg ?? {}, repo);
       this._config.set(rewritten);
       return rewritten;
@@ -117,16 +123,36 @@ export class GcxCoreService {
   }
 
   private resolveLoadSource(source?: GcxLoadSource): {
-    configUrl: string;
+    candidates: string[];
     repo: GcxRepoSource | null;
   } {
-    if (!source) return { configUrl: GCX_CORE_FILE, repo: null };
-    if (typeof source === 'string') return { configUrl: source, repo: null };
+    if (!source) return { candidates: [GCX_CORE_FILE], repo: null };
+    if (typeof source === 'string') return { candidates: [source], repo: null };
 
     const branch = source.branch ?? 'HEAD';
-    const path = source.path ?? 'geocontext.json';
-    const configUrl = `${GCX_JSDELIVR_BASE}/${source.user}/${source.project}@${branch}/${path}`;
-    return { configUrl, repo: { ...source, branch, path } };
+    const base = `${GCX_JSDELIVR_BASE}/${source.user}/${source.project}@${branch}`;
+    const paths = source.path ? [source.path] : [...GCX_REPO_CANDIDATE_PATHS];
+    return {
+      candidates: paths.map((p) => `${base}/${p}`),
+      repo: { ...source, branch, path: source.path },
+    };
+  }
+
+  private async fetchFirstAvailable(urls: string[]): Promise<GcxConfig> {
+    let lastError: any;
+    for (const url of urls) {
+      try {
+        return await firstValueFrom(this.http.get<GcxConfig>(url));
+      } catch (e: any) {
+        // Only fall through on 404; surface real network/CORS/server errors.
+        if (e?.status === 404) {
+          lastError = e;
+          continue;
+        }
+        throw e;
+      }
+    }
+    throw lastError ?? new Error(`No config found at: ${urls.join(', ')}`);
   }
 
   private rewriteAssetPaths(cfg: GcxConfig, repo: GcxRepoSource | null): GcxConfig {
