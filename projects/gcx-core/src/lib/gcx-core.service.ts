@@ -104,9 +104,11 @@ export class GcxCoreService {
   resolveAssetUrl(source: string): string {
     if (!source) return source;
     if (/^https?:\/\//i.test(source)) return source;
+    if (source.startsWith('//')) return source; // protocol-relative
 
     const repo = this.currentRepo();
 
+    // Cross-repo: /<user>/<project>[@branch]/assets/<path>  → jsdelivr <user>/<project>@branch/<path>
     const m = source.match(/^\/([^/]+)\/([^/@]+)(?:@([^/]+))?\/assets\/(.+)$/);
     if (m) {
       const [, user, project, branchFromPath, rest] = m;
@@ -114,9 +116,15 @@ export class GcxCoreService {
       return `${GCX_JSDELIVR_BASE}/${user}/${project}@${branch}/${rest}`;
     }
 
-    if (repo && source.startsWith('/assets/')) {
+    // Repo mode: anything that's not an absolute URL gets rewritten to the
+    // current repo on jsdelivr. Covers `/assets/foo.csv`, bare-relative
+    // `datasets/x.geojson`, and absolute-from-root `/datasets/x.geojson`.
+    // Local mode (no repo): leave as-is — the browser resolves it against
+    // the page URL and the SPA's local /assets/.
+    if (repo) {
       const branch = repo.branch ?? 'HEAD';
-      return `${GCX_JSDELIVR_BASE}/${repo.user}/${repo.project}@${branch}/${source.slice(1)}`;
+      const path = source.startsWith('/') ? source.slice(1) : source;
+      return `${GCX_JSDELIVR_BASE}/${repo.user}/${repo.project}@${branch}/${path}`;
     }
 
     return source;

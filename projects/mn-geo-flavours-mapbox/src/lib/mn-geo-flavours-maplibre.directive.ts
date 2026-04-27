@@ -9,8 +9,10 @@ import { isLayerDescriptor, LayerDescriptor } from '@openhistorymap/mn-geo-layer
  * `mn-geo-flavours-mapbox` for npm stability but the implementation is
  * MapLibre-GL — mapbox-gl v2+ is proprietary and we don't carry it.
  *
- * Coordinate convention: `center` on `<mn-map>` is [lon, lat], which is
- * what MapLibre expects — no swap.
+ * Coordinate convention: `center` is `[lat, lon]` (matches everyday human
+ * convention "44°N 13°E" and the rest of GeoContext). Object form
+ * `{lat, lon}` also accepted. MapLibre's own constructor wants
+ * `[lng, lat]` so we swap at the boundary.
  */
 @Directive({
   selector: '[mnMapFlavourMaplibre]',
@@ -39,9 +41,9 @@ export class MnGeoFlavoursMaplibreDirective extends MnMapFlavourDirective implem
     }
 
     const center = host.center() ?? [0, 0];
-    const [lng, lat] = Array.isArray(center)
+    const [lat, lng] = Array.isArray(center)
       ? center
-      : [center.lon ?? center.lng ?? 0, center.lat ?? 0];
+      : [center.lat ?? 0, center.lon ?? center.lng ?? 0];
 
     const emptyStyle: StyleSpecification = {
       version: 8,
