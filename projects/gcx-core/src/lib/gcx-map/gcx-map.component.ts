@@ -7,7 +7,7 @@ import {
   signal,
   viewChild,
 } from '@angular/core';
-import { JsonPipe } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
@@ -15,6 +15,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
+import { MatButtonModule } from '@angular/material/button';
 import {
   MnMapComponent,
   MnLayerComponent,
@@ -52,7 +53,7 @@ interface ConfiguredDatasource {
   selector: 'gcx-map',
   standalone: true,
   imports: [
-    JsonPipe,
+    FormsModule,
     MatSidenavModule,
     MatTabsModule,
     MatSlideToggleModule,
@@ -60,6 +61,7 @@ interface ConfiguredDatasource {
     MatInputModule,
     MatIconModule,
     MatListModule,
+    MatButtonModule,
     MnMapComponent,
     MnLayerComponent,
     MnDatasourceComponent,
@@ -75,19 +77,38 @@ interface ConfiguredDatasource {
     </div>
     <mat-drawer-container class="gcx-map-container" hasBackdrop="false">
       <mat-drawer mode="side" [opened]="gcx.sidebarOpen()">
-        <form class="gcx-search-form">
+        <form class="gcx-search-form" (submit)="$event.preventDefault()">
           <mat-form-field appearance="outline" subscriptSizing="dynamic">
-            <mat-label>Search</mat-label>
-            <input matInput type="search" />
+            <mat-icon matPrefix>search</mat-icon>
+            <mat-label>Filter layers</mat-label>
+            <input
+              matInput
+              type="search"
+              [ngModel]="searchTerm()"
+              (ngModelChange)="searchTerm.set($event)"
+              name="search"
+              autocomplete="off"
+            />
+            @if (searchTerm()) {
+              <button
+                matSuffix
+                mat-icon-button
+                type="button"
+                aria-label="Clear search"
+                (click)="searchTerm.set('')"
+              >
+                <mat-icon>close</mat-icon>
+              </button>
+            }
           </mat-form-field>
         </form>
-        <mat-tab-group [selectedIndex]="selectedTab()">
+        <mat-tab-group [selectedIndex]="selectedTab()" (selectedIndexChange)="selectedTab.set($event)">
           <mat-tab>
             <ng-template mat-tab-label>
               <mat-icon title="Layers">layers</mat-icon>
             </ng-template>
             <div class="gcx-layers-panel">
-              @for (layer of layers(); track layer.name) {
+              @for (layer of filteredLayers(); track layer.name) {
                 <mat-slide-toggle
                   color="primary"
                   [checked]="layer.visible"
@@ -96,14 +117,32 @@ interface ConfiguredDatasource {
                   <gcx-legend [style]="layer.style" />
                   {{ layer.name }}
                 </mat-slide-toggle>
+              } @empty {
+                <p class="gcx-layers-empty">No matching layers.</p>
               }
             </div>
           </mat-tab>
           <mat-tab [disabled]="!selectedItem()">
             <ng-template mat-tab-label>
-              <mat-icon title="Info">place</mat-icon>
+              <mat-icon title="Details">place</mat-icon>
             </ng-template>
-            <pre class="gcx-info">{{ selectedItem() | json }}</pre>
+            <div class="gcx-info">
+              @if (selectedItem(); as feat) {
+                @if (selectedTitle(); as t) {
+                  <h3 class="gcx-info-title">{{ t }}</h3>
+                }
+                @if (propertyEntries().length) {
+                  <dl class="gcx-info-properties">
+                    @for (entry of propertyEntries(); track entry[0]) {
+                      <dt>{{ entry[0] }}</dt>
+                      <dd>{{ entry[1] }}</dd>
+                    }
+                  </dl>
+                } @else {
+                  <p class="gcx-layers-empty">No properties.</p>
+                }
+              }
+            </div>
           </mat-tab>
         </mat-tab-group>
       </mat-drawer>
@@ -140,11 +179,29 @@ interface ConfiguredDatasource {
   `,
   styles: [
     `
-      :host,
-      .gcx-map-container {
-        display: block;
+      :host {
+        display: flex;
+        flex-direction: column;
+        flex: 1 1 auto;
+        min-height: 0;
         width: 100%;
-        height: 100%;
+      }
+      .gcx-map-container {
+        flex: 1 1 auto;
+        min-height: 0;
+        width: 100%;
+      }
+      /* Material's mat-drawer-content is encapsulated; reach in to make
+         it a flex column so <mn-map> can fill the remaining height
+         instead of inheriting the sidebar's intrinsic height. */
+      ::ng-deep .gcx-map-container .mat-drawer-content {
+        display: flex;
+        flex-direction: column;
+      }
+      mn-map {
+        flex: 1 1 auto;
+        min-height: 0;
+        display: block;
       }
       mat-drawer {
         width: 330px;
@@ -158,9 +215,36 @@ interface ConfiguredDatasource {
         flex-direction: column;
         gap: 8px;
       }
+      .gcx-layers-empty {
+        color: rgba(0, 0, 0, 0.55);
+        font-style: italic;
+        padding: 4px 0;
+        margin: 0;
+      }
       .gcx-info {
-        padding: 8px;
-        white-space: pre-wrap;
+        padding: 12px 16px;
+        overflow-y: auto;
+      }
+      .gcx-info-title {
+        margin: 0 0 12px;
+        font-size: 1.05rem;
+        font-weight: 500;
+      }
+      .gcx-info-properties {
+        margin: 0;
+        display: grid;
+        grid-template-columns: minmax(80px, 35%) 1fr;
+        column-gap: 12px;
+        row-gap: 6px;
+        font-size: 0.875rem;
+      }
+      .gcx-info-properties dt {
+        font-weight: 500;
+        color: rgba(0, 0, 0, 0.65);
+        word-break: break-word;
+      }
+      .gcx-info-properties dd {
+        margin: 0;
         word-break: break-word;
       }
     `,
@@ -186,6 +270,37 @@ export class GcxMapComponent {
 
   readonly selectedTab = signal<number>(0);
   readonly selectedItem = signal<any>(null);
+  readonly searchTerm = signal<string>('');
+
+  /** Layer list filtered by the search input. Empty term shows everything. */
+  readonly filteredLayers = computed<ConfiguredLayer[]>(() => {
+    const term = this.searchTerm().trim().toLowerCase();
+    const list = this.layers();
+    if (!term) return list;
+    return list.filter((l) =>
+      [l.name, l.type, l.datasource].some(
+        (v) => typeof v === 'string' && v.toLowerCase().includes(term),
+      ),
+    );
+  });
+
+  /** Best-guess feature title from common GeoJSON property keys. */
+  readonly selectedTitle = computed<string | null>(() => {
+    const props = this.selectedItem()?.properties;
+    if (!props) return null;
+    for (const key of ['name', 'title', 'nome', 'label']) {
+      if (typeof props[key] === 'string' && props[key].trim()) return props[key];
+    }
+    return null;
+  });
+
+  readonly propertyEntries = computed<[string, any][]>(() => {
+    const props = this.selectedItem()?.properties;
+    if (!props || typeof props !== 'object') return [];
+    return Object.entries(props).filter(
+      ([, v]) => v !== null && v !== undefined && v !== '',
+    );
+  });
 
   constructor() {
     effect(() => {
@@ -204,7 +319,7 @@ export class GcxMapComponent {
 
   toggleVisible(layer: ConfiguredLayer): void {
     this.layers.update((list) =>
-      list.map((l) => (l.name === layer.name ? { ...l, visible: !l.visible } : l))
+      list.map((l) => (l.name === layer.name ? { ...l, visible: !l.visible } : l)),
     );
   }
 

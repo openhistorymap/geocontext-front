@@ -18,7 +18,9 @@ import { MnGeoFlavoursMaplibreDirective } from '@openhistorymap/mn-geo-flavours-
       <div mnMapFlavourMaplibre></div>
     </gcx-map>
   `,
-  styles: [':host { display: block; width: 100%; height: 100%; }'],
+  styles: [
+    ':host { display: flex; flex-direction: column; flex: 1 1 auto; min-height: 0; width: 100%; }',
+  ],
 })
 export class MapRouteComponent implements OnInit {
   private readonly gcx = inject(GcxCoreService);

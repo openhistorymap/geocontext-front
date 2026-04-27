@@ -57,7 +57,17 @@ export interface GcxRouteItem {
       :host { display: flex; flex-direction: column; height: 100vh; }
       .title { margin-left: 8px; font-weight: 500; }
       .spacer { flex: 1 1 auto; }
-      .gcx-main-outlet { flex: 1 1 auto; overflow: hidden; }
+      /* The outlet must itself be a flex column so the routed component
+         participates in the flex chain — otherwise mat-drawer-container
+         falls back to content-sized height and the map shrinks to the
+         sidebar's intrinsic height on first paint. */
+      .gcx-main-outlet {
+        flex: 1 1 auto;
+        min-height: 0;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+      }
       .gcx-footer {
         background: #fff;
         border-top: 1px solid #444;
