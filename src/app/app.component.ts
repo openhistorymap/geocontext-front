@@ -1,13 +1,6 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { firstValueFrom } from 'rxjs';
-import { GcxMainComponent, GcxRouteItem } from '@openhistorymap/gcx-core';
-
-interface StaticPage {
-  target: string;
-  title: string;
-  icon?: string;
-}
+import { Component, computed, effect, inject } from '@angular/core';
+import { GcxCoreService, GcxMainComponent, GcxRouteItem } from '@openhistorymap/gcx-core';
+import { ChcxStaticService } from '@openhistorymap/chcx-static';
 
 @Component({
   selector: 'app-root',
@@ -15,20 +8,30 @@ interface StaticPage {
   imports: [GcxMainComponent],
   template: `<gcx-main [title]="title()" [items]="items()" />`,
 })
-export class AppComponent implements OnInit {
-  private readonly http = inject(HttpClient);
+export class AppComponent {
+  private readonly gcx = inject(GcxCoreService);
+  private readonly chcxStatic = inject(ChcxStaticService);
 
-  readonly title = signal<string>('GeoContext');
-  readonly items = signal<GcxRouteItem[]>([]);
+  readonly title = computed<string>(() => this.gcx.config()?.title ?? 'GeoContext');
 
-  async ngOnInit(): Promise<void> {
-    try {
-      const pages = await firstValueFrom(
-        this.http.get<Record<string, StaticPage>>('/assets/chcx-static.json')
-      );
-      this.items.set(Object.values(pages ?? {}));
-    } catch {
-      // Config absent during early rewrite — toolbar still shows Map.
-    }
+  readonly items = computed<GcxRouteItem[]>(() => {
+    const pages = this.chcxStatic.pages() ?? {};
+    return Object.values(pages).map((p) => ({
+      target: p.target,
+      title: p.title ?? p.target,
+      icon: p.icon,
+    }));
+  });
+
+  constructor() {
+    // Reload the static-page registry whenever the repo context changes.
+    // ChcxStaticService probes jsdelivr (geocontext-static.json then
+    // chcx-static.json) when GcxCoreService.currentRepo() is set,
+    // /assets/chcx-static.json otherwise — re-running load() picks up the
+    // new source automatically.
+    effect(() => {
+      this.gcx.currentRepo();
+      void this.chcxStatic.load();
+    });
   }
 }
