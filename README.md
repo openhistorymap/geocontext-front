@@ -8,7 +8,7 @@
 **Live:** <https://www.openhistorymap.org/geocontext-front/>
 **Worked example:** <https://www.openhistorymap.org/geocontext-front/Archeolucia/theatres/map>
 
-GeoContext is the engine that powers OpenHistoryMap. It loads a tiny
+GeoContext is an engine that helps creating sharable Digital Humanities portals. It loads a tiny
 JSON description from any public GitHub repo (over jsdelivr's CDN), wires
 basemaps + data layers + interactivity, and renders an interactive map.
 Plugin-driven — every basemap and data format is a small library
