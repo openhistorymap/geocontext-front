@@ -1,195 +1,272 @@
 # GeoContext
 
-GeoContext is a declarative, plugin-driven map application built on Angular 19.
-A single `<mn-map>` element composes a rendering **flavour** (MapLibre GL by
-default, Leaflet available), any number of **layers** (OSM, OpenFantasyMaps,
-GeoMQTT live streams, …), and **datasources** (CSV, GeoJSON, SHP, …). Layer
-classes emit renderer-agnostic descriptors (`raster-tiles`, `vector-tiles`,
-`geojson-features`); flavours translate descriptors into their native
-representations. Layers and datasources come from their own libraries and
-self-register at bootstrap, so adding a new backend is one provider call,
-not a fork of the core.
+> A free, declarative way to publish a map of any public dataset.
+> Drop a `geocontext.json` at the root of a public GitHub repo, then open
+> `https://www.openhistorymap.org/geocontext-front/<user>/<repo>/map`.
+> No fork, no build, no account.
 
-The repository is an Angular CLI monorepo: one shell app (`geocontext-front`),
-two secondary apps (`cityos-ng`, `ohm-front`), and ~25 libraries published to
-**GitHub Packages** under a single `@openhistorymap/*` scope.
+**Live:** <https://www.openhistorymap.org/geocontext-front/>
+**Worked example:** <https://www.openhistorymap.org/geocontext-front/Archeolucia/theatres/map>
 
-## Layout
+GeoContext is the engine that powers OpenHistoryMap. It loads a tiny
+JSON description from any public GitHub repo (over jsdelivr's CDN), wires
+basemaps + data layers + interactivity, and renders an interactive map.
+Plugin-driven — every basemap and data format is a small library
+contributors can add — and Apache-2.0 licensed.
 
-```
-src/                       app (geocontext-front)
-projects/
-  mn-registry/             plugin registry services
-  mn-geo/                  <mn-map> + flavour interface + projected children
-  mn-geo-datasources/      Datasource / RemoteHttpDatasource + manager
-  mn-geo-layers/           Layer abstract + manager + registry
-  mn-geo-layers-osm/       OSM tile layer   (provideMnGeoLayersOsm)
-  mn-geo-layers-ofm/       OpenFantasyMaps  (provideMnGeoLayersOfm)
-  mn-geo-layers-geomqtt/   MQTT → GeoJSON live stream
-  mn-geo-flavours-leaflet/ Leaflet adapter ([mnMapFlavourLeaflet])
-  mn-geo-flavours-mapbox/  MapLibre-GL adapter ([mnMapFlavourMaplibre]; lib
-                           name kept for npm stability)
-  gcx-core/                Material shell: toolbar + sidebar + router-outlet
-  chcx-static/             static-page route list
-  …                        see angular.json for the full set
-public/assets/gcx.json     runtime map config (center, datasources, layers)
-_legacy/                   frozen Angular 6 tree, kept while porting
-```
+---
 
-Libraries resolve from `dist/<name>/` via `tsconfig.json` `paths`, so a
-library must be built before a consumer can import it.
+## Quick start
 
-## Toolchain
-
-- Angular 19.2, TypeScript 5.7, RxJS 7.8, zone.js 0.15, esbuild application
-  builder, Material 19.
-- **Node 20 required, via Docker.** The host's GLIBC (Ubuntu 18.04-era) can't
-  run Node 18+ binaries, so nvm isn't an option. Every command below runs
-  inside `node:20` with the repo mounted.
-
-```bash
-# Install dependencies (first time, and after package.json changes)
-docker run --rm -v "$PWD:/app" -w /app -u $(id -u):$(id -g) \
-  -e HOME=/tmp -e NG_CLI_ANALYTICS=false node:20 \
-  npm install
-
-# Dev server (http://localhost:4200)
-docker run --rm -v "$PWD:/app" -w /app -u $(id -u):$(id -g) \
-  -p 4200:4200 -e HOME=/tmp node:20 \
-  npx ng serve --host=0.0.0.0
-
-# Build a single library (rebuild downstream libs after changes)
-docker run --rm -v "$PWD:/app" -w /app -u $(id -u):$(id -g) \
-  -e HOME=/tmp node:20 \
-  npx ng build <lib-name>
-
-# Build the main app (production)
-docker run --rm -v "$PWD:/app" -w /app -u $(id -u):$(id -g) \
-  -e HOME=/tmp node:20 \
-  npx ng build
-
-# Per-project unit tests / lint
-docker run --rm -v "$PWD:/app" -w /app -u $(id -u):$(id -g) \
-  -e HOME=/tmp node:20 \
-  npx ng test <project>
-```
-
-## How a map is composed
-
-Runtime config in `public/assets/gcx.json`:
+Save this to `geocontext.json` at the **root** of any public GitHub repo:
 
 ```json
 {
-  "title": "GeoContext",
-  "center": [12.4964, 41.9028],
-  "startzoom": 5, "minzoom": 1, "maxzoom": 19,
-  "datasources": [],
+  "title": "My map",
+  "center": [44.292, 13.975],
+  "startzoom": 5, "minzoom": 1, "maxzoom": 18,
+  "datasources": [
+    { "name": "places", "type": "geojson+http+remote",
+      "conf": { "source": "data/places.geojson" } }
+  ],
   "layers": [
-    { "name": "OpenStreetMap", "type": "osm-tiled" }
+    { "name": "Places", "type": "features", "datasource": "places",
+      "style": { "options": { "radius": 4, "fillColor": "#9448b7",
+                              "color": "#000", "weight": 1, "fillOpacity": 0.6 } } }
   ]
 }
 ```
 
-The shell reads that file, feeds the center + zoom into `<mn-map>`, and
-projects each `layers[*]` entry as a `<mn-layer>` whose `type` is looked up
-in the `MnGeoLayersRegistryService`. The registry is populated at bootstrap
-by `provideMnGeoLayersOsm()`, `provideMnGeoLayersOfm()`, etc. in
-`src/app/app.config.ts` — adding a layer source is a one-line provider call.
-
-The rendering backend is chosen by which flavour directive is placed inside
-`<gcx-map>`:
-
-```html
-<gcx-map>
-  <div mnMapFlavourMaplibre></div>  <!-- or [mnMapFlavourLeaflet] -->
-</gcx-map>
-```
-
-`gcx-core` stays renderer-agnostic — swapping MapLibre for Leaflet is a
-change in the app's `MapRouteComponent`, not in `gcx-map`. The default
-`MapRouteComponent` uses MapLibre; switch to Leaflet if you need `geomqtt`
-live-stream layers (those still emit native Leaflet objects until we
-descriptor-ify them).
-
-## Rewrite status
-
-This branch (`rewrite/angular-latest`) is a ground-up port of the original
-Angular 6 monorepo. The plugin architecture is preserved; the module system
-is standalone; registration side-effects moved from NgModule constructors to
-`provideAppInitializer()` functions.
-
-**Ported:** `mn-registry`, `mn-geo-{datasources,layers}`, `mn-geo`,
-`mn-geo-flavours-leaflet`, `mn-geo-flavours-mapbox` (MapLibre-GL inside),
-`mn-geo-layers-osm`, `mn-geo-layers-ofm`, `mn-geo-layers-geomqtt`,
-`gcx-core`.
-
-**Not yet ported:** the remaining datasource/layer libraries (`-csv`,
-`-shp`, `-agentmap`, `-carto`, `-ohm`, `-c3d`), `chcx-static` routes,
-`chcx-main`, `chcx-about`, `ohm-core`, `c3d-core`, and the two secondary
-apps (`cityos-ng`, `ohm-front`). GeoMQTT's descriptor-emission also
-pending — it's Leaflet-only for now.
-
-**Dropped:** Stamen (service deprecated 2023), the modes / transformer
-matrix libraries (empty scaffolds in legacy), `angularfire2` / Firebase
-(not needed), `@angular/flex-layout` (deprecated), Protractor (EOL).
-
-See `_legacy/` for the original Angular 6 source and `CLAUDE.md` for porting
-notes.
-
-## Repo-driven views
-
-Any public GitHub repo with a `geocontext.json` at its root can be rendered
-by GeoContext directly — no fork, no build:
+Add `data/places.geojson` next to it. Then open:
 
 ```
-<domain>/<user>/<project>/map
-<domain>/<user>/<project>/map?branch=<ref>&path=<file>
+https://www.openhistorymap.org/geocontext-front/<user>/<repo>/map
 ```
 
-The route loads the config from
-`https://cdn.jsdelivr.net/gh/<user>/<project>@<branch>/<path>`. The branch
-defaults to `HEAD`. When `path` is omitted, the loader probes
-`geocontext.json` first and falls back to `gcx.json` (the legacy filename)
-on a 404 — non-404 errors surface immediately. Datasource references inside
-the config are rewritten by `GcxCoreService.resolveAssetUrl`:
+That's it. Updates to the repo propagate as jsdelivr's cache rolls over
+(usually minutes; force a specific commit with `?branch=<sha>`).
 
-- Absolute URLs pass through.
-- `/<user>/<project>/assets/<file>` (with optional `@<branch>` after project)
-  resolves to that repo's asset on jsdelivr — works across repos.
-- `/assets/<file>` while in repo mode resolves to the *current* repo's
-  matching asset, so existing JSON written for local mode keeps working.
+**Want a different file or branch?**
 
-`assets` is reserved at the workspace root (it's not a valid GitHub
-username), so `/<user>/<project>/map` and `/assets/<…>` never collide.
-
-## Publishing and consuming packages
-
-All libraries publish to **GitHub Packages** under `@openhistorymap/*`
-(matching the repo owner, which is what the automatic `GITHUB_TOKEN` in
-Actions can write to).
-
-Publishing from CI: tag a release and the `Publish libraries` workflow
-walks every ported library and publishes with `--provenance`. The job is
-idempotent — `<name>@<version>` pairs already on the registry are skipped.
-
-```bash
-git tag v0.1.0 && git push origin v0.1.0
-# or Actions tab → Publish libraries → Run workflow (optionally dry-run)
+```
+…/map?branch=main                       # not the default branch
+…/map?path=charts/election-2024.json    # not /geocontext.json
 ```
 
-Consuming the packages from another project: add a `.npmrc` that pins
-the `@openhistorymap` scope to GitHub Packages (see `.npmrc.template`),
-then export a `GITHUB_TOKEN` with at least `read:packages` scope.
+The legacy filename `gcx.json` is also accepted as a fallback.
+
+---
+
+## What goes in `geocontext.json`
+
+| Field | Type | Notes |
+|---|---|---|
+| `title` | string | Page + masthead title. |
+| `center` | `[lat, lon]` *or* `{ lat, lon }` | Initial map centre. Latitude first (everyday "44°N 13°E" order). |
+| `startzoom` / `minzoom` / `maxzoom` | number | Initial zoom + interaction limits. |
+| `datasources` | array | Named data sources fetched at load — see *datasource types* below. |
+| `layers` | array | Layers stacked on the map (top of array = top of stack) — see *layer types* below. |
+
+### Built-in layer types
+
+| `type` | What it draws |
+|---|---|
+| `osm-tiled` | OpenStreetMap raster tiles. No `datasource` needed. |
+| `ofm-tiled` | OpenFantasyMaps render server. |
+| `carto-voyager` · `carto-light` · `carto-dark` · `carto-positron` (and matching `*-nolabels`) | CARTO basemap variants. |
+| `features` | Renders a datasource's GeoJSON as styled markers / lines / polygons. Pair with a `style.options` block (`radius`, `fillColor`, `color`, `weight`, `opacity`, `fillOpacity`). |
+| `geomqtt` | Subscribes to an MQTT broker and pushes incoming GeoJSON features onto the map live. `conf` requires `broker` (ws/wss URL) and `topic`; optional `idField`, `maxFeatures`. (Currently Leaflet-only — see *known gaps*.) |
+
+If `geocontext.json` declares only feature layers, GeoContext shows a
+default OSM raster behind them so the canvas isn't empty.
+
+### Built-in datasource types
+
+| `type` | What it does |
+|---|---|
+| `geojson` | Inline GeoJSON in `conf.data`. |
+| `geojson+http+remote` | Fetches a GeoJSON file at `conf.source`. |
+| `csv+http+remote` | Fetches a CSV at `conf.source` and projects rows as Points. Requires `conf.structure[]` with one column tagged `gcx:lat` and one tagged `gcx:lon`. |
+| `csv` | Inline CSV string in `conf.data`. |
+
+#### CSV with tagged columns (example)
+
+```json
+{
+  "name": "stations",
+  "type": "csv+http+remote",
+  "conf": {
+    "source": "data/stations.csv",
+    "structure": [
+      { "column": "name",       "type": "string", "tags": ["gcx:title"] },
+      { "column": "longitude",  "type": "number", "tags": ["gcx:lon", "gcx:geo"] },
+      { "column": "latitude",   "type": "number", "tags": ["gcx:lat", "gcx:geo"] }
+    ]
+  }
+}
+```
+
+### How asset URLs resolve
+
+`datasources[*].conf.source` (and similar paths inside the config) is
+rewritten by GeoContext so configs stay short and portable:
+
+| You write | GeoContext fetches |
+|---|---|
+| `https://example.org/x.csv` *(absolute)* | unchanged. |
+| `data/places.geojson` *(bare relative)* | `https://cdn.jsdelivr.net/gh/<user>/<repo>@HEAD/data/places.geojson` — the current repo on jsdelivr. |
+| `/assets/about.html` | same — current repo, jsdelivr. |
+| `/<otherUser>/<otherRepo>/assets/x.csv` | jsdelivr for **that** repo. Lets one repo's config compose another's data. Optional `@<branch>` after the project. |
+
+`assets` is reserved at the workspace root, so cross-repo asset URLs
+never collide with usernames.
+
+---
+
+## Static pages alongside the map
+
+A repo can also ship `geocontext-static.json` (legacy filename
+`chcx-static.json` is accepted) — a registry of prose pages: about,
+methodology, sources, citations. They appear in the masthead and live at
+`/<user>/<repo>/static/<slug>`.
+
+```json
+{
+  "about": {
+    "target": "about", "title": "About", "icon": "info",
+    "mode": "file", "content": "docs/about.html"
+  },
+  "sources": {
+    "target": "sources", "title": "Sources",
+    "mode": "raw", "content": "<p>Compiled from …</p>"
+  }
+}
+```
+
+`mode: "file"` HTML paths resolve through the same asset rules as
+datasources; `mode: "raw"` accepts inline HTML.
+
+---
+
+## Embed the engine in your own app
+
+Every library is published to **GitHub Packages** under
+`@openhistorymap/*`. Add a `.npmrc` (any GitHub token with
+`read:packages` works for these public packages):
 
 ```
 @openhistorymap:registry=https://npm.pkg.github.com
 //npm.pkg.github.com/:_authToken=${GITHUB_TOKEN}
 ```
 
+Then install whichever pieces you need:
+
 ```bash
-npm install @openhistorymap/mn-geo @openhistorymap/mn-geo-flavours-leaflet
+npm install @openhistorymap/gcx-core \
+            @openhistorymap/mn-geo \
+            @openhistorymap/mn-geo-layers \
+            @openhistorymap/mn-geo-datasources \
+            @openhistorymap/mn-geo-flavours-mapbox \
+            @openhistorymap/mn-geo-layers-osm
 ```
 
-## License
+Register the layer + datasource plugins you want at bootstrap:
 
-See `LICENSE`.
+```typescript
+import { ApplicationConfig } from '@angular/core';
+import { provideHttpClient } from '@angular/common/http';
+import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
+import { provideMnGeoLayersFeature } from '@openhistorymap/mn-geo-layers';
+import { provideMnGeoDatasourcesGeojson } from '@openhistorymap/mn-geo-datasources';
+import { provideMnGeoLayersOsm } from '@openhistorymap/mn-geo-layers-osm';
+
+export const appConfig: ApplicationConfig = {
+  providers: [
+    provideHttpClient(),
+    provideAnimationsAsync(),
+    provideMnGeoLayersFeature(),
+    provideMnGeoDatasourcesGeojson(),
+    provideMnGeoLayersOsm(),
+    /* add provideMnGeoLayersOfm(), provideMnGeoLayersCarto(),
+       provideMnGeoLayersGeomqtt(), provideMnGeoDatasourcesCsv(), … */
+  ],
+};
+```
+
+And drop `<gcx-map>` (with a rendering flavour child) into a route
+component — or compose `<mn-map>` directly if you don't want the
+Material drawer shell:
+
+```html
+<gcx-map>
+  <div mnMapFlavourMaplibre></div>
+  <!-- swap to [mnMapFlavourLeaflet] if you need geomqtt -->
+</gcx-map>
+```
+
+`<gcx-map>` reads its config from `GcxCoreService.load(...)` — call it
+with a `{ user, project }` repo descriptor to mirror the public service,
+or with a URL string to load a local `gcx.json`.
+
+---
+
+## Architecture, in one paragraph
+
+`<mn-map>` is a declarative container. It picks up a rendering **flavour**
+(MapLibre-GL by default; Leaflet available) from a `[mnMapFlavour*]`
+directive among its content. **Datasources** fetch data; **layers** read
+that data and emit renderer-agnostic descriptors (`raster-tiles`,
+`vector-tiles`, `geojson-features`); the active flavour translates each
+descriptor into its native form (a Leaflet layer, a MapLibre source +
+style layer, etc.). Layers and datasources self-register as plugins via
+`provideAppInitializer` factories — adding a new tile source or data
+format is a small standalone library, not a fork.
+
+Full state, porting notes, and contributor guidance in
+[`CLAUDE.md`](./CLAUDE.md).
+
+---
+
+## Contributing
+
+The most useful contributions are usually new layer or datasource types:
+
+1. Scaffold a library: `ng g library mn-geo-layers-<your-name>` (or
+   `mn-geo-datasources-<your-name>`).
+2. Implement the `Layer` (or `Datasource`) abstract from
+   `@openhistorymap/mn-geo-layers` (resp. `mn-geo-datasources`). Layers
+   should emit one of the renderer-agnostic descriptors so they work on
+   every flavour.
+3. Export a `provideMnGeoLayers<YourName>()` factory that registers your
+   class with `MnGeoLayersRegistryService` via `provideAppInitializer`.
+4. Add the lib to `scripts/build-ported.sh` and the publish workflow.
+
+Worked examples in `projects/mn-geo-layers-osm/`,
+`projects/mn-geo-layers-ofm/`, and the live-data
+`projects/mn-geo-layers-geomqtt/` (which also shows the descriptor
+`subscribe?` channel for streaming sources).
+
+Issues and PRs welcome.
+
+---
+
+## Status & known gaps
+
+Currently shipping from the `rewrite/angular-latest` branch (Angular
+19 / standalone), which has surpassed the legacy `master` and is on
+its way to becoming the default branch.
+
+- ✅ Map composition, OSM / OFM / CARTO basemaps, GeoJSON + CSV
+  datasources, FeatureLayer, GeoMQTT live streams, `chcx-static`
+  pages, repo-driven `/<user>/<repo>/map` and `/.../static/<slug>` views.
+- ⏳ MapLibre-only descriptor for `geomqtt` (currently Leaflet-only).
+- ⏳ Other legacy libraries (`mn-geo-datasources-shp`, `-agentmap`,
+  `mn-geo-layers-ohm`, `c3d-core`, …) not yet ported. See `CLAUDE.md`.
+
+---
+
+## Built in Bologna
+
+GeoContext is built and maintained by
+[OpenHistoryMap](https://www.openhistorymap.org). Apache-2.0 — see
+[`LICENSE`](./LICENSE).
