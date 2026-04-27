@@ -1,0 +1,63 @@
+name: GitHub Pages
+
+on:
+  push:
+    branches: [master, rewrite/angular-latest]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Pages allows one in-flight deploy at a time; cancel older runs in the
+# same group so the latest push wins without piling up queued jobs.
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+
+      - name: Install
+        run: npm ci --no-audit --no-fund
+
+      - name: Build ported libraries + app
+        env:
+          # Pages serves at https://www.openhistorymap.org/geocontext-front/,
+          # so all asset/router URLs need the project-page prefix.
+          BASE_HREF: /geocontext-front/
+        run: ./scripts/build-ported.sh
+
+      - name: Add SPA 404 fallback
+        # Path-based routes (`/:user/:project/map`, etc.) deep-link to URLs
+        # GitHub Pages can't statically serve. Copying index.html to 404.html
+        # lets Pages return the SPA shell for any unknown path; Angular's
+        # router then resolves the route client-side.
+        run: cp dist/geocontext-front/browser/index.html dist/geocontext-front/browser/404.html
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist/geocontext-front/browser
+
+  deploy:
+    name: Deploy
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

@@ -26,5 +26,9 @@ for lib in "${LIBS[@]}"; do
 done
 
 echo "::group::ng build (app)"
-npx ng build --configuration=production
+APP_FLAGS=()
+if [ -n "${BASE_HREF:-}" ]; then
+  APP_FLAGS+=(--base-href "$BASE_HREF")
+fi
+npx ng build --configuration=production "${APP_FLAGS[@]}"
 echo "::endgroup::"
