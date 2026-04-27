@@ -147,9 +147,11 @@ by GeoContext directly — no fork, no build:
 ```
 
 The route loads the config from
-`https://cdn.jsdelivr.net/gh/<user>/<project>@<branch>/<path>` (defaults
-`HEAD` and `geocontext.json`). Datasource references inside the config are
-rewritten by `GcxCoreService.resolveAssetUrl`:
+`https://cdn.jsdelivr.net/gh/<user>/<project>@<branch>/<path>`. The branch
+defaults to `HEAD`. When `path` is omitted, the loader probes
+`geocontext.json` first and falls back to `gcx.json` (the legacy filename)
+on a 404 — non-404 errors surface immediately. Datasource references inside
+the config are rewritten by `GcxCoreService.resolveAssetUrl`:
 
 - Absolute URLs pass through.
 - `/<user>/<project>/assets/<file>` (with optional `@<branch>` after project)
