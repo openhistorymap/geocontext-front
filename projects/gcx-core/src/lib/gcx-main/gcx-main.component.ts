@@ -1,4 +1,4 @@
-import { Component, inject, input } from '@angular/core';
+import { Component, computed, inject, input } from '@angular/core';
 import { RouterLink, RouterOutlet } from '@angular/router';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
@@ -14,6 +14,12 @@ export interface GcxRouteItem {
 /**
  * Top-level shell: Material toolbar with menu/map buttons + dynamic static
  * page links, followed by a `<router-outlet>` and a footer strip.
+ *
+ * Toolbar routerLinks are scoped to the active context: in local mode they
+ * resolve to `/map` and `/static/<target>`; once `GcxCoreService.currentRepo()`
+ * is set (repo-driven view at `/:user/:project/...`), they resolve to
+ * `/:user/:project/map` and `/:user/:project/static/<target>` so navigating
+ * the toolbar keeps you inside the same repo's content surface.
  */
 @Component({
   selector: 'gcx-main',
@@ -26,12 +32,12 @@ export interface GcxRouteItem {
       </button>
       <span class="title">{{ title() }}</span>
       <span class="spacer"></span>
-      <button mat-button [routerLink]="['/map']">
+      <button mat-button [routerLink]="mapLink()">
         <mat-icon>map</mat-icon>
         <span>Map</span>
       </button>
       @for (item of items(); track item.target) {
-        <button mat-button [routerLink]="['/static', item.target]">
+        <button mat-button [routerLink]="staticLink(item.target)">
           @if (item.icon) { <mat-icon>{{ item.icon }}</mat-icon> }
           <span>{{ item.title }}</span>
         </button>
@@ -68,4 +74,17 @@ export class GcxMainComponent {
   readonly title = input<string>('GeoContext');
   readonly items = input<GcxRouteItem[]>([]);
   readonly version = '0.1.0';
+
+  /** Repo-aware path prefix. `/<user>/<project>` in repo mode, empty
+   *  array in local mode (so subsequent segments form `/map`, `/static/X`). */
+  private readonly prefix = computed<string[]>(() => {
+    const repo = this.gcx.currentRepo();
+    return repo ? [repo.user, repo.project] : [];
+  });
+
+  readonly mapLink = computed<any[]>(() => ['/', ...this.prefix(), 'map']);
+
+  staticLink(target: string): any[] {
+    return ['/', ...this.prefix(), 'static', target];
+  }
 }
