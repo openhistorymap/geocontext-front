@@ -1,1 +1,187 @@
-html, body { margin: 0; padding: 0; height: 100%; }
+/* GeoContext editorial theme.
+ *
+ * Design context: editorial / archival, light mode, scholarly + opinionated +
+ * public-good. Map is the content; chrome is a frame. We override Material's
+ * MDC system tokens (--mat-sys-*) with a paper-leaning palette and an
+ * EB Garamond / Public Sans pairing so the included Material components
+ * inherit the new look without rebuilding the theme.
+ */
+
+:root {
+  /* --- Palette (OKLCH, perceptual + chroma-tapered toward extremes) ----- */
+
+  /* Surfaces — warm cream paper, hue 80 (slight ochre lean toward Italian
+     archival/parchment, not the bluish off-white of generic SaaS). */
+  --gcx-paper:        oklch(97.5% 0.008 80);
+  --gcx-paper-soft:   oklch(94.5% 0.012 80);
+  --gcx-paper-deep:   oklch(91% 0.014 80);
+
+  /* Type — warm near-blacks (avoid pure #000 which never appears in print). */
+  --gcx-ink:          oklch(20% 0.013 80);
+  --gcx-ink-soft:     oklch(38% 0.018 80);
+  --gcx-ink-faint:    oklch(55% 0.013 80);
+
+  /* Hairlines — used for rules, dividers, input strokes. */
+  --gcx-rule:         oklch(82% 0.008 80);
+  --gcx-rule-strong:  oklch(70% 0.012 80);
+
+  /* Single accent — terracotta. Used sparingly: active route, search cursor,
+     citation links. Marker colors come from each gcx.json and stay loud. */
+  --gcx-accent:       oklch(48% 0.135 36);
+  --gcx-accent-deep:  oklch(36% 0.115 36);
+  --gcx-accent-fg:    oklch(98% 0.006 80);
+
+  /* --- Typography --------------------------------------------------------- */
+
+  --gcx-display: 'EB Garamond', 'Iowan Old Style', 'Cambria', Georgia, serif;
+  --gcx-body:    'Public Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+
+  /* Modular scale, fixed rems for app UI (no fluid in the chrome). */
+  --gcx-text-xs:    0.75rem;
+  --gcx-text-sm:    0.8125rem;
+  --gcx-text-base:  0.9375rem;
+  --gcx-text-md:    1rem;
+  --gcx-text-lg:    1.25rem;
+  --gcx-text-xl:    1.625rem;
+  --gcx-text-2xl:   2rem;
+
+  /* --- Material MDC token overrides --------------------------------------
+   * Material 19 reads --mat-sys-* tokens at runtime; aliasing them here is
+   * cheaper than rebuilding the theme via SCSS. */
+  --mat-sys-primary:                 var(--gcx-accent);
+  --mat-sys-on-primary:              var(--gcx-accent-fg);
+  --mat-sys-primary-container:       var(--gcx-paper-soft);
+  --mat-sys-on-primary-container:    var(--gcx-accent-deep);
+  --mat-sys-secondary:               var(--gcx-ink-soft);
+  --mat-sys-on-secondary:            var(--gcx-paper);
+  --mat-sys-tertiary:                var(--gcx-accent-deep);
+  --mat-sys-on-tertiary:             var(--gcx-accent-fg);
+
+  --mat-sys-surface:                 var(--gcx-paper);
+  --mat-sys-surface-bright:          var(--gcx-paper);
+  --mat-sys-surface-container-lowest: var(--gcx-paper);
+  --mat-sys-surface-container-low:   var(--gcx-paper);
+  --mat-sys-surface-container:       var(--gcx-paper-soft);
+  --mat-sys-surface-container-high:  var(--gcx-paper-soft);
+  --mat-sys-surface-container-highest: var(--gcx-paper-deep);
+  --mat-sys-surface-variant:         var(--gcx-paper-soft);
+
+  --mat-sys-on-surface:              var(--gcx-ink);
+  --mat-sys-on-surface-variant:      var(--gcx-ink-soft);
+
+  --mat-sys-outline:                 var(--gcx-rule-strong);
+  --mat-sys-outline-variant:         var(--gcx-rule);
+
+  --mat-sys-background:              var(--gcx-paper);
+  --mat-sys-on-background:           var(--gcx-ink);
+
+  /* Make Material's typeface tokens point at our pairing. */
+  --mat-sys-plain-family:            var(--gcx-body);
+  --mat-sys-brand-family:            var(--gcx-display);
+  --mat-sys-body-large-font:         var(--gcx-body);
+  --mat-sys-body-medium-font:        var(--gcx-body);
+  --mat-sys-body-small-font:         var(--gcx-body);
+  --mat-sys-label-large-font:        var(--gcx-body);
+  --mat-sys-label-medium-font:       var(--gcx-body);
+  --mat-sys-label-small-font:        var(--gcx-body);
+  --mat-sys-title-large-font:        var(--gcx-display);
+  --mat-sys-title-medium-font:       var(--gcx-display);
+  --mat-sys-title-small-font:        var(--gcx-body);
+  --mat-sys-headline-large-font:     var(--gcx-display);
+  --mat-sys-headline-medium-font:    var(--gcx-display);
+  --mat-sys-headline-small-font:     var(--gcx-display);
+  --mat-sys-display-large-font:      var(--gcx-display);
+  --mat-sys-display-medium-font:     var(--gcx-display);
+  --mat-sys-display-small-font:      var(--gcx-display);
+}
+
+/* --- Reset + base ------------------------------------------------------- */
+
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  background: var(--gcx-paper);
+  color: var(--gcx-ink);
+  font: 400 var(--gcx-text-base) / 1.55 var(--gcx-body);
+  font-feature-settings: 'kern', 'liga';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* Editorial selection — terracotta wash on paper. */
+::selection {
+  background: color-mix(in oklch, var(--gcx-accent) 22%, var(--gcx-paper));
+  color: var(--gcx-ink);
+}
+
+a {
+  color: var(--gcx-accent-deep);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 2px;
+  text-decoration-color: color-mix(in oklch, var(--gcx-accent) 35%, transparent);
+}
+a:hover { text-decoration-color: var(--gcx-accent); }
+
+/* --- Material softening ------------------------------------------------- */
+
+/* Drop the prebuilt theme's Material elevation chrome on toolbars/drawers
+ * — the editorial frame uses hairlines, not box-shadows. */
+mat-toolbar.mat-toolbar,
+mat-drawer-container.mat-drawer-container,
+mat-drawer.mat-drawer,
+mat-drawer-content.mat-drawer-content {
+  box-shadow: none !important;
+  background: transparent;
+}
+
+/* Material outlined form fields lose the rounded pill on the editorial
+ * surface; we want a thinner, more typewriterly affordance. */
+.mat-mdc-text-field-wrapper {
+  border-radius: 2px !important;
+}
+.mat-mdc-form-field-subscript-wrapper {
+  font-family: var(--gcx-body) !important;
+}
+
+/* Tabs ink bar — terracotta, not Material blue. */
+.mat-mdc-tab-header .mat-mdc-tab .mdc-tab-indicator__content--underline,
+.mat-mdc-tab-header .mat-mdc-tab.mdc-tab--active .mdc-tab__text-label {
+  color: var(--gcx-accent-deep);
+  --mdc-tab-indicator-active-indicator-color: var(--gcx-accent);
+}
+
+/* Slide toggle — replace the puck-blue with our accent. */
+.mat-mdc-slide-toggle {
+  --mdc-switch-selected-track-color: var(--gcx-accent);
+  --mdc-switch-selected-handle-color: var(--gcx-paper);
+  --mdc-switch-selected-focus-track-color: var(--gcx-accent-deep);
+  --mdc-switch-selected-hover-track-color: var(--gcx-accent-deep);
+  --mdc-switch-selected-pressed-track-color: var(--gcx-accent-deep);
+  --mdc-switch-unselected-track-color: var(--gcx-rule);
+  --mdc-switch-unselected-handle-color: var(--gcx-paper);
+}
+
+/* Buttons inherit our type pairing; remove Material's tracking that fights
+ * with Public Sans's metrics. */
+.mat-mdc-button .mdc-button__label,
+.mat-mdc-icon-button,
+.mat-mdc-tab .mdc-tab__text-label {
+  font-family: var(--gcx-body) !important;
+  letter-spacing: 0 !important;
+  text-transform: none !important;
+}
+
+/* maplibre / leaflet attribution + scale — make them belong to the
+ * editorial frame instead of standing out as a Material chip. */
+.maplibregl-ctrl-attrib,
+.leaflet-control-attribution {
+  background: color-mix(in oklch, var(--gcx-paper) 88%, transparent) !important;
+  font: 400 11px / 1.4 var(--gcx-body) !important;
+  color: var(--gcx-ink-soft) !important;
+}
+.maplibregl-ctrl-attrib a,
+.leaflet-control-attribution a {
+  color: var(--gcx-accent-deep) !important;
+}

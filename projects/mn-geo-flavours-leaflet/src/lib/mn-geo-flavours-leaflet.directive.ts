@@ -28,6 +28,9 @@ export class MnGeoFlavoursLeafletDirective extends MnMapFlavourDirective {
   /** Tracks live-update teardowns by the layer group they belong to so
    *  removeLayer can also unsubscribe. */
   private readonly subscriptions = new Map<L.Layer, () => void>();
+  /** Tracks Leaflet layer instances by descriptor id so setLayerVisibility
+   *  can show/hide them after they've been added. */
+  private readonly layersById = new Map<string, L.Layer>();
 
   get leafletMap(): L.Map | undefined {
     return this._map;
@@ -80,16 +83,51 @@ export class MnGeoFlavoursLeafletDirective extends MnMapFlavourDirective {
 
   override addLayer(input: unknown): void {
     if (!this._map) return;
-    const layer = isLayerDescriptor(input) ? this.fromDescriptor(input) : (input as L.Layer);
-    if (layer) this._map.addLayer(layer);
+    let id: string | undefined;
+    let layer: L.Layer | null = null;
+    if (isLayerDescriptor(input)) {
+      id = input.id;
+      layer = this.fromDescriptor(input);
+    } else if (input && typeof input === 'object' && 'addTo' in input) {
+      layer = input as L.Layer;
+    }
+    if (layer) {
+      this._map.addLayer(layer);
+      if (id) this.layersById.set(id, layer);
+    }
   }
 
   override removeLayer(input: unknown): void {
     if (!this._map) return;
+    if (typeof input === 'string') {
+      const layer = this.layersById.get(input);
+      if (layer) {
+        this.subscriptions.get(layer)?.();
+        this.subscriptions.delete(layer);
+        this._map.removeLayer(layer);
+        this.layersById.delete(input);
+      }
+      return;
+    }
     if (input && typeof input === 'object' && 'remove' in input) {
       const layer = input as L.Layer;
       this.subscriptions.get(layer)?.();
       this.subscriptions.delete(layer);
+      this._map.removeLayer(layer);
+      // Drop any id mapping that pointed at this layer.
+      for (const [id, l] of this.layersById) {
+        if (l === layer) this.layersById.delete(id);
+      }
+    }
+  }
+
+  override setLayerVisibility(id: string, visible: boolean): void {
+    if (!this._map) return;
+    const layer = this.layersById.get(id);
+    if (!layer) return;
+    if (visible) {
+      if (!this._map.hasLayer(layer)) this._map.addLayer(layer);
+    } else if (this._map.hasLayer(layer)) {
       this._map.removeLayer(layer);
     }
   }

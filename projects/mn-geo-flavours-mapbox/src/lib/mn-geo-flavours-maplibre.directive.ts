@@ -4,6 +4,43 @@ import { MnMapComponent, MnMapFlavourDirective } from '@openhistorymap/mn-geo';
 import { isLayerDescriptor, LayerDescriptor } from '@openhistorymap/mn-geo-layers';
 
 /**
+ * Default 2D MapLibre style: raster OSM tiles. Used when the gcx.json
+ * config has no tile basemap declared, so feature layers always render
+ * against something visible. Apps that want a different default (CARTO,
+ * vector tiles, …) can subclass `MnGeoFlavoursMaplibreDirective` and
+ * override `setup`, or just declare an explicit `osm-tiled` / `carto-*`
+ * layer at the top of `layers[]` in their config.
+ */
+function defaultBaseStyle(): StyleSpecification {
+  return {
+    version: 8,
+    sources: {
+      'gcx-base': {
+        type: 'raster',
+        tiles: [
+          'https://a.tile.openstreetmap.org/{z}/{x}/{y}.png',
+          'https://b.tile.openstreetmap.org/{z}/{x}/{y}.png',
+          'https://c.tile.openstreetmap.org/{z}/{x}/{y}.png',
+        ],
+        tileSize: 256,
+        attribution:
+          '© <a href="https://openstreetmap.org">OpenStreetMap</a> contributors',
+        maxzoom: 19,
+      },
+    },
+    layers: [
+      {
+        id: 'gcx-base',
+        type: 'raster',
+        source: 'gcx-base',
+        minzoom: 0,
+        maxzoom: 22,
+      },
+    ],
+  };
+}
+
+/**
  * MapLibre-GL implementation of the MnGeoFlavour interface. Attach inside
  * a `<mn-map>` via `[mnMapFlavourMaplibre]`. The library name stays
  * `mn-geo-flavours-mapbox` for npm stability but the implementation is
@@ -45,15 +82,9 @@ export class MnGeoFlavoursMaplibreDirective extends MnMapFlavourDirective implem
       ? center
       : [center.lat ?? 0, center.lon ?? center.lng ?? 0];
 
-    const emptyStyle: StyleSpecification = {
-      version: 8,
-      sources: {},
-      layers: [],
-    };
-
     this._map = new maplibregl.Map({
       container: element,
-      style: emptyStyle,
+      style: defaultBaseStyle(),
       center: [lng, lat],
       zoom: host.startzoom() ?? 3,
       minZoom: host.minzoom(),
@@ -84,13 +115,29 @@ export class MnGeoFlavoursMaplibreDirective extends MnMapFlavourDirective implem
     if (!id) return;
     this.subscriptions.get(id)?.();
     this.subscriptions.delete(id);
-    if (this.ownedLayerIds.has(id) && this._map.getLayer(id)) {
-      this._map.removeLayer(id);
-      this.ownedLayerIds.delete(id);
+    // GeoJSON descriptors fan out into <id>-circle/-line/-fill GL layers;
+    // remove them all.
+    for (const layerId of [id, `${id}-circle`, `${id}-line`, `${id}-fill`]) {
+      if (this.ownedLayerIds.has(layerId) && this._map.getLayer(layerId)) {
+        this._map.removeLayer(layerId);
+        this.ownedLayerIds.delete(layerId);
+      }
     }
     if (this.ownedSourceIds.has(id) && this._map.getSource(id)) {
       this._map.removeSource(id);
       this.ownedSourceIds.delete(id);
+    }
+  }
+
+  override setLayerVisibility(id: string, visible: boolean): void {
+    if (!this._map) return;
+    const visibility = visible ? 'visible' : 'none';
+    // Toggle the descriptor id itself (raster/vector single-layer case)
+    // plus the geojson sublayers if they exist.
+    for (const layerId of [id, `${id}-circle`, `${id}-line`, `${id}-fill`]) {
+      if (this._map.getLayer(layerId)) {
+        this._map.setLayoutProperty(layerId, 'visibility', visibility);
+      }
     }
   }
 
