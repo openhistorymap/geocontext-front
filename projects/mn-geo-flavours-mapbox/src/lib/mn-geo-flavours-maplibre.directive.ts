@@ -4,6 +4,43 @@ import { MnMapComponent, MnMapFlavourDirective } from '@openhistorymap/mn-geo';
 import { isLayerDescriptor, LayerDescriptor } from '@openhistorymap/mn-geo-layers';
 
 /**
+ * Default 2D MapLibre style: raster OSM tiles. Used when the gcx.json
+ * config has no tile basemap declared, so feature layers always render
+ * against something visible. Apps that want a different default (CARTO,
+ * vector tiles, …) can subclass `MnGeoFlavoursMaplibreDirective` and
+ * override `setup`, or just declare an explicit `osm-tiled` / `carto-*`
+ * layer at the top of `layers[]` in their config.
+ */
+function defaultBaseStyle(): StyleSpecification {
+  return {
+    version: 8,
+    sources: {
+      'gcx-base': {
+        type: 'raster',
+        tiles: [
+          'https://a.tile.openstreetmap.org/{z}/{x}/{y}.png',
+          'https://b.tile.openstreetmap.org/{z}/{x}/{y}.png',
+          'https://c.tile.openstreetmap.org/{z}/{x}/{y}.png',
+        ],
+        tileSize: 256,
+        attribution:
+          '© <a href="https://openstreetmap.org">OpenStreetMap</a> contributors',
+        maxzoom: 19,
+      },
+    },
+    layers: [
+      {
+        id: 'gcx-base',
+        type: 'raster',
+        source: 'gcx-base',
+        minzoom: 0,
+        maxzoom: 22,
+      },
+    ],
+  };
+}
+
+/**
  * MapLibre-GL implementation of the MnGeoFlavour interface. Attach inside
  * a `<mn-map>` via `[mnMapFlavourMaplibre]`. The library name stays
  * `mn-geo-flavours-mapbox` for npm stability but the implementation is
@@ -45,15 +82,9 @@ export class MnGeoFlavoursMaplibreDirective extends MnMapFlavourDirective implem
       ? center
       : [center.lat ?? 0, center.lon ?? center.lng ?? 0];
 
-    const emptyStyle: StyleSpecification = {
-      version: 8,
-      sources: {},
-      layers: [],
-    };
-
     this._map = new maplibregl.Map({
       container: element,
-      style: emptyStyle,
+      style: defaultBaseStyle(),
       center: [lng, lat],
       zoom: host.startzoom() ?? 3,
       minZoom: host.minzoom(),
