@@ -34,6 +34,14 @@ export interface GeoJsonFeaturesDescriptor {
   data: any;
   style?: any;
   onClick?: (feature: any) => void;
+  /**
+   * Optional live-update channel. The flavour calls `subscribe` once after
+   * adding the layer; the layer pushes new FeatureCollections through `push`
+   * whenever its underlying data changes (e.g. an MQTT message arrives).
+   * The returned thunk should tear down the subscription. Layers that emit
+   * static data omit this field entirely.
+   */
+  subscribe?: (push: (data: any) => void) => () => void;
 }
 
 export type LayerDescriptor =
