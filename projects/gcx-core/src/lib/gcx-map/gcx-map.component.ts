@@ -1,4 +1,12 @@
-import { Component, effect, inject, signal, viewChild } from '@angular/core';
+import {
+  Component,
+  computed,
+  contentChildren,
+  effect,
+  inject,
+  signal,
+  viewChild,
+} from '@angular/core';
 import { JsonPipe } from '@angular/common';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatTabsModule } from '@angular/material/tabs';
@@ -12,6 +20,7 @@ import {
   MnLayerComponent,
   MnDatasourceComponent,
   MnStyleComponent,
+  MnMapFlavourDirective,
 } from '@openhistorymap/mn-geo';
 import { GcxCoreService } from '../gcx-core.service';
 import { GcxLegendComponent } from '../gcx-legend/gcx-legend.component';
@@ -58,6 +67,12 @@ interface ConfiguredDatasource {
     GcxLegendComponent,
   ],
   template: `
+    <!-- Hidden host for the projected flavour directive. The directive
+         only needs a DOM mount-point to be instantiated; <mn-map>
+         picks it up from us via the [flavour] input below. -->
+    <div hidden>
+      <ng-content select="[mnMapFlavour], [mnMapFlavourLeaflet], [mnMapFlavourMapbox], [mnMapFlavourMaplibre]" />
+    </div>
     <mat-drawer-container class="gcx-map-container" hasBackdrop="false">
       <mat-drawer mode="side" [opened]="gcx.sidebarOpen()">
         <form class="gcx-search-form">
@@ -95,13 +110,13 @@ interface ConfiguredDatasource {
       <mat-drawer-content>
         <mn-map
           #map
+          [flavour]="flavour()"
           [center]="center()"
           [startzoom]="startzoom()"
           [minzoom]="minzoom()"
           [maxzoom]="maxzoom()"
           height="100%"
         >
-          <ng-content select="[mnMapFlavour], [mnMapFlavourLeaflet], [mnMapFlavourMapbox], [mnMapFlavourMaplibre]" />
           @for (ds of datasources(); track ds.name) {
             <mn-datasource [name]="ds.name" [type]="ds.type" [conf]="ds.conf" />
           }
@@ -155,6 +170,11 @@ export class GcxMapComponent {
   readonly gcx = inject(GcxCoreService);
 
   readonly map = viewChild<MnMapComponent>('map');
+  /** Flavour directive content-projected via `<gcx-map><div mnMapFlavour…/></gcx-map>`.
+   *  Relayed to `<mn-map>`'s `[flavour]` input because content-projected
+   *  directives don't surface in the inner component's contentChildren. */
+  readonly flavours = contentChildren(MnMapFlavourDirective, { descendants: true });
+  readonly flavour = computed(() => this.flavours()[0]);
 
   readonly center = signal<any>([0, 0]);
   readonly startzoom = signal<number>(1);
