@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal, viewChild } from '@angular/core';
+import { Component, effect, inject, signal, viewChild } from '@angular/core';
 import { JsonPipe } from '@angular/common';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatTabsModule } from '@angular/material/tabs';
@@ -151,7 +151,7 @@ interface ConfiguredDatasource {
     `,
   ],
 })
-export class GcxMapComponent implements OnInit {
+export class GcxMapComponent {
   readonly gcx = inject(GcxCoreService);
 
   readonly map = viewChild<MnMapComponent>('map');
@@ -167,16 +167,19 @@ export class GcxMapComponent implements OnInit {
   readonly selectedTab = signal<number>(0);
   readonly selectedItem = signal<any>(null);
 
-  async ngOnInit(): Promise<void> {
-    const conf = await this.gcx.load();
-    this.center.set(conf.center ?? [0, 0]);
-    this.startzoom.set(conf.startzoom ?? 1);
-    this.minzoom.set(conf.minzoom ?? 1);
-    this.maxzoom.set(conf.maxzoom ?? 19);
-    this.datasources.set(conf.datasources ?? []);
-    this.layers.set(
-      (conf.layers ?? []).map((l: any) => ({ ...l, visible: true }))
-    );
+  constructor() {
+    effect(() => {
+      const conf = this.gcx.config();
+      if (!conf) return;
+      this.center.set(conf.center ?? [0, 0]);
+      this.startzoom.set(conf.startzoom ?? 1);
+      this.minzoom.set(conf.minzoom ?? 1);
+      this.maxzoom.set(conf.maxzoom ?? 19);
+      this.datasources.set(conf.datasources ?? []);
+      this.layers.set(
+        (conf.layers ?? []).map((l: any) => ({ ...l, visible: true })),
+      );
+    });
   }
 
   toggleVisible(layer: ConfiguredLayer): void {
