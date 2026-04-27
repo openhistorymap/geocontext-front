@@ -50,7 +50,11 @@ export class LayersmanagerService {
   private instantiate(item: LayerItem): any {
     const lyr = item.layer;
     this.layers.push(lyr);
-    lyr.setConfiguration(item);
+    // NB: deliberately NOT calling lyr.setConfiguration(item) here.
+    // MnLayerComponent.ngAfterContentInit already set the layer's config to
+    // the resolved {datasource, styles, …} bag; overwriting with `item`
+    // (which is just `{layer: Layer}`) wipes datasource/styles and makes
+    // FeatureLayer.create() see an empty conf.
     if (lyr.getRequiresDatasources()) {
       lyr.setDatasourceManager(this.dsmgr);
     }
