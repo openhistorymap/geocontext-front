@@ -39,7 +39,7 @@ import { MnGeoFlavoursMaplibreDirective } from '@openhistorymap/mn-geo-flavours-
   `,
   styles: [
     `
-      :host { display: flex; flex-direction: column; flex: 1 1 auto; min-height: 0; width: 100%; }
+      :host { display: block; width: 100%; height: 100%; }
       .repo-msg {
         padding: 24px;
         font-family: sans-serif;

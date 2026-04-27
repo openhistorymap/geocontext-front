@@ -181,23 +181,21 @@ interface ConfiguredDatasource {
   styles: [
     `
       :host {
-        display: flex;
-        flex-direction: column;
-        flex: 1 1 auto;
-        min-height: 0;
+        display: block;
         width: 100%;
+        height: 100%;
       }
       .gcx-map-container {
-        flex: 1 1 auto;
-        min-height: 0;
         width: 100%;
+        height: 100%;
       }
-      /* Material's mat-drawer-content is encapsulated; reach in to make
-         it a flex column so <mn-map> can fill the remaining height
-         instead of inheriting the sidebar's intrinsic height. */
+      /* mat-drawer-content needs explicit height + flex column so
+         <mn-map> can fill it. Without this, Material's drawer-content
+         collapses to its content height (the sidebar) on first paint. */
       ::ng-deep .gcx-map-container .mat-drawer-content {
         display: flex;
         flex-direction: column;
+        height: 100%;
       }
       mn-map {
         flex: 1 1 auto;

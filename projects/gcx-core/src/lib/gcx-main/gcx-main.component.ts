@@ -50,7 +50,7 @@ export interface GcxRouteItem {
     </main>
 
     <footer class="gcx-footer">
-      Made with ♥ in Bologna — Engine: GeoContext {{ version }}
+      Made with ♥ in Bologna by <a href="https://www.openhistorymap.org" target="_blank">OpenHistoryMap</a> — Engine: <a href="https://github.com/openhistorymap/geocontext-front" target="_blank">GeoContext</a> {{ version }}
     </footer>
   `,
   styles: [
@@ -58,16 +58,20 @@ export interface GcxRouteItem {
       :host { display: flex; flex-direction: column; height: 100vh; }
       .title { margin-left: 8px; font-weight: 500; }
       .spacer { flex: 1 1 auto; }
-      /* The outlet must itself be a flex column so the routed component
-         participates in the flex chain — otherwise mat-drawer-container
-         falls back to content-sized height and the map shrinks to the
-         sidebar's intrinsic height on first paint. */
+      /* position: relative so the routed component (positioned absolute)
+         fills the outlet. Flex 1 alone wasn't reliably propagating
+         height through router-outlet -> routed component -> gcx-map ->
+         mat-drawer-container, so the map collapsed to sidebar height
+         on first paint. */
       .gcx-main-outlet {
         flex: 1 1 auto;
         min-height: 0;
         overflow: hidden;
-        display: flex;
-        flex-direction: column;
+        position: relative;
+      }
+      .gcx-main-outlet > :not(router-outlet) {
+        position: absolute;
+        inset: 0;
       }
       .gcx-footer {
         background: var(--mat-sys-surface, #fff);
