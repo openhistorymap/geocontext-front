@@ -71,7 +71,14 @@ export class MnGeoFlavoursMaplibreDirective extends MnMapFlavourDirective implem
     this._map.on('moveend', (e) => host.mapMoveEnd.emit(e));
     this._map.on('movestart', (e) => host.mapMoveStart.emit(e));
 
-    this._map.once('load', () => host.ready());
+    this._map.once('load', () => {
+      host.ready();
+      // Belt-and-suspenders: if the parent layout still hadn't settled
+      // when the GL canvas was sized, force one more measurement after a
+      // microtask + a frame. Cheap, idempotent, and covers cases where
+      // the ResizeObserver hadn't observed a delta yet.
+      setTimeout(() => this._map?.resize(), 100);
+    });
 
     // MapLibre snapshots the container's clientWidth/Height at construction.
     // If the CSS chain settles a frame later (router-outlet → route component

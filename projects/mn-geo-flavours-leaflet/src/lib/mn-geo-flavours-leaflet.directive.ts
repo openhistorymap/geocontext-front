@@ -81,6 +81,9 @@ export class MnGeoFlavoursLeafletDirective extends MnMapFlavourDirective impleme
     this._map.on('movestart', (e) => host.mapMoveStart.emit(e));
 
     host.ready();
+    // Belt-and-suspenders: if the parent layout still hadn't settled
+    // when the tile layer was sized, force one more measurement.
+    setTimeout(() => this._map?.invalidateSize(), 100);
 
     // Same defensive resize as the MapLibre flavour: Leaflet caches the
     // container size at L.map() construction; if the CSS chain settles
