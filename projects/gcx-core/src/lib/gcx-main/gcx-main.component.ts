@@ -176,17 +176,17 @@ export interface GcxRouteItem {
         border-bottom-color: var(--gcx-accent);
       }
 
-      /* --- Routed body ------------------------------------------------ */
+      /* --- Routed body ------------------------------------------------
+         position: relative is the anchor; the routed component fills it
+         absolutely via its own :host styles (a rule from here can't pierce
+         Angular's view encapsulation to reach the dynamically inserted
+         route component element). */
       .gcx-main-outlet {
         flex: 1 1 auto;
         min-height: 0;
         overflow: hidden;
         position: relative;
         background: var(--gcx-paper);
-      }
-      .gcx-main-outlet > :not(router-outlet) {
-        position: absolute;
-        inset: 0;
       }
 
       /* --- Colophon (footer) ------------------------------------------ */
