@@ -1,7 +1,11 @@
 import { Directive, forwardRef, OnDestroy } from '@angular/core';
 import * as L from 'leaflet';
 import { MnMapComponent, MnMapFlavourDirective } from '@openhistorymap/mn-geo';
-import { isLayerDescriptor, LayerDescriptor } from '@openhistorymap/mn-geo-layers';
+import {
+  buildPopupHtml,
+  isLayerDescriptor,
+  LayerDescriptor,
+} from '@openhistorymap/mn-geo-layers';
 
 /**
  * Leaflet implementation of the MnGeoFlavour interface. Attach inside a
@@ -185,13 +189,34 @@ export class MnGeoFlavoursLeafletDirective extends MnMapFlavourDirective impleme
         });
       }
       case 'geojson-features': {
-        const opts: L.GeoJSONOptions = desc.style?.options
-          ? this.geoJsonOptionsFromStyle(desc.style)
-          : {};
-        if (desc.onClick) {
-          opts.onEachFeature = (feature, layer) =>
+        const isPinMode = desc.marker === 'pins';
+        const popupField = desc.popup?.htmlField ?? 'html';
+
+        const opts: L.GeoJSONOptions = isPinMode
+          ? {
+              // Traditional pin markers — Leaflet's default L.marker icon.
+              pointToLayer: (_feature, latlng) => L.marker(latlng),
+            }
+          : desc.style?.options
+            ? this.geoJsonOptionsFromStyle(desc.style)
+            : {};
+
+        const onEach: NonNullable<L.GeoJSONOptions['onEachFeature']> = (
+          feature,
+          layer,
+        ) => {
+          if (desc.popup) {
+            layer.bindPopup(() => buildPopupHtml(feature, popupField), {
+              maxWidth: 320,
+              className: 'gcx-leaflet-popup',
+            });
+          }
+          if (desc.onClick) {
             layer.on('click', () => desc.onClick!(feature));
-        }
+          }
+        };
+        if (desc.popup || desc.onClick) opts.onEachFeature = onEach;
+
         const group = L.featureGroup();
         L.geoJSON(desc.data, opts).addTo(group);
         if (desc.subscribe) {

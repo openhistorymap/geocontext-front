@@ -1,7 +1,12 @@
 import { Directive, forwardRef, OnDestroy } from '@angular/core';
-import maplibregl, { Map as MaplibreMap } from 'maplibre-gl';
+import maplibregl, { Map as MaplibreMap, Marker as MaplibreMarker } from 'maplibre-gl';
 import { MnMapComponent, MnMapFlavourDirective } from '@openhistorymap/mn-geo';
-import { isLayerDescriptor, LayerDescriptor } from '@openhistorymap/mn-geo-layers';
+import {
+  buildPopupHtml,
+  GeoJsonFeaturesDescriptor,
+  isLayerDescriptor,
+  LayerDescriptor,
+} from '@openhistorymap/mn-geo-layers';
 
 /**
  * Default basemap: OpenFreeMap "bright" — a free, vector, no-API-key OSM
@@ -43,6 +48,9 @@ export class MnGeoFlavoursMaplibreDirective extends MnMapFlavourDirective implem
   private readonly ownedSourceIds = new Set<string>();
   private readonly ownedLayerIds = new Set<string>();
   private readonly subscriptions = new Map<string, () => void>();
+  /** Pin-mode layers: each id owns an array of HTML-overlay markers that
+   *  setLayerVisibility / removeLayer manage separately from GL layers. */
+  private readonly markersByLayerId = new Map<string, MaplibreMarker[]>();
 
   get maplibreMap(): MaplibreMap | undefined {
     return this._map;
@@ -130,17 +138,24 @@ export class MnGeoFlavoursMaplibreDirective extends MnMapFlavourDirective implem
       this._map.removeSource(id);
       this.ownedSourceIds.delete(id);
     }
+    // Pin-mode markers: HTML overlays, separate lifecycle from GL layers.
+    this.removeMarkers(id);
   }
 
   override setLayerVisibility(id: string, visible: boolean): void {
     if (!this._map) return;
     const visibility = visible ? 'visible' : 'none';
-    // Toggle the descriptor id itself (raster/vector single-layer case)
-    // plus the geojson sublayers if they exist.
+    // GL layers — descriptor id + geojson sublayers if any.
     for (const layerId of [id, `${id}-circle`, `${id}-line`, `${id}-fill`]) {
       if (this._map.getLayer(layerId)) {
         this._map.setLayoutProperty(layerId, 'visibility', visibility);
       }
+    }
+    // Pin markers — HTML overlays toggled via inline display so they go
+    // away cleanly without re-creating them.
+    const markers = this.markersByLayerId.get(id);
+    if (markers) {
+      for (const m of markers) m.getElement().style.display = visible ? '' : 'none';
     }
   }
 
@@ -160,10 +175,82 @@ export class MnGeoFlavoursMaplibreDirective extends MnMapFlavourDirective implem
       }
     }
     this.subscriptions.clear();
+    for (const id of [...this.markersByLayerId.keys()]) this.removeMarkers(id);
     this._resizeObserver?.disconnect();
     this._resizeObserver = undefined;
     this._map?.remove();
     this._map = undefined;
+  }
+
+  /**
+   * Render Point features as HTML-overlay pin markers with bound popups.
+   * Used for descriptors with `marker: 'pins'`. Non-Point geometries are
+   * skipped (pins don't make sense on lines/polygons). Markers are tracked
+   * in `markersByLayerId` so removeLayer / setLayerVisibility can manage
+   * them separately from GL layers.
+   */
+  private renderPinMarkers(id: string, desc: GeoJsonFeaturesDescriptor): void {
+    const map = this._map!;
+    const popupField = desc.popup?.htmlField ?? 'html';
+
+    // Replace any previously-rendered markers for this id (live updates +
+    // re-renders shouldn't leak overlay nodes).
+    this.removeMarkers(id);
+
+    const features: any[] = desc.data?.features ?? [];
+    const owned: MaplibreMarker[] = [];
+    for (const feature of features) {
+      if (feature?.geometry?.type !== 'Point') continue;
+      const coords = feature.geometry.coordinates;
+      if (!Array.isArray(coords) || coords.length < 2) continue;
+
+      const marker = new maplibregl.Marker({ color: this.markerColorFor(desc) })
+        .setLngLat([coords[0], coords[1]]);
+
+      if (desc.popup) {
+        const popup = new maplibregl.Popup({ closeButton: true, maxWidth: '320px' })
+          .setHTML(buildPopupHtml(feature, popupField));
+        marker.setPopup(popup);
+      }
+
+      if (desc.onClick) {
+        marker.getElement().addEventListener('click', (ev) => {
+          ev.stopPropagation();
+          desc.onClick!(feature);
+        });
+      }
+
+      marker.addTo(map);
+      owned.push(marker);
+    }
+    this.markersByLayerId.set(id, owned);
+
+    if (desc.subscribe) {
+      const unsub = desc.subscribe((data: any) => {
+        const next: GeoJsonFeaturesDescriptor = { ...desc, data };
+        this.renderPinMarkers(id, next);
+      });
+      this.subscriptions.set(id, unsub);
+    }
+  }
+
+  /** Pick the marker pin colour from the descriptor's style options, with
+   *  the editorial terracotta as the fallback so pins always read. */
+  private markerColorFor(desc: GeoJsonFeaturesDescriptor): string {
+    return (
+      desc.style?.options?.fillColor ??
+      desc.style?.options?.color ??
+      desc.style?.fillColor ??
+      desc.style?.color ??
+      '#9b3f2c'
+    );
+  }
+
+  private removeMarkers(id: string): void {
+    const owned = this.markersByLayerId.get(id);
+    if (!owned) return;
+    for (const m of owned) m.remove();
+    this.markersByLayerId.delete(id);
   }
 
   private fromDescriptor(desc: LayerDescriptor): void {
@@ -219,6 +306,15 @@ export class MnGeoFlavoursMaplibreDirective extends MnMapFlavourDirective implem
 
       case 'geojson-features': {
         const id = desc.id;
+
+        // Pin mode: use HTML-overlay markers (`maplibregl.Marker`) and the
+        // built-in popup, instead of GL circle layers. Non-Point geometries
+        // are skipped because pins only make sense on points.
+        if (desc.marker === 'pins') {
+          this.renderPinMarkers(id, desc);
+          return;
+        }
+
         if (map.getSource(id)) {
           (map.getSource(id) as maplibregl.GeoJSONSource).setData(desc.data);
         } else {
@@ -271,12 +367,25 @@ export class MnGeoFlavoursMaplibreDirective extends MnMapFlavourDirective implem
           this.ownedLayerIds.add(fillId);
         }
 
-        if (desc.onClick) {
+        // Click handlers for circle/line/fill layers — fire onClick and
+        // optionally show a popup at the click point. Popups bind to the
+        // event location (lng/lat of the click), not to a marker.
+        const popupField = desc.popup?.htmlField ?? 'html';
+        if (desc.onClick || desc.popup) {
           for (const sub of [circleId, lineId, fillId]) {
             map.on('click', sub, (e) => {
               const feat = e.features?.[0];
-              if (feat) desc.onClick!(feat);
+              if (!feat) return;
+              if (desc.popup) {
+                new maplibregl.Popup({ closeButton: true, maxWidth: '320px' })
+                  .setLngLat(e.lngLat)
+                  .setHTML(buildPopupHtml(feat, popupField))
+                  .addTo(map);
+              }
+              if (desc.onClick) desc.onClick(feat);
             });
+            map.on('mouseenter', sub, () => (map.getCanvas().style.cursor = 'pointer'));
+            map.on('mouseleave', sub, () => (map.getCanvas().style.cursor = ''));
           }
         }
 

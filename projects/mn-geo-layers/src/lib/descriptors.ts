@@ -33,6 +33,24 @@ export interface GeoJsonFeaturesDescriptor {
   id: string;
   data: any;
   style?: any;
+  /**
+   * Visualisation mode for Point geometries. `circles` (default) renders
+   * styled circle / line / fill primitives — the existing FeatureLayer
+   * behaviour. `pins` renders traditional clickable map pins (Leaflet
+   * `L.marker`, MapLibre `maplibregl.Marker`). LineString and Polygon
+   * features are unaffected by this hint.
+   */
+  marker?: 'circles' | 'pins';
+  /**
+   * Bind a popup to each rendered feature. Content comes from
+   * `popup.htmlField` on the feature properties if non-empty, otherwise
+   * a property summary is rendered (same shape as the sidebar Details
+   * tab). Omit the field entirely to skip popup binding.
+   */
+  popup?: {
+    /** Property name to read raw HTML from. Defaults to `'html'`. */
+    htmlField?: string;
+  };
   onClick?: (feature: any) => void;
   /**
    * Optional live-update channel. The flavour calls `subscribe` once after
