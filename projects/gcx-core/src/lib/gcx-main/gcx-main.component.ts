@@ -2,6 +2,7 @@ import { Component, computed, inject, input } from '@angular/core';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { GcxCoreService } from '../gcx-core.service';
+import { GcxThemeService } from '../gcx-theme.service';
 import { GCX_VERSION } from '../version';
 
 export interface GcxRouteItem {
@@ -33,6 +34,15 @@ export interface GcxRouteItem {
         <a [routerLink]="mapLink()" class="masthead-title-link">{{ title() }}</a>
       </h1>
       <span class="masthead-spacer"></span>
+      <button
+        class="masthead-toggle"
+        type="button"
+        (click)="theme.toggle()"
+        [attr.aria-label]="theme.isDark() ? 'Switch to light mode' : 'Switch to dark mode'"
+        [attr.title]="theme.isDark() ? 'Light mode' : 'Dark mode'"
+      >
+        <mat-icon>{{ theme.isDark() ? 'light_mode' : 'dark_mode' }}</mat-icon>
+      </button>
       <nav class="masthead-nav" aria-label="Sections">
         <a [routerLink]="mapLink()" routerLinkActive="is-active" class="masthead-link">Map</a>
         @for (item of items(); track item.target) {
@@ -89,17 +99,42 @@ export interface GcxRouteItem {
         height: 3px;
         background: var(--gcx-accent);
       }
-      .masthead-menu {
+      .masthead-menu,
+      .masthead-toggle {
         align-self: center;
         background: transparent;
         border: 0;
-        padding: 4px;
-        margin-right: 4px;
+        padding: 4px 6px;
         color: var(--gcx-ink-soft);
         cursor: pointer;
         line-height: 0;
+        border-radius: 2px;
+        transition: color 120ms ease;
       }
-      .masthead-menu:hover { color: var(--gcx-accent-deep); }
+      .masthead-menu { margin-right: 4px; }
+      .masthead-toggle {
+        margin-right: 18px;
+        position: relative;
+      }
+      /* Faint hairline before the nav links to separate "control" from
+         "navigation". */
+      .masthead-toggle::after {
+        content: '';
+        position: absolute;
+        right: -10px;
+        top: 25%;
+        bottom: 25%;
+        width: 1px;
+        background: var(--gcx-rule);
+      }
+      .masthead-menu:hover,
+      .masthead-toggle:hover { color: var(--gcx-accent-deep); }
+      .masthead-menu .mat-icon,
+      .masthead-toggle .mat-icon {
+        font-size: 19px;
+        width: 19px;
+        height: 19px;
+      }
       .masthead-title {
         margin: 0;
         font-family: var(--gcx-display);
@@ -195,6 +230,7 @@ export interface GcxRouteItem {
 })
 export class GcxMainComponent {
   readonly gcx = inject(GcxCoreService);
+  readonly theme = inject(GcxThemeService);
 
   readonly title = input<string>('GeoContext');
   readonly items = input<GcxRouteItem[]>([]);
