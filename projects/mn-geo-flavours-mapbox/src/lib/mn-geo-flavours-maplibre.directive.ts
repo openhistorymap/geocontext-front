@@ -1,44 +1,19 @@
 import { Directive, forwardRef, OnDestroy } from '@angular/core';
-import maplibregl, { Map as MaplibreMap, StyleSpecification } from 'maplibre-gl';
+import maplibregl, { Map as MaplibreMap } from 'maplibre-gl';
 import { MnMapComponent, MnMapFlavourDirective } from '@openhistorymap/mn-geo';
 import { isLayerDescriptor, LayerDescriptor } from '@openhistorymap/mn-geo-layers';
 
 /**
- * Default 2D MapLibre style: raster OSM tiles. Used when the gcx.json
- * config has no tile basemap declared, so feature layers always render
- * against something visible. Apps that want a different default (CARTO,
- * vector tiles, …) can subclass `MnGeoFlavoursMaplibreDirective` and
- * override `setup`, or just declare an explicit `osm-tiled` / `carto-*`
- * layer at the top of `layers[]` in their config.
+ * Default basemap: OpenFreeMap "bright" — a free, vector, no-API-key OSM
+ * cartography (https://openfreemap.org). Used when the gcx.json config
+ * has no tile basemap declared, so feature layers always render against
+ * something legible.
+ *
+ * Apps that want a different default can subclass
+ * `MnGeoFlavoursMaplibreDirective` and override `setup`, or declare an
+ * explicit basemap layer at the top of `layers[]` in their config.
  */
-function defaultBaseStyle(): StyleSpecification {
-  return {
-    version: 8,
-    sources: {
-      'gcx-base': {
-        type: 'raster',
-        tiles: [
-          'https://a.tile.openstreetmap.org/{z}/{x}/{y}.png',
-          'https://b.tile.openstreetmap.org/{z}/{x}/{y}.png',
-          'https://c.tile.openstreetmap.org/{z}/{x}/{y}.png',
-        ],
-        tileSize: 256,
-        attribution:
-          '© <a href="https://openstreetmap.org">OpenStreetMap</a> contributors',
-        maxzoom: 19,
-      },
-    },
-    layers: [
-      {
-        id: 'gcx-base',
-        type: 'raster',
-        source: 'gcx-base',
-        minzoom: 0,
-        maxzoom: 22,
-      },
-    ],
-  };
-}
+const DEFAULT_BASE_STYLE_URL = 'https://tiles.openfreemap.org/styles/bright';
 
 /**
  * MapLibre-GL implementation of the MnGeoFlavour interface. Attach inside
@@ -84,7 +59,7 @@ export class MnGeoFlavoursMaplibreDirective extends MnMapFlavourDirective implem
 
     this._map = new maplibregl.Map({
       container: element,
-      style: defaultBaseStyle(),
+      style: DEFAULT_BASE_STYLE_URL,
       center: [lng, lat],
       zoom: host.startzoom() ?? 3,
       minZoom: host.minzoom(),
