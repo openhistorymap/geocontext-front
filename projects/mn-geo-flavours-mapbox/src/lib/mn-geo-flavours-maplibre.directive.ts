@@ -38,6 +38,8 @@ const DEFAULT_BASE_STYLE_URL = 'https://tiles.openfreemap.org/styles/bright';
 })
 export class MnGeoFlavoursMaplibreDirective extends MnMapFlavourDirective implements OnDestroy {
   private _map: MaplibreMap | undefined;
+  private _resizeObserver: ResizeObserver | undefined;
+  private _resizePending = false;
   private readonly ownedSourceIds = new Set<string>();
   private readonly ownedLayerIds = new Set<string>();
   private readonly subscriptions = new Map<string, () => void>();
@@ -70,6 +72,25 @@ export class MnGeoFlavoursMaplibreDirective extends MnMapFlavourDirective implem
     this._map.on('movestart', (e) => host.mapMoveStart.emit(e));
 
     this._map.once('load', () => host.ready());
+
+    // MapLibre snapshots the container's clientWidth/Height at construction.
+    // If the CSS chain settles a frame later (router-outlet → route component
+    // → mat-drawer-container all need pixel dimensions to propagate), the
+    // GL canvas locks at that initial snapshot and never grows. A
+    // ResizeObserver on the container, debounced to one rAF, keeps the
+    // canvas in step with whatever the layout actually computes — and also
+    // covers later changes (sidebar toggles, viewport resizes).
+    if (typeof ResizeObserver !== 'undefined') {
+      this._resizeObserver = new ResizeObserver(() => {
+        if (this._resizePending) return;
+        this._resizePending = true;
+        requestAnimationFrame(() => {
+          this._resizePending = false;
+          this._map?.resize();
+        });
+      });
+      this._resizeObserver.observe(element);
+    }
   }
 
   override addLayer(input: unknown): void {
@@ -132,6 +153,8 @@ export class MnGeoFlavoursMaplibreDirective extends MnMapFlavourDirective implem
       }
     }
     this.subscriptions.clear();
+    this._resizeObserver?.disconnect();
+    this._resizeObserver = undefined;
     this._map?.remove();
     this._map = undefined;
   }

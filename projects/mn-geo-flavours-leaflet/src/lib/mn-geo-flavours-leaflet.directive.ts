@@ -1,4 +1,4 @@
-import { Directive, forwardRef } from '@angular/core';
+import { Directive, forwardRef, OnDestroy } from '@angular/core';
 import * as L from 'leaflet';
 import { MnMapComponent, MnMapFlavourDirective } from '@openhistorymap/mn-geo';
 import { isLayerDescriptor, LayerDescriptor } from '@openhistorymap/mn-geo-layers';
@@ -23,8 +23,10 @@ import { isLayerDescriptor, LayerDescriptor } from '@openhistorymap/mn-geo-layer
     },
   ],
 })
-export class MnGeoFlavoursLeafletDirective extends MnMapFlavourDirective {
+export class MnGeoFlavoursLeafletDirective extends MnMapFlavourDirective implements OnDestroy {
   private _map: L.Map | undefined;
+  private _resizeObserver: ResizeObserver | undefined;
+  private _resizePending = false;
   /** Tracks live-update teardowns by the layer group they belong to so
    *  removeLayer can also unsubscribe. */
   private readonly subscriptions = new Map<L.Layer, () => void>();
@@ -79,6 +81,33 @@ export class MnGeoFlavoursLeafletDirective extends MnMapFlavourDirective {
     this._map.on('movestart', (e) => host.mapMoveStart.emit(e));
 
     host.ready();
+
+    // Same defensive resize as the MapLibre flavour: Leaflet caches the
+    // container size at L.map() construction; if the CSS chain settles
+    // a frame later, the tile layer locks at that initial size and never
+    // grows. ResizeObserver → invalidateSize keeps the map in step.
+    if (typeof ResizeObserver !== 'undefined') {
+      this._resizeObserver = new ResizeObserver(() => {
+        if (this._resizePending) return;
+        this._resizePending = true;
+        requestAnimationFrame(() => {
+          this._resizePending = false;
+          this._map?.invalidateSize();
+        });
+      });
+      this._resizeObserver.observe(element);
+    }
+  }
+
+  ngOnDestroy(): void {
+    this._resizeObserver?.disconnect();
+    this._resizeObserver = undefined;
+    for (const unsub of this.subscriptions.values()) {
+      try { unsub(); } catch { /* ignore */ }
+    }
+    this.subscriptions.clear();
+    this._map?.remove();
+    this._map = undefined;
   }
 
   override addLayer(input: unknown): void {
