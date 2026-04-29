@@ -3,7 +3,13 @@
   "version": "0.1.0",
   "peerDependencies": {
     "@angular/common": "^19.2.0",
-    "@angular/core": "^19.2.0"
+    "@angular/core": "^19.2.0",
+    "@citation-js/core": "^0.7.0",
+    "@citation-js/plugin-bibtex": "^0.7.0",
+    "@citation-js/plugin-csl": "^0.7.0",
+    "@citation-js/plugin-ris": "^0.7.0",
+    "js-yaml": "^4.0.0",
+    "marked": "^14.0.0"
   },
   "dependencies": {
     "tslib": "^2.3.0"
