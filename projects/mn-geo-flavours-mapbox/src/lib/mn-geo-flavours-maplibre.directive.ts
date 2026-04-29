@@ -159,6 +159,25 @@ export class MnGeoFlavoursMaplibreDirective extends MnMapFlavourDirective implem
     }
   }
 
+  override setLayerOrder(ids: string[]): void {
+    if (!this._map) return;
+    // moveLayer(id) without a `beforeId` moves the layer to the top of
+    // the stack. Walking the desired stack from bottom to top means the
+    // final iteration (ids[0]) ends up topmost. GeoJSON descriptors fan
+    // out into <id>-circle/-line/-fill GL layers; promote each sublayer
+    // alongside its parent so the visual stacking stays consistent.
+    // Pin markers are HTML overlays above the canvas — their stacking is
+    // DOM-order, separate from GL layers, so they're unaffected here.
+    for (let i = ids.length - 1; i >= 0; i--) {
+      const id = ids[i];
+      for (const layerId of [id, `${id}-fill`, `${id}-line`, `${id}-circle`]) {
+        if (this.ownedLayerIds.has(layerId) && this._map.getLayer(layerId)) {
+          try { this._map.moveLayer(layerId); } catch { /* ignore */ }
+        }
+      }
+    }
+  }
+
   override addDatasource(_ds: unknown): void {
     // no-op
   }

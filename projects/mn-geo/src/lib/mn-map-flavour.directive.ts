@@ -28,4 +28,15 @@ export abstract class MnMapFlavourDirective implements MnGeoFlavour {
   setLayerVisibility(_id: string, _visible: boolean): void {
     /* override in concrete flavour */
   }
+
+  /**
+   * Reorder previously added layers to match `ids`. `ids[0]` ends up
+   * drawn on top (matches "first row in the sidebar = topmost layer").
+   * Layers not in `ids` keep their relative order. Default is a no-op
+   * so flavours that don't support reordering still satisfy the
+   * interface; concrete flavours override.
+   */
+  setLayerOrder(_ids: string[]): void {
+    /* override in concrete flavour */
+  }
 }

@@ -168,6 +168,25 @@ export class MnGeoFlavoursLeafletDirective extends MnMapFlavourDirective impleme
     }
   }
 
+  override setLayerOrder(ids: string[]): void {
+    if (!this._map) return;
+    // Leaflet stacks within a pane: tile layers in `tilePane` (z 200),
+    // overlays in `overlayPane` (z 400). Walking from the bottom of the
+    // requested stack upward, each iteration lifts the layer above all
+    // already-promoted ones — so the final iteration (ids[0]) ends up
+    // on top of its pane. Tile layers don't support `bringToFront`, so
+    // we fall back to `setZIndex(rank)` for them.
+    for (let i = ids.length - 1; i >= 0; i--) {
+      const layer = this.layersById.get(ids[i]) as any;
+      if (!layer) continue;
+      if (typeof layer.bringToFront === 'function') {
+        layer.bringToFront();
+      } else if (typeof layer.setZIndex === 'function') {
+        layer.setZIndex(ids.length - i);
+      }
+    }
+  }
+
   override addDatasource(_ds: unknown): void {
     // no-op: datasources feed layers, not the map directly
   }
