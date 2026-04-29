@@ -337,10 +337,14 @@ interface ConfiguredDatasource {
       /* --- Layers list — typographic rows, dashed dividers ------------ */
       .gcx-layers {
         padding: 8px 0 14px;
+        overflow-x: hidden;
       }
+      /* minmax(0, 1fr) — not the implicit minmax(auto, 1fr) — lets the
+         text column shrink below its intrinsic width, so a long layer
+         name ellipsizes instead of pushing the toggle out of the row. */
       .gcx-layer {
         display: grid;
-        grid-template-columns: 18px 22px 1fr auto;
+        grid-template-columns: 18px 22px minmax(0, 1fr) auto;
         grid-template-rows: auto auto;
         column-gap: 12px;
         align-items: center;
@@ -375,14 +379,19 @@ interface ConfiguredDatasource {
       }
       .gcx-layer-name {
         grid-column: 3;
+        min-width: 0;
         font-family: var(--gcx-display);
         font-size: 1.05rem;
         font-weight: 500;
         color: var(--gcx-ink);
         line-height: 1.2;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
       }
       .gcx-layer-source {
         grid-column: 3;
+        min-width: 0;
         font-family: var(--gcx-body);
         font-size: 11px;
         font-weight: 500;
@@ -390,11 +399,15 @@ interface ConfiguredDatasource {
         letter-spacing: 0.08em;
         color: var(--gcx-ink-faint);
         margin-top: 2px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
       }
       .gcx-layer-toggle {
         grid-column: 4;
         grid-row: 1 / span 2;
         align-self: center;
+        flex: 0 0 auto;
       }
       /* CDK drag-drop affordances. The preview is the row being dragged
          (rendered floating); the placeholder is the gap left behind. */
