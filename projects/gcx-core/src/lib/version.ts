@@ -4,4 +4,4 @@
  * time. Imported by `<gcx-main>` so the published library carries its own
  * version into the UI.
  */
-export const GCX_VERSION = '0.1.0';
+export const GCX_VERSION = '2.0.0';

@@ -1,7 +1,11 @@
-import { Directive, forwardRef } from '@angular/core';
+import { Directive, forwardRef, OnDestroy } from '@angular/core';
 import * as L from 'leaflet';
 import { MnMapComponent, MnMapFlavourDirective } from '@openhistorymap/mn-geo';
-import { isLayerDescriptor, LayerDescriptor } from '@openhistorymap/mn-geo-layers';
+import {
+  buildPopupHtml,
+  isLayerDescriptor,
+  LayerDescriptor,
+} from '@openhistorymap/mn-geo-layers';
 
 /**
  * Leaflet implementation of the MnGeoFlavour interface. Attach inside a
@@ -23,8 +27,10 @@ import { isLayerDescriptor, LayerDescriptor } from '@openhistorymap/mn-geo-layer
     },
   ],
 })
-export class MnGeoFlavoursLeafletDirective extends MnMapFlavourDirective {
+export class MnGeoFlavoursLeafletDirective extends MnMapFlavourDirective implements OnDestroy {
   private _map: L.Map | undefined;
+  private _resizeObserver: ResizeObserver | undefined;
+  private _resizePending = false;
   /** Tracks live-update teardowns by the layer group they belong to so
    *  removeLayer can also unsubscribe. */
   private readonly subscriptions = new Map<L.Layer, () => void>();
@@ -79,6 +85,36 @@ export class MnGeoFlavoursLeafletDirective extends MnMapFlavourDirective {
     this._map.on('movestart', (e) => host.mapMoveStart.emit(e));
 
     host.ready();
+    // Belt-and-suspenders: if the parent layout still hadn't settled
+    // when the tile layer was sized, force one more measurement.
+    setTimeout(() => this._map?.invalidateSize(), 100);
+
+    // Same defensive resize as the MapLibre flavour: Leaflet caches the
+    // container size at L.map() construction; if the CSS chain settles
+    // a frame later, the tile layer locks at that initial size and never
+    // grows. ResizeObserver → invalidateSize keeps the map in step.
+    if (typeof ResizeObserver !== 'undefined') {
+      this._resizeObserver = new ResizeObserver(() => {
+        if (this._resizePending) return;
+        this._resizePending = true;
+        requestAnimationFrame(() => {
+          this._resizePending = false;
+          this._map?.invalidateSize();
+        });
+      });
+      this._resizeObserver.observe(element);
+    }
+  }
+
+  ngOnDestroy(): void {
+    this._resizeObserver?.disconnect();
+    this._resizeObserver = undefined;
+    for (const unsub of this.subscriptions.values()) {
+      try { unsub(); } catch { /* ignore */ }
+    }
+    this.subscriptions.clear();
+    this._map?.remove();
+    this._map = undefined;
   }
 
   override addLayer(input: unknown): void {
@@ -132,6 +168,25 @@ export class MnGeoFlavoursLeafletDirective extends MnMapFlavourDirective {
     }
   }
 
+  override setLayerOrder(ids: string[]): void {
+    if (!this._map) return;
+    // Leaflet stacks within a pane: tile layers in `tilePane` (z 200),
+    // overlays in `overlayPane` (z 400). Walking from the bottom of the
+    // requested stack upward, each iteration lifts the layer above all
+    // already-promoted ones — so the final iteration (ids[0]) ends up
+    // on top of its pane. Tile layers don't support `bringToFront`, so
+    // we fall back to `setZIndex(rank)` for them.
+    for (let i = ids.length - 1; i >= 0; i--) {
+      const layer = this.layersById.get(ids[i]) as any;
+      if (!layer) continue;
+      if (typeof layer.bringToFront === 'function') {
+        layer.bringToFront();
+      } else if (typeof layer.setZIndex === 'function') {
+        layer.setZIndex(ids.length - i);
+      }
+    }
+  }
+
   override addDatasource(_ds: unknown): void {
     // no-op: datasources feed layers, not the map directly
   }
@@ -153,13 +208,34 @@ export class MnGeoFlavoursLeafletDirective extends MnMapFlavourDirective {
         });
       }
       case 'geojson-features': {
-        const opts: L.GeoJSONOptions = desc.style?.options
-          ? this.geoJsonOptionsFromStyle(desc.style)
-          : {};
-        if (desc.onClick) {
-          opts.onEachFeature = (feature, layer) =>
+        const isPinMode = desc.marker === 'pins';
+        const popupField = desc.popup?.htmlField ?? 'html';
+
+        const opts: L.GeoJSONOptions = isPinMode
+          ? {
+              // Traditional pin markers — Leaflet's default L.marker icon.
+              pointToLayer: (_feature, latlng) => L.marker(latlng),
+            }
+          : desc.style?.options
+            ? this.geoJsonOptionsFromStyle(desc.style)
+            : {};
+
+        const onEach: NonNullable<L.GeoJSONOptions['onEachFeature']> = (
+          feature,
+          layer,
+        ) => {
+          if (desc.popup) {
+            layer.bindPopup(() => buildPopupHtml(feature, popupField), {
+              maxWidth: 320,
+              className: 'gcx-leaflet-popup',
+            });
+          }
+          if (desc.onClick) {
             layer.on('click', () => desc.onClick!(feature));
-        }
+          }
+        };
+        if (desc.popup || desc.onClick) opts.onEachFeature = onEach;
+
         const group = L.featureGroup();
         L.geoJSON(desc.data, opts).addTo(group);
         if (desc.subscribe) {

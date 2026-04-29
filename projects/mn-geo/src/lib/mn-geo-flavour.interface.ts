@@ -19,4 +19,10 @@ export interface MnGeoFlavour {
    *  layer name). Optional: a flavour that doesn't support live toggling
    *  may omit it. */
   setLayerVisibility?(id: string, visible: boolean): void;
+
+  /** Reorder previously added layers to match `ids` — `ids[0]` ends up
+   *  drawn on top (matches the visual convention "first row in the
+   *  sidebar = topmost layer"). Layers not in `ids` keep their relative
+   *  order. Optional: a flavour without live reordering may omit it. */
+  setLayerOrder?(ids: string[]): void;
 }

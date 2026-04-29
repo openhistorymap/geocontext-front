@@ -17,6 +17,13 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
 import { MatButtonModule } from '@angular/material/button';
 import {
+  CdkDrag,
+  CdkDragDrop,
+  CdkDragHandle,
+  CdkDropList,
+  moveItemInArray,
+} from '@angular/cdk/drag-drop';
+import {
   MnMapComponent,
   MnLayerComponent,
   MnDatasourceComponent,
@@ -67,6 +74,9 @@ interface ConfiguredDatasource {
     MnDatasourceComponent,
     MnStyleComponent,
     GcxLegendComponent,
+    CdkDropList,
+    CdkDrag,
+    CdkDragHandle,
   ],
   template: `
     <!-- Hidden host for the projected flavour directive. The directive
@@ -107,9 +117,22 @@ interface ConfiguredDatasource {
           (selectedIndexChange)="selectedTab.set($event)"
         >
           <mat-tab label="Layers">
-            <div class="gcx-layers">
+            <div
+              class="gcx-layers"
+              cdkDropList
+              [cdkDropListDisabled]="!!searchTerm()"
+              (cdkDropListDropped)="onReorder($event)"
+            >
               @for (layer of filteredLayers(); track layer.name) {
-                <label class="gcx-layer">
+                <div class="gcx-layer" cdkDrag [cdkDragDisabled]="!!searchTerm()">
+                  <button
+                    type="button"
+                    class="gcx-layer-handle"
+                    cdkDragHandle
+                    [disabled]="!!searchTerm()"
+                    [attr.aria-label]="'Drag ' + layer.name + ' to reorder'"
+                    [title]="searchTerm() ? 'Clear filter to reorder' : 'Drag to reorder'"
+                  >⋮⋮</button>
                   <gcx-legend [style]="layer.style" />
                   <span class="gcx-layer-name">{{ layer.name }}</span>
                   @if (layer.datasource) {
@@ -121,7 +144,7 @@ interface ConfiguredDatasource {
                     (change)="toggleVisible(layer)"
                     [aria-label]="'Toggle ' + layer.name"
                   />
-                </label>
+                </div>
               } @empty {
                 <p class="gcx-empty">No matching layers.</p>
               }
@@ -314,32 +337,61 @@ interface ConfiguredDatasource {
       /* --- Layers list — typographic rows, dashed dividers ------------ */
       .gcx-layers {
         padding: 8px 0 14px;
+        overflow-x: hidden;
       }
+      /* minmax(0, 1fr) — not the implicit minmax(auto, 1fr) — lets the
+         text column shrink below its intrinsic width, so a long layer
+         name ellipsizes instead of pushing the toggle out of the row. */
       .gcx-layer {
         display: grid;
-        grid-template-columns: 22px 1fr auto;
+        grid-template-columns: 18px 22px minmax(0, 1fr) auto;
         grid-template-rows: auto auto;
         column-gap: 12px;
         align-items: center;
         padding: 10px 20px;
         border-bottom: 1px dashed var(--gcx-rule);
+        background: var(--gcx-paper);
         cursor: pointer;
         transition: background 120ms ease;
       }
       .gcx-layer:hover { background: var(--gcx-paper-soft); }
+      .gcx-layer-handle {
+        grid-column: 1;
+        grid-row: 1 / span 2;
+        align-self: center;
+        appearance: none;
+        background: transparent;
+        border: 0;
+        padding: 0 2px;
+        cursor: grab;
+        font: 600 14px / 1 var(--gcx-body);
+        letter-spacing: -2px;
+        color: var(--gcx-ink-faint);
+        transition: color 120ms ease;
+      }
+      .gcx-layer-handle:hover:not(:disabled) { color: var(--gcx-accent-deep); }
+      .gcx-layer-handle:active { cursor: grabbing; }
+      .gcx-layer-handle:disabled { cursor: not-allowed; opacity: 0.3; }
       .gcx-layer gcx-legend {
+        grid-column: 2;
         grid-row: 1 / span 2;
         align-self: center;
       }
       .gcx-layer-name {
+        grid-column: 3;
+        min-width: 0;
         font-family: var(--gcx-display);
         font-size: 1.05rem;
         font-weight: 500;
         color: var(--gcx-ink);
         line-height: 1.2;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
       }
       .gcx-layer-source {
-        grid-column: 2;
+        grid-column: 3;
+        min-width: 0;
         font-family: var(--gcx-body);
         font-size: 11px;
         font-weight: 500;
@@ -347,11 +399,30 @@ interface ConfiguredDatasource {
         letter-spacing: 0.08em;
         color: var(--gcx-ink-faint);
         margin-top: 2px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
       }
       .gcx-layer-toggle {
-        grid-column: 3;
+        grid-column: 4;
         grid-row: 1 / span 2;
         align-self: center;
+        flex: 0 0 auto;
+      }
+      /* CDK drag-drop affordances. The preview is the row being dragged
+         (rendered floating); the placeholder is the gap left behind. */
+      .gcx-layer.cdk-drag-preview {
+        background: var(--gcx-paper);
+        box-shadow: 0 2px 0 var(--gcx-accent),
+                    0 8px 24px color-mix(in oklch, var(--gcx-ink) 18%, transparent);
+        border-bottom: 1px dashed var(--gcx-rule);
+      }
+      .gcx-layer.cdk-drag-placeholder {
+        opacity: 0.35;
+        background: color-mix(in oklch, var(--gcx-accent) 8%, var(--gcx-paper));
+      }
+      .cdk-drop-list-dragging .gcx-layer:not(.cdk-drag-placeholder) {
+        transition: transform 200ms cubic-bezier(0, 0, 0.2, 1);
       }
 
       .gcx-empty {
@@ -489,6 +560,28 @@ export class GcxMapComponent {
     // re-rendering the mn-layer through @if would re-create the layer and
     // lose subscriptions / source state.
     this.flavour()?.setLayerVisibility?.(layer.name, next);
+  }
+
+  /**
+   * User dragged a row in the sidebar. Reorder the source list and tell
+   * the flavour to restack its native layers to match. The drop list is
+   * disabled while the search filter is active, so `previousIndex` /
+   * `currentIndex` always refer to the unfiltered list and we can mutate
+   * it directly with `moveItemInArray`.
+   *
+   * Convention: the top of the sidebar list is drawn on top of the map.
+   * `setLayerOrder(ids)` takes the same convention so flavours don't
+   * have to reverse it.
+   */
+  onReorder(event: CdkDragDrop<ConfiguredLayer[]>): void {
+    if (event.previousIndex === event.currentIndex) return;
+    this.layers.update((list) => {
+      const next = list.slice();
+      moveItemInArray(next, event.previousIndex, event.currentIndex);
+      return next;
+    });
+    const ids = this.layers().map((l) => l.name);
+    this.flavour()?.setLayerOrder?.(ids);
   }
 
   onFeature(event: any): void {

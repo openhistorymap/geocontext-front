@@ -4,6 +4,7 @@ import { provideHttpClient } from '@angular/common/http';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import {
   provideMnGeoLayersFeature,
+  provideMnGeoLayersMarkers,
 } from '@openhistorymap/mn-geo-layers';
 import { provideMnGeoDatasourcesGeojson } from '@openhistorymap/mn-geo-datasources';
 import { provideMnGeoDatasourcesCsv } from '@openhistorymap/mn-geo-datasources-csv';
@@ -20,8 +21,9 @@ export const appConfig: ApplicationConfig = {
     provideRouter(routes),
     provideHttpClient(),
     provideAnimationsAsync(),
-    // Default GeoJSON renderer + datasources.
+    // Default GeoJSON renderer (circles), pin-marker mode, + datasources.
     provideMnGeoLayersFeature(),
+    provideMnGeoLayersMarkers(),
     provideMnGeoDatasourcesGeojson(),
     provideMnGeoDatasourcesCsv(),
     // Tile sources.

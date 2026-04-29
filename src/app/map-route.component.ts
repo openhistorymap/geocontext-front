@@ -19,7 +19,10 @@ import { MnGeoFlavoursMaplibreDirective } from '@openhistorymap/mn-geo-flavours-
     </gcx-map>
   `,
   styles: [
-    ':host { display: block; width: 100%; height: 100%; }',
+    /* Absolute fill of the (position: relative) router outlet. Avoids the
+     * view-encapsulation hole the parent had with `> :not(router-outlet)`,
+     * and gives gcx-map a parent with explicit pixel height. */
+    ':host { display: block; position: absolute; inset: 0; }',
   ],
 })
 export class MapRouteComponent implements OnInit {
