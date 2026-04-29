@@ -53,29 +53,37 @@ import { ChcxFormat, inferFormatFromUrl, renderPayload } from './chcx-render';
   `,
   styles: [
     `
-      :host { display: block; }
+      :host { display: block; color: var(--gcx-ink); }
       .chcx-static-content { padding: 24px; max-width: 900px; margin: 0 auto; }
-      .chcx-static-msg { padding: 24px; max-width: 900px; margin: 0 auto; }
-      .chcx-static-error { color: #b00020; }
+      .chcx-static-msg { padding: 24px; max-width: 900px; margin: 0 auto; color: var(--gcx-ink-soft); }
+      .chcx-static-error { color: var(--gcx-accent-deep); font-style: italic; }
 
-      .chcx-static-format-markdown :is(h1, h2, h3) { line-height: 1.2; }
+      .chcx-static-format-markdown :is(h1, h2, h3) { line-height: 1.2; color: var(--gcx-ink); }
       .chcx-static-format-markdown pre {
-        background: #f6f6f4;
+        background: var(--gcx-paper-soft);
+        color: var(--gcx-ink);
         padding: 12px 14px;
         overflow-x: auto;
         border-radius: 2px;
+        border: 1px solid var(--gcx-rule);
       }
       .chcx-static-format-markdown code {
         font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
         font-size: 0.92em;
       }
+      .chcx-static-format-markdown :not(pre) > code {
+        background: var(--gcx-paper-soft);
+        padding: 1px 4px;
+        border-radius: 2px;
+      }
       .chcx-static-format-markdown blockquote {
-        border-left: 3px solid #ccc;
+        border-left: 3px solid var(--gcx-rule-strong);
         margin: 1em 0;
         padding: 0 1em;
-        color: #555;
+        color: var(--gcx-ink-soft);
       }
       .chcx-static-format-markdown img { max-width: 100%; height: auto; }
+      .chcx-static-format-markdown a { color: var(--gcx-accent-deep); }
     `,
   ],
 })
