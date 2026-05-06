@@ -28,6 +28,32 @@ export interface VectorTilesDescriptor {
   attribution?: string;
 }
 
+/**
+ * Digital Elevation Model raster tiles. Tile pixels encode elevation values
+ * (terrarium or mapbox-rgb), used by the renderer for hillshading and
+ * optional 3D terrain. Flavours that don't speak DEM (Leaflet today) ignore
+ * this descriptor with a warning.
+ */
+export interface RasterDemDescriptor {
+  kind: 'raster-dem';
+  id: string;
+  urls: string[];
+  /** Pixel encoding. `terrarium` (default) is the AWS / Mapzen scheme;
+   *  `mapbox` is the Mapbox terrain-rgb scheme. */
+  encoding?: 'terrarium' | 'mapbox';
+  tileSize?: number;
+  minZoom?: number;
+  maxZoom?: number;
+  attribution?: string;
+  /** Render a hillshade GL layer from the source. Default: true. Set to
+   *  false to register the DEM source for terrain only. */
+  hillshade?: boolean;
+  /** Enable 3D terrain (MapLibre `setTerrain`). Default: false. */
+  terrain?: boolean;
+  /** Vertical exaggeration when `terrain: true`. Default: 1. */
+  exaggeration?: number;
+}
+
 export interface GeoJsonFeaturesDescriptor {
   kind: 'geojson-features';
   id: string;
@@ -65,6 +91,7 @@ export interface GeoJsonFeaturesDescriptor {
 export type LayerDescriptor =
   | RasterTilesDescriptor
   | VectorTilesDescriptor
+  | RasterDemDescriptor
   | GeoJsonFeaturesDescriptor;
 
 export function isLayerDescriptor(value: unknown): value is LayerDescriptor {

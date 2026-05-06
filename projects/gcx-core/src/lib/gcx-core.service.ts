@@ -20,6 +20,37 @@ export interface GcxConfig {
   search?: boolean;
   datasources?: any[];
   layers?: any[];
+  /**
+   * Optional basemap shorthand. Accepts a registered layer-type alias
+   * (`'osm'`, `'ofm'`, `'carto-voyager'`, …), a raw tile URL template, or a
+   * full `{ type, conf }` layer descriptor object. `'none'` / `false`
+   * suppress any background layer.
+   */
+  background?: string | false | null | {
+    type?: string;
+    name?: string;
+    url?: string;
+    conf?: any;
+    style?: any;
+    [k: string]: any;
+  };
+  /**
+   * Optional Digital Elevation Model source. Object form takes a tile URL
+   * and an optional `encoding` (`'terrarium'` | `'mapbox'`), plus
+   * `hillshade` / `terrain` / `exaggeration` flags consumed by the MapLibre
+   * flavour. A bare URL string is shorthand for `{ url, encoding: 'terrarium' }`.
+   */
+  dem?: string | false | null | {
+    type?: string;
+    name?: string;
+    url?: string;
+    encoding?: 'terrarium' | 'mapbox';
+    hillshade?: boolean;
+    terrain?: boolean;
+    exaggeration?: number;
+    conf?: any;
+    [k: string]: any;
+  };
   [k: string]: any;
 }
 

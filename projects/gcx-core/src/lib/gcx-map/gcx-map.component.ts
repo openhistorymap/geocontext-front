@@ -38,6 +38,7 @@ interface ConfiguredLayer {
   type: string;
   datasource?: string;
   style?: any;
+  conf?: any;
   visible: boolean;
 }
 
@@ -45,6 +46,64 @@ interface ConfiguredDatasource {
   name: string;
   type: string;
   conf: any;
+}
+
+/**
+ * Shorthand strings the user can put in `gcx.json#background` that map to a
+ * registered layer type. Anything not in this map (and not a URL) is passed
+ * through as a layer type name, so users can plug in any registered tile
+ * provider without enumerating it here.
+ */
+const BACKGROUND_ALIASES: Record<string, string> = {
+  osm: 'osm-tiled',
+  ofm: 'ofm-tiled',
+};
+
+function resolveBackgroundLayer(bg: any): ConfiguredLayer | null {
+  if (bg == null || bg === false || bg === 'none') return null;
+  if (typeof bg === 'string') {
+    if (/^https?:\/\//i.test(bg)) {
+      return { name: 'background', type: 'raster-tiled', conf: { url: bg }, visible: true };
+    }
+    const type = BACKGROUND_ALIASES[bg] ?? bg;
+    return { name: 'background', type, conf: {}, visible: true };
+  }
+  if (typeof bg === 'object') {
+    if (bg.type) {
+      return {
+        name: bg.name ?? 'background',
+        type: bg.type,
+        conf: bg.conf ?? {},
+        style: bg.style,
+        visible: true,
+      };
+    }
+    if (bg.url) {
+      return { name: bg.name ?? 'background', type: 'raster-tiled', conf: bg, visible: true };
+    }
+  }
+  return null;
+}
+
+function resolveDemLayer(dem: any): ConfiguredLayer | null {
+  if (dem == null || dem === false) return null;
+  if (typeof dem === 'string') {
+    return { name: 'dem', type: 'raster-dem', conf: { url: dem }, visible: true };
+  }
+  if (typeof dem === 'object') {
+    if (dem.type) {
+      return {
+        name: dem.name ?? 'dem',
+        type: dem.type,
+        conf: dem.conf ?? {},
+        visible: true,
+      };
+    }
+    if (dem.url) {
+      return { name: dem.name ?? 'dem', type: 'raster-dem', conf: dem, visible: true };
+    }
+  }
+  return null;
 }
 
 /**
@@ -194,6 +253,7 @@ interface ConfiguredDatasource {
               [name]="layer.name"
               [type]="layer.type"
               [datasource]="layer.datasource"
+              [conf]="layer.conf ?? {}"
               (layerClicked)="onFeature($event)"
             >
               @if (layer.style) {
@@ -545,9 +605,21 @@ export class GcxMapComponent {
       this.minzoom.set(conf.minzoom ?? 1);
       this.maxzoom.set(conf.maxzoom ?? 19);
       this.datasources.set(conf.datasources ?? []);
-      this.layers.set(
-        (conf.layers ?? []).map((l: any) => ({ ...l, visible: true })),
-      );
+      // Sidebar order: ids[0] is drawn on top. So user layers come first,
+      // then DEM (hillshade above the basemap), then background last so it
+      // ends up at the bottom of the visual stack.
+      const userLayers: ConfiguredLayer[] = (conf.layers ?? []).map((l: any) => ({
+        ...l,
+        visible: true,
+      }));
+      const dem = resolveDemLayer(conf['dem']);
+      const background = resolveBackgroundLayer(conf['background']);
+      const combined: ConfiguredLayer[] = [
+        ...userLayers,
+        ...(dem ? [dem] : []),
+        ...(background ? [background] : []),
+      ];
+      this.layers.set(combined);
     });
   }
 

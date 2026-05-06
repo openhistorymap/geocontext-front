@@ -3,6 +3,7 @@ import { provideRouter } from '@angular/router';
 import { provideHttpClient } from '@angular/common/http';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import {
+  provideMnGeoLayersBase,
   provideMnGeoLayersFeature,
   provideMnGeoLayersMarkers,
 } from '@openhistorymap/mn-geo-layers';
@@ -21,6 +22,9 @@ export const appConfig: ApplicationConfig = {
     provideRouter(routes),
     provideHttpClient(),
     provideAnimationsAsync(),
+    // Generic raster-tiled / raster-dem layer types — power gcx.json's
+    // top-level `background` and `dem` fields.
+    provideMnGeoLayersBase(),
     // Default GeoJSON renderer (circles), pin-marker mode, + datasources.
     provideMnGeoLayersFeature(),
     provideMnGeoLayersMarkers(),
