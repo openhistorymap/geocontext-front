@@ -25,6 +25,7 @@ Save this to `geocontext.json` at the **root** of any public GitHub repo:
   "title": "My map",
   "center": [44.292, 13.975],
   "startzoom": 5, "minzoom": 1, "maxzoom": 18,
+  "background": "osm",
   "datasources": [
     { "name": "places", "type": "geojson+http+remote",
       "conf": { "source": "data/places.geojson" } }
@@ -64,6 +65,8 @@ The legacy filename `gcx.json` is also accepted as a fallback.
 | `title` | string | Page + masthead title. |
 | `center` | `[lat, lon]` *or* `{ lat, lon }` | Initial map centre. Latitude first (everyday "44°N 13°E" order). |
 | `startzoom` / `minzoom` / `maxzoom` | number | Initial zoom + interaction limits. |
+| `background` | string \| object | Basemap layer — see *Background basemap* below. Optional. |
+| `dem` | string \| object | Digital Elevation Model source — see *Terrain & hillshade* below. Optional. |
 | `datasources` | array | Named data sources fetched at load — see *datasource types* below. |
 | `layers` | array | Layers stacked on the map (top of array = top of stack) — see *layer types* below. |
 
@@ -71,14 +74,97 @@ The legacy filename `gcx.json` is also accepted as a fallback.
 
 | `type` | What it draws |
 |---|---|
+| `raster-tiled` | Generic XYZ raster tile layer. `conf.url` is the template (`{z}/{x}/{y}` or `{s}` for subdomains). Use this when no dedicated provider library exists. |
+| `raster-dem` | Elevation raster (terrarium / mapbox-rgb). Renders hillshade and (optionally) 3D terrain on the MapLibre flavour; ignored on Leaflet. |
 | `osm-tiled` | OpenStreetMap raster tiles. No `datasource` needed. |
 | `ofm-tiled` | OpenFantasyMaps render server. |
 | `carto-voyager` · `carto-light` · `carto-dark` · `carto-positron` (and matching `*-nolabels`) | CARTO basemap variants. |
 | `features` | Renders a datasource's GeoJSON as styled markers / lines / polygons. Pair with a `style.options` block (`radius`, `fillColor`, `color`, `weight`, `opacity`, `fillOpacity`). |
 | `geomqtt` | Subscribes to an MQTT broker and pushes incoming GeoJSON features onto the map live. `conf` requires `broker` (ws/wss URL) and `topic`; optional `idField`, `maxFeatures`. (Currently Leaflet-only — see *known gaps*.) |
 
-If `geocontext.json` declares only feature layers, GeoContext shows a
-default OSM raster behind them so the canvas isn't empty.
+If `geocontext.json` declares no `background` (and no tile layer in
+`layers[]`), the MapLibre flavour falls back to its default OpenFreeMap
+"bright" style so the canvas isn't empty. The Leaflet flavour does not —
+declare a `background` (or any tile layer) when targeting Leaflet.
+
+### Background basemap
+
+`background` is a shorthand for declaring a single basemap layer
+without spelling out a `layers[]` entry. Accepted forms:
+
+```json
+{ "background": "osm" }                                            // built-in alias
+{ "background": "ofm" }                                            // OpenFantasyMaps
+{ "background": "carto-voyager" }                                  // any registered tile-layer type
+{ "background": "https://tile.example.org/{z}/{x}/{y}.png" }       // raw URL
+{ "background": {
+    "url": "https://{s}.tile.example.org/{z}/{x}/{y}.png",
+    "subdomains": "abc",
+    "attribution": "© Example",
+    "maxZoom": 19
+  } }
+{ "background": { "type": "osm-tiled", "conf": { "url": "https://my-mirror/{z}/{x}/{y}.png" } } }
+{ "background": "none" }                                           // suppress any default
+```
+
+The resolved background sits at the **bottom** of the visual stack
+(below `layers[]` and `dem`) and shows up at the bottom of the sidebar
+list, where the user can toggle it off like any other layer.
+
+### Terrain & hillshade
+
+`dem` registers a Digital Elevation Model raster source. The MapLibre
+flavour turns it into a hillshade GL layer and (optionally) 3D terrain;
+the Leaflet flavour ignores it with a warning.
+
+```json
+{
+  "dem": {
+    "url": "https://elevation-tiles-prod.s3.amazonaws.com/terrarium/{z}/{x}/{y}.png",
+    "encoding": "terrarium",
+    "hillshade": true,
+    "terrain": true,
+    "exaggeration": 1.4,
+    "attribution": "© Mapzen / AWS Terrain Tiles"
+  }
+}
+```
+
+| Field | Default | Notes |
+|---|---|---|
+| `url` | — | Tile template. `{z}/{x}/{y}` (and `{s}` with `subdomains`) supported. |
+| `encoding` | `"terrarium"` | Pixel encoding scheme. `"terrarium"` (Mapzen / AWS) or `"mapbox"` (terrain-rgb). |
+| `hillshade` | `true` | Render a hillshade GL layer. Set `false` to register the source for terrain only. |
+| `terrain` | `false` | Enable 3D terrain (`map.setTerrain`). MapLibre only. |
+| `exaggeration` | `1` | Vertical exaggeration when `terrain: true`. |
+| `minZoom` / `maxZoom` | — | Zoom bounds for the source. |
+
+A bare URL string is shorthand for `{ url, encoding: "terrarium",
+hillshade: true }`:
+
+```json
+{ "dem": "https://elevation-tiles-prod.s3.amazonaws.com/terrarium/{z}/{x}/{y}.png" }
+```
+
+#### Worked example: Mediterranean relief over OSM
+
+```json
+{
+  "title": "Adriatic terrain",
+  "center": [43.5, 14.5],
+  "startzoom": 6,
+  "background": "carto-positron",
+  "dem": {
+    "url": "https://elevation-tiles-prod.s3.amazonaws.com/terrarium/{z}/{x}/{y}.png",
+    "encoding": "terrarium",
+    "hillshade": true,
+    "terrain": true,
+    "exaggeration": 1.2
+  },
+  "datasources": [],
+  "layers": []
+}
+```
 
 ### Built-in datasource types
 

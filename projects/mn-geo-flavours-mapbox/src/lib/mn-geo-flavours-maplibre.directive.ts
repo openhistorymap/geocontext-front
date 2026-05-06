@@ -48,6 +48,10 @@ export class MnGeoFlavoursMaplibreDirective extends MnMapFlavourDirective implem
   private readonly ownedSourceIds = new Set<string>();
   private readonly ownedLayerIds = new Set<string>();
   private readonly subscriptions = new Map<string, () => void>();
+  /** DEM source id currently bound to the map's terrain (via setTerrain).
+   *  Tracked so removeLayer can unset terrain before tearing the source
+   *  down — leaving terrain bound to a removed source crashes MapLibre. */
+  private terrainSourceId: string | undefined;
   /** Pin-mode layers: each id owns an array of HTML-overlay markers that
    *  setLayerVisibility / removeLayer manage separately from GL layers. */
   private readonly markersByLayerId = new Map<string, MaplibreMarker[]>();
@@ -135,6 +139,10 @@ export class MnGeoFlavoursMaplibreDirective extends MnMapFlavourDirective implem
       }
     }
     if (this.ownedSourceIds.has(id) && this._map.getSource(id)) {
+      if (this.terrainSourceId === id) {
+        try { this._map.setTerrain(null); } catch { /* ignore */ }
+        this.terrainSourceId = undefined;
+      }
       this._map.removeSource(id);
       this.ownedSourceIds.delete(id);
     }
@@ -318,6 +326,47 @@ export class MnGeoFlavoursMaplibreDirective extends MnMapFlavourDirective implem
           if (!map.getLayer(layerId)) {
             map.addLayer({ ...styleLayer, id: layerId, source: id });
             this.ownedLayerIds.add(layerId);
+          }
+        }
+        return;
+      }
+
+      case 'raster-dem': {
+        // DEM is two halves: a raster-dem source (always added so terrain /
+        // hillshade can attach to it) and an optional hillshade GL layer.
+        // setLayerOrder/Visibility key off `desc.id`, which is the hillshade
+        // layer when present — so toggling the sidebar row hides the visible
+        // shading without disturbing the underlying source.
+        const sourceId = desc.id;
+        if (!map.getSource(sourceId)) {
+          map.addSource(sourceId, {
+            type: 'raster-dem',
+            tiles: desc.urls,
+            tileSize: desc.tileSize ?? 256,
+            encoding: desc.encoding ?? 'terrarium',
+            minzoom: desc.minZoom,
+            maxzoom: desc.maxZoom,
+            attribution: desc.attribution,
+          });
+          this.ownedSourceIds.add(sourceId);
+        }
+        if (desc.hillshade !== false && !map.getLayer(sourceId)) {
+          map.addLayer({
+            id: sourceId,
+            type: 'hillshade',
+            source: sourceId,
+            paint: {
+              'hillshade-shadow-color': '#473b24',
+            },
+          });
+          this.ownedLayerIds.add(sourceId);
+        }
+        if (desc.terrain) {
+          try {
+            map.setTerrain({ source: sourceId, exaggeration: desc.exaggeration ?? 1 });
+            this.terrainSourceId = sourceId;
+          } catch (e) {
+            console.warn('mn-geo-flavours-mapbox: setTerrain failed', e);
           }
         }
         return;

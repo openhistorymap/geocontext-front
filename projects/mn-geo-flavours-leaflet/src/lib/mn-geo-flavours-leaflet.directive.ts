@@ -254,6 +254,10 @@ export class MnGeoFlavoursLeafletDirective extends MnMapFlavourDirective impleme
         console.warn('mn-geo-flavours-leaflet: vector-tiles descriptor not supported; use maplibre flavour.');
         return null;
       }
+      case 'raster-dem': {
+        console.warn('mn-geo-flavours-leaflet: raster-dem descriptor not supported; use maplibre flavour for DEM / hillshade.');
+        return null;
+      }
     }
   }
 }

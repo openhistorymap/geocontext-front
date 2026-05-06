@@ -6,11 +6,7 @@
   "startzoom": 5,
   "maxzoom": 19,
   "search": true,
+  "background": "osm",
   "datasources": [],
-  "layers": [
-    {
-      "name": "OpenStreetMap",
-      "type": "osm-tiled"
-    }
-  ]
+  "layers": []
 }
