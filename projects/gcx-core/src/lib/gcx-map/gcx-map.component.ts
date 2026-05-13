@@ -7,6 +7,7 @@ import {
   signal,
   viewChild,
 } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatTabsModule } from '@angular/material/tabs';
@@ -33,13 +34,36 @@ import {
 import { GcxCoreService } from '../gcx-core.service';
 import { GcxLegendComponent } from '../gcx-legend/gcx-legend.component';
 
+interface DetailMediaItem {
+  /** `image` → inline `<img>`, `html` → fetched and rendered via Angular's
+   *  HTML sanitizer (cheap pandoc-style fragments work without a markdown
+   *  lib), `download` → just a link to the asset. */
+  kind: 'image' | 'html' | 'download';
+  src: string;
+  label?: string;
+}
+
+interface DetailConfig {
+  /** Feature property key to use as the panel heading. */
+  title?: string;
+  /** Ordered list of media items. `src` supports `{propname}` interpolation
+   *  against the feature's properties. */
+  media?: DetailMediaItem[];
+}
+
 interface ConfiguredLayer {
   name: string;
   type: string;
   datasource?: string;
   style?: any;
   conf?: any;
+  detail?: DetailConfig;
   visible: boolean;
+}
+
+interface ResolvedMediaItem extends DetailMediaItem {
+  /** Original template, kept so the (error) handler can match on it. */
+  template: string;
 }
 
 interface ConfiguredDatasource {
@@ -215,6 +239,35 @@ function resolveDemLayer(dem: any): ConfiguredLayer | null {
                 @if (selectedTitle(); as t) {
                   <h3 class="gcx-detail-title">{{ t }}</h3>
                 }
+                @if (resolvedImages().length) {
+                  <div class="gcx-detail-media">
+                    @for (m of resolvedImages(); track m.src) {
+                      @if (!mediaErrors().has(m.src)) {
+                        <figure class="gcx-detail-figure">
+                          <img
+                            [src]="m.src"
+                            [alt]="m.label ?? ''"
+                            loading="lazy"
+                            (error)="onMediaError(m.src)"
+                          />
+                          @if (m.label) {
+                            <figcaption>{{ m.label }}</figcaption>
+                          }
+                        </figure>
+                      }
+                    }
+                  </div>
+                }
+                @for (m of resolvedHtml(); track m.src) {
+                  @if (!mediaErrors().has(m.src) && htmlCache().get(m.src); as body) {
+                    <section class="gcx-detail-html">
+                      @if (m.label) {
+                        <h4 class="gcx-detail-html-label">{{ m.label }}</h4>
+                      }
+                      <div class="gcx-detail-html-body" [innerHTML]="body"></div>
+                    </section>
+                  }
+                }
                 @if (propertyEntries().length) {
                   <dl class="gcx-detail-properties">
                     @for (entry of propertyEntries(); track entry[0]) {
@@ -224,6 +277,18 @@ function resolveDemLayer(dem: any): ConfiguredLayer | null {
                   </dl>
                 } @else {
                   <p class="gcx-empty">No properties recorded.</p>
+                }
+                @if (resolvedDownloads().length) {
+                  <ul class="gcx-detail-downloads">
+                    @for (m of resolvedDownloads(); track m.src) {
+                      <li>
+                        <a [href]="m.src" target="_blank" rel="noopener">
+                          <span class="gcx-dl-icon" aria-hidden="true">↓</span>
+                          <span class="gcx-dl-label">{{ m.label ?? m.src }}</span>
+                        </a>
+                      </li>
+                    }
+                  </ul>
                 }
               } @else {
                 <p class="gcx-empty">Select a feature on the map to see its properties here.</p>
@@ -254,7 +319,7 @@ function resolveDemLayer(dem: any): ConfiguredLayer | null {
               [type]="layer.type"
               [datasource]="layer.datasource"
               [conf]="layer.conf ?? {}"
-              (layerClicked)="onFeature($event)"
+              (layerClicked)="onFeature($event, layer)"
             >
               @if (layer.style) {
                 <mn-style [style]="layer.style" />
@@ -541,11 +606,142 @@ function resolveDemLayer(dem: any): ConfiguredLayer | null {
         color: var(--gcx-ink);
         word-break: break-word;
       }
+
+      /* --- Media (images keyed off feature properties) ------------------ */
+      .gcx-detail-media {
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+        margin: 0 0 18px;
+      }
+      .gcx-detail-figure {
+        margin: 0;
+      }
+      .gcx-detail-figure img {
+        display: block;
+        width: 100%;
+        height: auto;
+        border: 1px solid var(--gcx-rule);
+        background: var(--gcx-paper-soft);
+      }
+      .gcx-detail-figure figcaption {
+        margin-top: 6px;
+        font-family: var(--gcx-body);
+        font-size: 10.5px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: var(--gcx-ink-faint);
+      }
+
+      /* --- Inline HTML (pandoc-derived schede etc.) --------------------- */
+      .gcx-detail-html {
+        margin: 0 0 18px;
+        padding-top: 8px;
+        border-top: 1px dashed var(--gcx-rule);
+      }
+      .gcx-detail-html-label {
+        margin: 0 0 10px;
+        font-family: var(--gcx-body);
+        font-size: 10.5px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        color: var(--gcx-ink-faint);
+      }
+      /* The pandoc output is a 2-col grid table with everything centered.
+         That works for an A4 page; it does not work in a 320px column.
+         Reflow it into a definition-list rhythm: label as small-caps
+         eyebrow, value as body — full-width rows, dashed separators. */
+      .gcx-detail-html-body {
+        font-family: var(--gcx-display);
+        font-size: 0.92rem;
+        line-height: 1.45;
+        color: var(--gcx-ink);
+      }
+      .gcx-detail-html-body p {
+        margin: 0 0 8px;
+      }
+      .gcx-detail-html-body table,
+      .gcx-detail-html-body thead,
+      .gcx-detail-html-body tbody,
+      .gcx-detail-html-body tr,
+      .gcx-detail-html-body th,
+      .gcx-detail-html-body td {
+        display: block;
+        width: auto !important;
+        text-align: left !important;
+      }
+      .gcx-detail-html-body colgroup,
+      .gcx-detail-html-body col {
+        display: none;
+      }
+      .gcx-detail-html-body tr {
+        padding: 8px 0;
+        border-bottom: 1px dashed var(--gcx-rule);
+      }
+      .gcx-detail-html-body tr:last-child {
+        border-bottom: 0;
+      }
+      .gcx-detail-html-body th,
+      .gcx-detail-html-body td:first-child {
+        font-family: var(--gcx-body);
+        font-size: 10.5px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: var(--gcx-ink-faint);
+        padding: 0 0 4px;
+      }
+      .gcx-detail-html-body td {
+        padding: 0;
+        word-break: break-word;
+      }
+      .gcx-detail-html-body .smallcaps {
+        font-variant: small-caps;
+        font-weight: 600;
+        letter-spacing: 0.04em;
+      }
+      .gcx-detail-html-body em {
+        font-style: italic;
+        color: var(--gcx-ink);
+      }
+
+      /* --- Downloads (off-format attachments: docx, pdf, …) ------------- */
+      .gcx-detail-downloads {
+        list-style: none;
+        margin: 16px 0 0;
+        padding: 12px 0 0;
+        border-top: 1px dashed var(--gcx-rule);
+      }
+      .gcx-detail-downloads li + li {
+        margin-top: 6px;
+      }
+      .gcx-detail-downloads a {
+        display: inline-flex;
+        align-items: baseline;
+        gap: 8px;
+        font-family: var(--gcx-display);
+        font-size: 0.95rem;
+        color: var(--gcx-accent-deep);
+        text-decoration: none;
+        border-bottom: 1px solid transparent;
+        transition: border-color 120ms ease;
+      }
+      .gcx-detail-downloads a:hover {
+        border-bottom-color: var(--gcx-accent);
+      }
+      .gcx-dl-icon {
+        font-family: var(--gcx-body);
+        font-size: 0.85rem;
+        color: var(--gcx-accent);
+      }
     `,
   ],
 })
 export class GcxMapComponent {
   readonly gcx = inject(GcxCoreService);
+  private readonly http = inject(HttpClient);
 
   readonly map = viewChild<MnMapComponent>('map');
   /** Flavour directive content-projected via `<gcx-map><div mnMapFlavour…/></gcx-map>`.
@@ -564,6 +760,18 @@ export class GcxMapComponent {
 
   readonly selectedTab = signal<number>(0);
   readonly selectedItem = signal<any>(null);
+  /** `detail` block from the layer the selected feature belongs to. Null
+   *  when the layer didn't declare one — the panel then falls back to a
+   *  bare properties dump. */
+  readonly selectedDetail = signal<DetailConfig | null>(null);
+  /** Resolved media URLs that 404'd. Hidden in the template so missing
+   *  schizzi don't show a broken-image icon for the 90% of features that
+   *  have no associated asset. Reset on each feature selection. */
+  readonly mediaErrors = signal<Set<string>>(new Set());
+  /** Fetched HTML bodies for `kind: "html"` media, keyed by URL. Cache is
+   *  global — switching features and back doesn't refetch. Missing entries
+   *  mean "not yet fetched"; failures land in `mediaErrors` instead. */
+  readonly htmlCache = signal<Map<string, string>>(new Map());
   readonly searchTerm = signal<string>('');
 
   /** Layer list filtered by the search input. Empty term shows everything. */
@@ -578,10 +786,18 @@ export class GcxMapComponent {
     );
   });
 
-  /** Best-guess feature title from common GeoJSON property keys. */
+  /**
+   * Feature title: the layer's `detail.title` property is preferred (so
+   * data publishers can name the column that serves as the heading);
+   * otherwise we fall back to common GeoJSON property keys.
+   */
   readonly selectedTitle = computed<string | null>(() => {
     const props = this.selectedItem()?.properties;
     if (!props) return null;
+    const titleKey = this.selectedDetail()?.title;
+    if (titleKey && props[titleKey] != null && String(props[titleKey]).trim()) {
+      return String(props[titleKey]);
+    }
     for (const key of ['name', 'title', 'nome', 'label']) {
       if (typeof props[key] === 'string' && props[key].trim()) return props[key];
     }
@@ -595,6 +811,38 @@ export class GcxMapComponent {
       ([, v]) => v !== null && v !== undefined && v !== '',
     );
   });
+
+  /**
+   * Media items declared on the layer's `detail.media[]`, with `{propname}`
+   * placeholders in `src` resolved against the selected feature's properties.
+   * Items whose template references a missing property are dropped — that's
+   * what makes "this tomb has no docx, but does have a schizzo" render cleanly.
+   */
+  private readonly resolvedMedia = computed<ResolvedMediaItem[]>(() => {
+    const detail = this.selectedDetail();
+    const props = this.selectedItem()?.properties;
+    if (!detail?.media || !props) return [];
+    return detail.media
+      .map((m) => {
+        const src = interpolate(m.src, props);
+        return src == null ? null : { ...m, template: m.src, src };
+      })
+      .filter((m): m is ResolvedMediaItem => m !== null);
+  });
+
+  readonly resolvedImages = computed(() =>
+    this.resolvedMedia().filter((m) => m.kind === 'image'),
+  );
+  readonly resolvedHtml = computed(() =>
+    this.resolvedMedia().filter((m) => m.kind === 'html'),
+  );
+  readonly resolvedDownloads = computed(() =>
+    this.resolvedMedia().filter((m) => m.kind === 'download'),
+  );
+
+  /** In-flight fetch tracker — prevents the effect from launching duplicate
+   *  requests for the same URL while one is already pending. */
+  private readonly htmlInFlight = new Set<string>();
 
   constructor() {
     effect(() => {
@@ -626,6 +874,29 @@ export class GcxMapComponent {
         ...(background ? [background] : []),
       ];
       this.layers.set(combined);
+    });
+
+    // Fetch `kind: "html"` media on demand. Triggers whenever the selected
+    // feature changes; cached results survive across selections.
+    effect(() => {
+      const media = this.resolvedHtml();
+      const cache = this.htmlCache();
+      const errors = this.mediaErrors();
+      for (const m of media) {
+        const url = m.src;
+        if (cache.has(url) || errors.has(url) || this.htmlInFlight.has(url)) continue;
+        this.htmlInFlight.add(url);
+        this.http.get(url, { responseType: 'text' }).subscribe({
+          next: (text) => {
+            this.htmlInFlight.delete(url);
+            this.htmlCache.update((c) => new Map(c).set(url, text));
+          },
+          error: () => {
+            this.htmlInFlight.delete(url);
+            this.onMediaError(url);
+          },
+        });
+      }
     });
   }
 
@@ -662,9 +933,39 @@ export class GcxMapComponent {
     this.flavour()?.setLayerOrder?.(ids);
   }
 
-  onFeature(event: any): void {
+  onFeature(event: any, layer: ConfiguredLayer): void {
     this.selectedTab.set(1);
     this.selectedItem.set(event);
+    this.selectedDetail.set(layer.detail ?? null);
+    this.mediaErrors.set(new Set());
     this.gcx.openSidebar();
   }
+
+  onMediaError(src: string): void {
+    this.mediaErrors.update((s) => {
+      if (s.has(src)) return s;
+      const next = new Set(s);
+      next.add(src);
+      return next;
+    });
+  }
+}
+
+/**
+ * Substitute `{propname}` placeholders in `template` with values from `props`.
+ * Returns `null` if any referenced property is missing/empty — the caller
+ * uses that to drop the whole media item rather than render a half-resolved
+ * URL like `schizzi/.jpg`.
+ */
+function interpolate(template: string, props: Record<string, any>): string | null {
+  let missing = false;
+  const resolved = template.replace(/\{([^}]+)\}/g, (_, key: string) => {
+    const v = props[key];
+    if (v == null || v === '') {
+      missing = true;
+      return '';
+    }
+    return String(v);
+  });
+  return missing ? null : resolved;
 }
