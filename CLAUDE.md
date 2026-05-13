@@ -12,9 +12,9 @@ Done:
 - [x] Relocate Angular 6 source to `_legacy/`
 - [x] Scaffold Angular 19 workspace (standalone, SCSS, strict TS 5.7)
 - [x] Scaffold libraries (38 originals → 25 after pruning empty scaffolds) + 2 secondary apps
-- [x] Scoped package names (`@modalnodes/*`, `@geocontext/*`, `@ohmap/*`) and `tsconfig.json` paths
+- [x] All libraries under a single `@openhistorymap/*` scope (consolidated from the original `@modalnodes/*` / `@geocontext/*` / `@ohmap/*` split) — required because GitHub Packages ties scope to the repo owner for `GITHUB_TOKEN`-authed publishing
 - [x] Pick + install runtime deps (Material 19, maplibre-gl 5, leaflet 1.9, turf 7, papaparse 5, mqtt 5, `datamodel` 2.0.2 remote)
-- [x] Port `mn-registry` (new lib — replaces the external `@modalnodes/mn-registry` package, which was Angular 6-only)
+- [x] Port `mn-registry` (new lib — replaces the external legacy `@modalnodes/mn-registry` package, which was Angular 6-only; now published as `@openhistorymap/mn-registry`)
 - [x] Port `mn-geo-datasources` cores: `Datasource`, `RemoteHttpDatasource`, `DatasourcesmanagerService`, both registries
 - [x] Port `mn-geo-layers` cores: `Layer` abstract, `LayersmanagerService`, `MnGeoLayersRegistryService`
 - [x] Port `mn-geo` container: `<mn-map>`, `<mn-layer>`, `<mn-datasource>`, `<mn-style>`, `MnMapFlavourDirective`, `DatasetRegistryService`
@@ -78,7 +78,7 @@ Angular 19.2, TypeScript 5.7, RxJS 7.8, zone.js 0.15, Angular Material 19 (azure
 - `projects/` — libraries + two secondary apps (`cityos-ng`, `ohm-front`).
 - `public/assets/gcx.json` + `chcx-static.json` — runtime config (Angular 19 moved static assets from `src/assets/` to `public/`).
 - `_legacy/` — the entire Angular 6 workspace, read-only reference material. Delete once porting is done.
-- `tsconfig.json` `paths` — map each `@modalnodes/*`, `@geocontext/*`, `@ohmap/*` import to `./dist/<lib>`. Libraries still resolve from `dist/`, so a library must be built before any consumer can import it.
+- `tsconfig.json` `paths` — map each `@openhistorymap/*` import to `./dist/<lib>`. Libraries still resolve from `dist/`, so a library must be built before any consumer can import it. Published artifacts live at **GitHub Packages** (`npm.pkg.github.com`) under the same scope.
 
 ## Commands
 
@@ -162,3 +162,38 @@ Runtime map configuration lives in `public/assets/gcx.json` (plus referenced CSV
 - `.github/workflows/ci.yml` runs on push/PR, installs deps, builds each ported library in order, then the app, and uploads dist as an artifact.
 - `.github/workflows/docker.yml` runs on master and tags, builds + pushes `modalnodes/geocontext-front` to Docker Hub when secrets `DOCKER_USERNAME` / `DOCKER_PASSWORD` are set; uses `docker/setup-buildx-action` with GHA layer cache.
 - `.travis.yml` removed.
+## Design Context
+
+### Users
+
+GeoContext serves curious researchers, historians, citizen scholars, and people exploring public-domain geographic data published as Git repositories. They arrive at `<domain>/<user>/<project>/map` from a link or a citation; they're thinking about a place, browsing a layered dataset, comparing markers. Most are not GIS experts. They use the interface at a desk, in daylight, with intent.
+
+### Brand Personality
+
+GeoContext is the engine; OpenHistoryMap is the org. The voice that should come through:
+
+**open, plain-spoken, public-good, scholarly, opinionated.**
+
+Concretely:
+- *Open*: every dataset is a public repo; the interface should feel like a window onto someone else's research, not a walled garden.
+- *Plain-spoken*: labels are clear English, errors say what's wrong and where, citations are visible.
+- *Public-good*: descended from Wikipedia / OSM rather than from SaaS dashboards. The reader is a citizen, not a customer.
+- *Scholarly*: confident with data, generous with metadata, willing to show its work (data sources, branch refs, attribution).
+- *Opinionated*: not "neutral default Material." Picks a position on typography, palette, layout, and holds it.
+
+### Aesthetic Direction
+
+**Editorial / archival, light mode.** Think: museum catalog, atlas marginalia, a long-form journalistic dataviz piece. Print-influenced typography. The map is the content; the chrome is a frame that respects it.
+
+**Anti-references**: Material's default Roboto + azure-blue surfaces, Stripe-clone dashboards, generic SaaS gradient hero pages, dashboard-template.com. If a stranger looked at the UI and said "this is a Material app," we have failed.
+
+The current shipped surface has all those AI/SaaS tells (Roboto everywhere, azure-blue Material chips, generic mat-toolbar). Treat that as a starting baseline to *replace*, not as something to preserve.
+
+### Design Principles
+
+1. **The map is the content.** Chrome surrounds it; it never competes. Sidebar, toolbar, and footer are slender, restrained, typographic.
+2. **Typography over decoration.** Hierarchy comes from type weight, size, and rhythm — not boxes, gradients, or shadows. Pair a distinctive editorial display face with a refined sans for UI text. Avoid Roboto, Inter, and the rest of the AI-default list.
+3. **Public-good palette.** A muted, paper-leaning surface. A single confident accent, used sparingly. Marker colors come from each dataset's own `gcx.json` and stay loud — chrome stays quiet by contrast.
+4. **Cite everything visible.** Repo identifier, branch, data source, attribution. The user should always be able to answer "where did this come from?" in one glance.
+5. **Material is hidden, not surrendered to.** Mat- components stay for behavior (drawer, ripple, accessibility), but we override their appearance to remove every visible Material fingerprint.
+6. **No SaaS-dashboard fingerprints.** No left-stripe accent borders, no glassmorphism, no card-grid templates, no hero metric tiles, no "filter chips" rows, no gradient text. (Match the absolute bans in the impeccable skill.)
