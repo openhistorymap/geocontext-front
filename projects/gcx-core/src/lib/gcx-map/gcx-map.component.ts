@@ -243,9 +243,17 @@ function resolveDemLayer(dem: any): ConfiguredLayer | null {
                 }
                 @if (resolvedImages().length) {
                   <div class="gcx-detail-media">
-                    @for (m of resolvedImages(); track m.src) {
+                    @for (m of resolvedImages(); track m.src; let i = $index) {
                       @if (!mediaErrors().has(m.src)) {
-                        <figure class="gcx-detail-figure">
+                        <figure
+                          class="gcx-detail-figure"
+                          (click)="openLightbox(i)"
+                          (keydown.enter)="openLightbox(i)"
+                          (keydown.space)="openLightbox(i); $event.preventDefault()"
+                          tabindex="0"
+                          role="button"
+                          [attr.aria-label]="'Open ' + (m.label ?? 'image') + ' at full size'"
+                        >
                           <img
                             [src]="m.src"
                             [alt]="m.label ?? ''"
@@ -332,6 +340,49 @@ function resolveDemLayer(dem: any): ConfiguredLayer | null {
         </mn-map>
       </mat-drawer-content>
     </mat-drawer-container>
+
+    @if (currentLightboxImage(); as m) {
+      <!-- Lightbox lives outside <mat-drawer-container> on purpose: the
+           drawer content uses transforms during animation, which would
+           anchor any descendant position:fixed and clip the overlay. -->
+      <div
+        class="gcx-lightbox"
+        role="dialog"
+        aria-modal="true"
+        [attr.aria-label]="m.label ?? 'Image viewer'"
+        (click)="closeLightbox()"
+      >
+        <button
+          type="button"
+          class="gcx-lightbox-close"
+          (click)="closeLightbox(); $event.stopPropagation()"
+          aria-label="Close"
+        >×</button>
+        @if (resolvedImages().length > 1) {
+          <button
+            type="button"
+            class="gcx-lightbox-nav gcx-lightbox-prev"
+            (click)="prevLightbox(); $event.stopPropagation()"
+            aria-label="Previous image"
+          >‹</button>
+          <button
+            type="button"
+            class="gcx-lightbox-nav gcx-lightbox-next"
+            (click)="nextLightbox(); $event.stopPropagation()"
+            aria-label="Next image"
+          >›</button>
+          <div class="gcx-lightbox-counter" aria-live="polite">
+            {{ lightboxIndex()! + 1 }} / {{ resolvedImages().length }}
+          </div>
+        }
+        <figure class="gcx-lightbox-figure" (click)="$event.stopPropagation()">
+          <img [src]="m.src" [alt]="m.label ?? ''" />
+          @if (m.label) {
+            <figcaption>{{ m.label }}</figcaption>
+          }
+        </figure>
+      </div>
+    }
   `,
   styles: [
     `
@@ -619,6 +670,11 @@ function resolveDemLayer(dem: any): ConfiguredLayer | null {
       }
       .gcx-detail-figure {
         margin: 0;
+        cursor: zoom-in;
+      }
+      .gcx-detail-figure:focus-visible {
+        outline: 2px solid var(--gcx-accent);
+        outline-offset: 2px;
       }
       .gcx-detail-figure img {
         display: block;
@@ -626,6 +682,11 @@ function resolveDemLayer(dem: any): ConfiguredLayer | null {
         height: auto;
         border: 1px solid var(--gcx-rule);
         background: var(--gcx-paper-soft);
+        transition: filter 120ms ease;
+      }
+      .gcx-detail-figure:hover img,
+      .gcx-detail-figure:focus-visible img {
+        filter: brightness(0.96);
       }
       .gcx-detail-figure figcaption {
         margin-top: 6px;
@@ -739,6 +800,111 @@ function resolveDemLayer(dem: any): ConfiguredLayer | null {
         font-size: 0.85rem;
         color: var(--gcx-accent);
       }
+
+      /* --- Lightbox ---------------------------------------------------- */
+      /* Full-bleed image overlay. Quiet chrome (a single hairline border
+         frames the image, captions stay typographic) — the map is the
+         content, and inside the lightbox the image is the content; the
+         backdrop just gets out of its way. */
+      .gcx-lightbox {
+        position: fixed;
+        inset: 0;
+        z-index: 1000;
+        display: grid;
+        place-items: center;
+        padding: 48px 64px;
+        background: color-mix(in oklch, var(--gcx-ink) 88%, transparent);
+        backdrop-filter: blur(2px);
+        animation: gcx-lightbox-fade 140ms ease-out;
+      }
+      @keyframes gcx-lightbox-fade {
+        from { opacity: 0; }
+        to   { opacity: 1; }
+      }
+      .gcx-lightbox-figure {
+        margin: 0;
+        max-width: 100%;
+        max-height: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 12px;
+        cursor: default;
+      }
+      .gcx-lightbox-figure img {
+        display: block;
+        max-width: 100%;
+        /* leave room for the caption beneath without scrollbars */
+        max-height: calc(100vh - 48px * 2 - 40px);
+        object-fit: contain;
+        border: 1px solid color-mix(in oklch, var(--gcx-paper) 30%, transparent);
+        background: var(--gcx-paper-soft);
+        box-shadow: 0 16px 48px color-mix(in oklch, #000 50%, transparent);
+      }
+      .gcx-lightbox-figure figcaption {
+        font-family: var(--gcx-body);
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.14em;
+        color: color-mix(in oklch, var(--gcx-paper) 80%, transparent);
+        text-align: center;
+      }
+
+      /* Close: top-right; arrows: vertical centred at edges; counter:
+         bottom-centre. All three share the same restrained typographic
+         affordance — no filled buttons, no circles, no Material chrome. */
+      .gcx-lightbox-close,
+      .gcx-lightbox-nav {
+        position: absolute;
+        appearance: none;
+        background: transparent;
+        border: 0;
+        color: color-mix(in oklch, var(--gcx-paper) 85%, transparent);
+        cursor: pointer;
+        line-height: 1;
+        padding: 8px 14px;
+        font-family: var(--gcx-display);
+        transition: color 120ms ease, transform 120ms ease;
+      }
+      .gcx-lightbox-close:hover,
+      .gcx-lightbox-nav:hover {
+        color: var(--gcx-paper);
+      }
+      .gcx-lightbox-close {
+        top: 16px;
+        right: 20px;
+        font-size: 32px;
+        font-weight: 300;
+      }
+      .gcx-lightbox-nav {
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 56px;
+        font-weight: 300;
+      }
+      .gcx-lightbox-nav:hover {
+        transform: translateY(-50%) scale(1.08);
+      }
+      .gcx-lightbox-prev { left: 12px; }
+      .gcx-lightbox-next { right: 12px; }
+      .gcx-lightbox-counter {
+        position: absolute;
+        bottom: 18px;
+        left: 50%;
+        transform: translateX(-50%);
+        font-family: var(--gcx-display);
+        font-style: italic;
+        font-variant-numeric: oldstyle-nums tabular-nums;
+        font-size: 0.95rem;
+        color: color-mix(in oklch, var(--gcx-paper) 70%, transparent);
+        letter-spacing: 0.04em;
+      }
+      .gcx-lightbox-close:focus-visible,
+      .gcx-lightbox-nav:focus-visible {
+        outline: 1px solid var(--gcx-paper);
+        outline-offset: 4px;
+      }
     `,
   ],
 })
@@ -763,6 +929,10 @@ export class GcxMapComponent implements OnDestroy {
 
   readonly selectedTab = signal<number>(0);
   readonly selectedItem = signal<any>(null);
+  /** Index into `resolvedImages()` of the currently-open lightbox image,
+   *  or null when the lightbox is closed. Switching features closes it
+   *  (see onFeature). */
+  readonly lightboxIndex = signal<number | null>(null);
   /** `detail` block from the layer the selected feature belongs to. Null
    *  when the layer didn't declare one — the panel then falls back to a
    *  bare properties dump. */
@@ -842,6 +1012,14 @@ export class GcxMapComponent implements OnDestroy {
   readonly resolvedImages = computed(() =>
     this.resolvedMedia().filter((m) => m.kind === 'image'),
   );
+  /** Image currently shown in the lightbox, or null when closed. Defined
+   *  here (not inline in the template) so it survives the lightbox's
+   *  own re-renders without re-evaluating filters. */
+  readonly currentLightboxImage = computed(() => {
+    const i = this.lightboxIndex();
+    if (i === null) return null;
+    return this.resolvedImages()[i] ?? null;
+  });
   readonly resolvedHtml = computed(() =>
     this.resolvedMedia().filter((m) => m.kind === 'html'),
   );
@@ -942,13 +1120,58 @@ export class GcxMapComponent implements OnDestroy {
 
     if (typeof window !== 'undefined') {
       window.addEventListener('hashchange', this.onHashChange);
+      window.addEventListener('keydown', this.onKeyDown);
     }
   }
 
   ngOnDestroy(): void {
     if (typeof window !== 'undefined') {
       window.removeEventListener('hashchange', this.onHashChange);
+      window.removeEventListener('keydown', this.onKeyDown);
     }
+  }
+
+  /** Keyboard control for the lightbox: Esc closes, ←/→ navigate when
+   *  multiple images are present. Inert while the lightbox is closed so
+   *  these keys remain available for the rest of the app. */
+  private readonly onKeyDown = (e: KeyboardEvent): void => {
+    if (this.lightboxIndex() === null) return;
+    switch (e.key) {
+      case 'Escape':
+        this.closeLightbox();
+        break;
+      case 'ArrowLeft':
+        if (this.resolvedImages().length > 1) this.prevLightbox();
+        break;
+      case 'ArrowRight':
+        if (this.resolvedImages().length > 1) this.nextLightbox();
+        break;
+      default:
+        return;
+    }
+    e.preventDefault();
+  };
+
+  openLightbox(index: number): void {
+    if (index < 0 || index >= this.resolvedImages().length) return;
+    this.lightboxIndex.set(index);
+  }
+
+  closeLightbox(): void {
+    this.lightboxIndex.set(null);
+  }
+
+  /** Cycle through `resolvedImages()` — wrapping makes ←/→ feel
+   *  continuous on small galleries like a per-tomb schizzo pair. */
+  prevLightbox(): void {
+    const n = this.resolvedImages().length;
+    if (!n) return;
+    this.lightboxIndex.update((i) => ((i ?? 0) - 1 + n) % n);
+  }
+  nextLightbox(): void {
+    const n = this.resolvedImages().length;
+    if (!n) return;
+    this.lightboxIndex.update((i) => ((i ?? 0) + 1) % n);
   }
 
   /**
@@ -1006,6 +1229,9 @@ export class GcxMapComponent implements OnDestroy {
     this.selectedItem.set(event);
     this.selectedDetail.set(layer.detail ?? null);
     this.mediaErrors.set(new Set());
+    // A new selection invalidates whatever was in the lightbox — the
+    // index points into the old feature's resolvedImages().
+    this.lightboxIndex.set(null);
     this.gcx.openSidebar();
   }
 
