@@ -1,6 +1,6 @@
 import { Directive, forwardRef, OnDestroy } from '@angular/core';
 import * as L from 'leaflet';
-import { MnMapComponent, MnMapFlavourDirective } from '@openhistorymap/mn-geo';
+import { MnMapComponent, MnMapFlavourDirective, ViewState } from '@openhistorymap/mn-geo';
 import {
   buildPopupHtml,
   isLayerDescriptor,
@@ -185,6 +185,29 @@ export class MnGeoFlavoursLeafletDirective extends MnMapFlavourDirective impleme
         layer.setZIndex(ids.length - i);
       }
     }
+  }
+
+  override getView(): ViewState | null {
+    if (!this._map) return null;
+    const c = this._map.getCenter();
+    return {
+      zoom: this._map.getZoom(),
+      lat: c.lat,
+      lon: c.lng,
+      // Leaflet is 2D — no camera rotation or tilt.
+      bearing: 0,
+      pitch: 0,
+    };
+  }
+
+  override setView(view: Partial<ViewState>): void {
+    if (!this._map) return;
+    const current = this._map.getCenter();
+    const lat = view.lat ?? current.lat;
+    const lon = view.lon ?? current.lng;
+    const zoom = view.zoom ?? this._map.getZoom();
+    // bearing/pitch silently ignored — Leaflet has no equivalent.
+    this._map.setView([lat, lon], zoom, { animate: false });
   }
 
   override addDatasource(_ds: unknown): void {

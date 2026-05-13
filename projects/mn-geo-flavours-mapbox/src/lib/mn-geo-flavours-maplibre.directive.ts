@@ -1,6 +1,6 @@
 import { Directive, forwardRef, OnDestroy } from '@angular/core';
 import maplibregl, { Map as MaplibreMap, Marker as MaplibreMarker } from 'maplibre-gl';
-import { MnMapComponent, MnMapFlavourDirective } from '@openhistorymap/mn-geo';
+import { MnMapComponent, MnMapFlavourDirective, ViewState } from '@openhistorymap/mn-geo';
 import {
   buildPopupHtml,
   GeoJsonFeaturesDescriptor,
@@ -184,6 +184,29 @@ export class MnGeoFlavoursMaplibreDirective extends MnMapFlavourDirective implem
         }
       }
     }
+  }
+
+  override getView(): ViewState | null {
+    if (!this._map) return null;
+    const c = this._map.getCenter();
+    return {
+      zoom: this._map.getZoom(),
+      lat: c.lat,
+      lon: c.lng,
+      bearing: this._map.getBearing(),
+      pitch: this._map.getPitch(),
+    };
+  }
+
+  override setView(view: Partial<ViewState>): void {
+    if (!this._map) return;
+    const c = this._map.getCenter();
+    this._map.jumpTo({
+      center: [view.lon ?? c.lng, view.lat ?? c.lat],
+      zoom: view.zoom ?? this._map.getZoom(),
+      bearing: view.bearing ?? this._map.getBearing(),
+      pitch: view.pitch ?? this._map.getPitch(),
+    });
   }
 
   override addDatasource(_ds: unknown): void {

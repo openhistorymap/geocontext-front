@@ -4,6 +4,7 @@ import {
   contentChildren,
   effect,
   inject,
+  OnDestroy,
   signal,
   viewChild,
 } from '@angular/core';
@@ -30,6 +31,7 @@ import {
   MnDatasourceComponent,
   MnStyleComponent,
   MnMapFlavourDirective,
+  ViewState,
 } from '@openhistorymap/mn-geo';
 import { GcxCoreService } from '../gcx-core.service';
 import { GcxLegendComponent } from '../gcx-legend/gcx-legend.component';
@@ -306,6 +308,7 @@ function resolveDemLayer(dem: any): ConfiguredLayer | null {
           [minzoom]="minzoom()"
           [maxzoom]="maxzoom()"
           height="100%"
+          (mapMoveEnd)="onMapMoveEnd()"
         >
           @for (ds of datasources(); track ds.name) {
             <mn-datasource [name]="ds.name" [type]="ds.type" [conf]="ds.conf" />
@@ -739,7 +742,7 @@ function resolveDemLayer(dem: any): ConfiguredLayer | null {
     `,
   ],
 })
-export class GcxMapComponent {
+export class GcxMapComponent implements OnDestroy {
   readonly gcx = inject(GcxCoreService);
   private readonly http = inject(HttpClient);
 
@@ -850,12 +853,29 @@ export class GcxMapComponent {
    *  requests for the same URL while one is already pending. */
   private readonly htmlInFlight = new Set<string>();
 
+  /** View parsed from the URL hash on first load. Used to override the
+   *  gcx.json defaults so a shared link puts the user exactly where the
+   *  sender was. Read once; subsequent updates are driven by `hashchange`. */
+  private readonly initialHashView: ViewState | null = parseLocationHash();
+  /** Holds `initialHashView` until the flavour is constructed and we can
+   *  apply the full state (bearing/pitch don't live on `<mn-map>` inputs,
+   *  so they need a post-setup `setView` call). Nulled after first use. */
+  private pendingHashView: ViewState | null = this.initialHashView;
+
+  /** Bound here so removeEventListener can match in ngOnDestroy. */
+  private readonly onHashChange = (): void => {
+    const v = parseLocationHash();
+    if (v) this.flavour()?.setView(v);
+  };
+
   constructor() {
     effect(() => {
       const conf = this.gcx.config();
       if (!conf) return;
-      this.center.set(conf.center ?? [0, 0]);
-      this.startzoom.set(conf.startzoom ?? 1);
+      // Hash trumps gcx.json defaults — that's the whole point of sharing.
+      const hv = this.initialHashView;
+      this.center.set(hv ? [hv.lat, hv.lon] : (conf.center ?? [0, 0]));
+      this.startzoom.set(hv?.zoom ?? conf.startzoom ?? 1);
       this.minzoom.set(conf.minzoom ?? 1);
       this.maxzoom.set(conf.maxzoom ?? 19);
       this.datasources.set(conf.datasources ?? []);
@@ -904,6 +924,48 @@ export class GcxMapComponent {
         });
       }
     });
+
+    // Apply the pending hash view once the flavour exists. Centre/zoom
+    // already came through the `<mn-map>` inputs; this catches bearing
+    // and pitch (only meaningful on MapLibre) and reaffirms the rest in
+    // case the effect ordering left the map at gcx.json defaults. The
+    // microtask defers past `<mn-map>`'s own setup effect.
+    effect(() => {
+      const flav = this.flavour();
+      if (!flav || !this.pendingHashView) return;
+      const v = this.pendingHashView;
+      queueMicrotask(() => {
+        flav.setView(v);
+        this.pendingHashView = null;
+      });
+    });
+
+    if (typeof window !== 'undefined') {
+      window.addEventListener('hashchange', this.onHashChange);
+    }
+  }
+
+  ngOnDestroy(): void {
+    if (typeof window !== 'undefined') {
+      window.removeEventListener('hashchange', this.onHashChange);
+    }
+  }
+
+  /**
+   * Called from `<mn-map>`'s `mapMoveEnd`. Reads the flavour's current view
+   * and rewrites the URL hash. Uses `history.replaceState` so panning
+   * doesn't fill the browser history, and only writes when the hash would
+   * actually change — that avoids spurious `hashchange` events feeding back
+   * into our own listener.
+   */
+  onMapMoveEnd(): void {
+    if (typeof window === 'undefined') return;
+    const v = this.flavour()?.getView();
+    if (!v) return;
+    const h = '#' + formatViewHash(v);
+    if (window.location.hash !== h) {
+      window.history.replaceState(null, '', h);
+    }
   }
 
   toggleVisible(layer: ConfiguredLayer): void {
@@ -974,4 +1036,39 @@ function interpolate(template: string, props: Record<string, any>): string | nul
     return String(v);
   });
   return missing ? null : resolved;
+}
+
+/**
+ * Parse the URL hash as a `zoom/lat/lon[/bearing/pitch]` view. Returns
+ * null when no usable view is present — that keeps callers' decision
+ * logic ("fall back to gcx.json defaults") concise. Out-of-range values
+ * are clamped: lat to ±90, lon wrapped to ±180.
+ */
+function parseLocationHash(): ViewState | null {
+  if (typeof window === 'undefined') return null;
+  const raw = window.location.hash.replace(/^#/, '');
+  if (!raw) return null;
+  const parts = raw.split('/').map((s) => Number(s));
+  if (parts.length < 3 || parts.slice(0, 3).some(Number.isNaN)) return null;
+  const [zoom, lat, lon, bearing, pitch] = parts;
+  return {
+    zoom,
+    lat: Math.max(-90, Math.min(90, lat)),
+    lon: ((lon + 180) % 360 + 360) % 360 - 180,
+    bearing: Number.isFinite(bearing) ? bearing : 0,
+    pitch: Number.isFinite(pitch) ? pitch : 0,
+  };
+}
+
+/**
+ * Format a ViewState as a hash fragment (without the leading `#`).
+ * Bearing/pitch are appended only when non-zero — keeps the URL clean for
+ * 2D maps. Zoom uses 2 decimals (jsdelivr-class precision), lat/lon use 5
+ * (~1.1 m at the equator — enough for sharing a feature pin).
+ */
+function formatViewHash(v: ViewState): string {
+  const base = `${v.zoom.toFixed(2)}/${v.lat.toFixed(5)}/${v.lon.toFixed(5)}`;
+  const hasCamera = Math.abs(v.bearing) >= 0.5 || Math.abs(v.pitch) >= 0.5;
+  if (!hasCamera) return base;
+  return `${base}/${Math.round(v.bearing)}/${Math.round(v.pitch)}`;
 }
