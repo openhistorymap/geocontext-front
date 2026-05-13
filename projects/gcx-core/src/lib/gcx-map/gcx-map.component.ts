@@ -814,9 +814,13 @@ export class GcxMapComponent {
 
   /**
    * Media items declared on the layer's `detail.media[]`, with `{propname}`
-   * placeholders in `src` resolved against the selected feature's properties.
-   * Items whose template references a missing property are dropped — that's
-   * what makes "this tomb has no docx, but does have a schizzo" render cleanly.
+   * placeholders in `src` resolved against the selected feature's properties
+   * AND the resulting relative path rewritten through `GcxCoreService.
+   * resolveAssetUrl()` — so `schizzi/{tomba}.jpg` lands at the same jsdelivr
+   * base as the gcx.json itself when in repo mode, or stays page-relative
+   * in local /assets mode. Items whose template references a missing
+   * property are dropped — that's what makes "this tomb has no docx, but
+   * does have a schizzo" render cleanly.
    */
   private readonly resolvedMedia = computed<ResolvedMediaItem[]>(() => {
     const detail = this.selectedDetail();
@@ -824,8 +828,10 @@ export class GcxMapComponent {
     if (!detail?.media || !props) return [];
     return detail.media
       .map((m) => {
-        const src = interpolate(m.src, props);
-        return src == null ? null : { ...m, template: m.src, src };
+        const interpolated = interpolate(m.src, props);
+        if (interpolated == null) return null;
+        const src = this.gcx.resolveAssetUrl(interpolated);
+        return { ...m, template: m.src, src };
       })
       .filter((m): m is ResolvedMediaItem => m !== null);
   });
