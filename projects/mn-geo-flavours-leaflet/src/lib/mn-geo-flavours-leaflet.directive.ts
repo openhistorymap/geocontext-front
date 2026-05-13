@@ -37,6 +37,10 @@ export class MnGeoFlavoursLeafletDirective extends MnMapFlavourDirective impleme
   /** Tracks Leaflet layer instances by descriptor id so setLayerVisibility
    *  can show/hide them after they've been added. */
   private readonly layersById = new Map<string, L.Layer>();
+  /** Caller's desired stacking, descriptor-id order. Reapplied as new
+   *  layers register so async-resolving datasources don't leave the
+   *  stack in completion order. Same intent as the MapLibre flavour. */
+  private _desiredLayerOrder: string[] | null = null;
 
   get leafletMap(): L.Map | undefined {
     return this._map;
@@ -129,7 +133,10 @@ export class MnGeoFlavoursLeafletDirective extends MnMapFlavourDirective impleme
     }
     if (layer) {
       this._map.addLayer(layer);
-      if (id) this.layersById.set(id, layer);
+      if (id) {
+        this.layersById.set(id, layer);
+        this.applyLayerOrder();
+      }
     }
   }
 
@@ -169,13 +176,24 @@ export class MnGeoFlavoursLeafletDirective extends MnMapFlavourDirective impleme
   }
 
   override setLayerOrder(ids: string[]): void {
-    if (!this._map) return;
-    // Leaflet stacks within a pane: tile layers in `tilePane` (z 200),
-    // overlays in `overlayPane` (z 400). Walking from the bottom of the
-    // requested stack upward, each iteration lifts the layer above all
-    // already-promoted ones — so the final iteration (ids[0]) ends up
-    // on top of its pane. Tile layers don't support `bringToFront`, so
-    // we fall back to `setZIndex(rank)` for them.
+    this._desiredLayerOrder = ids.slice();
+    this.applyLayerOrder();
+  }
+
+  /** Restack already-registered Leaflet layers to match
+   *  `_desiredLayerOrder`. Called by setLayerOrder AND by addLayer as
+   *  new layers register, so the requested order survives the async
+   *  datasource pipeline.
+   *
+   *  Leaflet stacks within a pane: tile layers in `tilePane` (z 200),
+   *  overlays in `overlayPane` (z 400). Walking from the bottom of the
+   *  requested stack upward, each iteration lifts the layer above all
+   *  already-promoted ones — so the final iteration (ids[0]) ends up
+   *  on top of its pane. Tile layers don't support `bringToFront`, so
+   *  we fall back to `setZIndex(rank)` for them. */
+  private applyLayerOrder(): void {
+    if (!this._map || !this._desiredLayerOrder) return;
+    const ids = this._desiredLayerOrder;
     for (let i = ids.length - 1; i >= 0; i--) {
       const layer = this.layersById.get(ids[i]) as any;
       if (!layer) continue;

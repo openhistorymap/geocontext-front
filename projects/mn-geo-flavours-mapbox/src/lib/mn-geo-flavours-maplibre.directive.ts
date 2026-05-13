@@ -47,6 +47,17 @@ export class MnGeoFlavoursMaplibreDirective extends MnMapFlavourDirective implem
   private _resizePending = false;
   private readonly ownedSourceIds = new Set<string>();
   private readonly ownedLayerIds = new Set<string>();
+  /** GL layer IDs we created for each descriptor id, in registration order
+   *  (first = bottom of the descriptor's stack). The hard-coded
+   *  circle/line/fill triple AND `style.maplibre` custom layers both feed
+   *  through this — so removeLayer / setLayerVisibility / setLayerOrder
+   *  don't need to enumerate suffix conventions. */
+  private readonly glLayersByDescriptorId = new Map<string, string[]>();
+  /** Caller's desired stacking, descriptor-id order. Stored so we can
+   *  reapply it every time a new GL layer arrives — datasources resolve
+   *  async, so layers fan in completion-order rather than declaration
+   *  order, and the initial setLayerOrder fires before they exist. */
+  private _desiredLayerOrder: string[] | null = null;
   private readonly subscriptions = new Map<string, () => void>();
   /** DEM source id currently bound to the map's terrain (via setTerrain).
    *  Tracked so removeLayer can unset terrain before tearing the source
@@ -130,14 +141,14 @@ export class MnGeoFlavoursMaplibreDirective extends MnMapFlavourDirective implem
     if (!id) return;
     this.subscriptions.get(id)?.();
     this.subscriptions.delete(id);
-    // GeoJSON descriptors fan out into <id>-circle/-line/-fill GL layers;
-    // remove them all.
-    for (const layerId of [id, `${id}-circle`, `${id}-line`, `${id}-fill`]) {
-      if (this.ownedLayerIds.has(layerId) && this._map.getLayer(layerId)) {
-        this._map.removeLayer(layerId);
-        this.ownedLayerIds.delete(layerId);
-      }
+    // Tear down every GL layer we registered under this descriptor —
+    // the geometry-typed circle/line/fill triple, or whatever custom
+    // layers `style.maplibre` declared.
+    for (const layerId of this.glLayersByDescriptorId.get(id) ?? []) {
+      if (this._map.getLayer(layerId)) this._map.removeLayer(layerId);
+      this.ownedLayerIds.delete(layerId);
     }
+    this.glLayersByDescriptorId.delete(id);
     if (this.ownedSourceIds.has(id) && this._map.getSource(id)) {
       if (this.terrainSourceId === id) {
         try { this._map.setTerrain(null); } catch { /* ignore */ }
@@ -153,8 +164,7 @@ export class MnGeoFlavoursMaplibreDirective extends MnMapFlavourDirective implem
   override setLayerVisibility(id: string, visible: boolean): void {
     if (!this._map) return;
     const visibility = visible ? 'visible' : 'none';
-    // GL layers — descriptor id + geojson sublayers if any.
-    for (const layerId of [id, `${id}-circle`, `${id}-line`, `${id}-fill`]) {
+    for (const layerId of this.glLayersByDescriptorId.get(id) ?? []) {
       if (this._map.getLayer(layerId)) {
         this._map.setLayoutProperty(layerId, 'visibility', visibility);
       }
@@ -168,18 +178,26 @@ export class MnGeoFlavoursMaplibreDirective extends MnMapFlavourDirective implem
   }
 
   override setLayerOrder(ids: string[]): void {
-    if (!this._map) return;
-    // moveLayer(id) without a `beforeId` moves the layer to the top of
-    // the stack. Walking the desired stack from bottom to top means the
-    // final iteration (ids[0]) ends up topmost. GeoJSON descriptors fan
-    // out into <id>-circle/-line/-fill GL layers; promote each sublayer
-    // alongside its parent so the visual stacking stays consistent.
-    // Pin markers are HTML overlays above the canvas — their stacking is
-    // DOM-order, separate from GL layers, so they're unaffected here.
+    this._desiredLayerOrder = ids.slice();
+    this.applyLayerOrder();
+  }
+
+  /** Restack already-registered GL layers to match `_desiredLayerOrder`.
+   *  Called by setLayerOrder AND by trackGlLayer as new layers arrive,
+   *  so the requested order survives the async datasource pipeline.
+   *
+   *  moveLayer(id) without a `beforeId` moves the layer to the top of
+   *  the stack. Walking the desired stack from bottom to top, and
+   *  within each descriptor walking its GL layers in registration
+   *  order, means the last-registered sublayer of `ids[0]` ends up
+   *  topmost overall. Pin markers are HTML overlays above the canvas;
+   *  their stacking is DOM-order, separate from GL layers. */
+  private applyLayerOrder(): void {
+    if (!this._map || !this._desiredLayerOrder) return;
+    const ids = this._desiredLayerOrder;
     for (let i = ids.length - 1; i >= 0; i--) {
-      const id = ids[i];
-      for (const layerId of [id, `${id}-fill`, `${id}-line`, `${id}-circle`]) {
-        if (this.ownedLayerIds.has(layerId) && this._map.getLayer(layerId)) {
+      for (const layerId of this.glLayersByDescriptorId.get(ids[i]) ?? []) {
+        if (this._map.getLayer(layerId)) {
           try { this._map.moveLayer(layerId); } catch { /* ignore */ }
         }
       }
@@ -214,6 +232,18 @@ export class MnGeoFlavoursMaplibreDirective extends MnMapFlavourDirective implem
   }
   override removeDatasource(_id: unknown): void {
     // no-op
+  }
+
+  /** Register a freshly-added GL layer under its descriptor so the rest
+   *  of the lifecycle (visibility / order / remove) can find it without
+   *  hard-coded suffix conventions. Reapplies the host's desired stack
+   *  order so async-fanning-in layers don't end up in completion order. */
+  private trackGlLayer(descId: string, layerId: string): void {
+    this.ownedLayerIds.add(layerId);
+    const list = this.glLayersByDescriptorId.get(descId);
+    if (list) list.push(layerId);
+    else this.glLayersByDescriptorId.set(descId, [layerId]);
+    this.applyLayerOrder();
   }
 
   ngOnDestroy(): void {
@@ -327,7 +357,7 @@ export class MnGeoFlavoursMaplibreDirective extends MnMapFlavourDirective implem
             minzoom: desc.minZoom,
             maxzoom: desc.maxZoom,
           });
-          this.ownedLayerIds.add(id);
+          this.trackGlLayer(id, id);
         }
         return;
       }
@@ -348,7 +378,7 @@ export class MnGeoFlavoursMaplibreDirective extends MnMapFlavourDirective implem
           const layerId = styleLayer.id ?? `${id}-${this.ownedLayerIds.size}`;
           if (!map.getLayer(layerId)) {
             map.addLayer({ ...styleLayer, id: layerId, source: id });
-            this.ownedLayerIds.add(layerId);
+            this.trackGlLayer(id, layerId);
           }
         }
         return;
@@ -382,7 +412,7 @@ export class MnGeoFlavoursMaplibreDirective extends MnMapFlavourDirective implem
               'hillshade-shadow-color': '#473b24',
             },
           });
-          this.ownedLayerIds.add(sourceId);
+          this.trackGlLayer(sourceId, sourceId);
         }
         if (desc.terrain) {
           try {
@@ -413,57 +443,86 @@ export class MnGeoFlavoursMaplibreDirective extends MnMapFlavourDirective implem
           this.ownedSourceIds.add(id);
         }
 
-        const circleId = `${id}-circle`;
-        if (!map.getLayer(circleId)) {
-          map.addLayer({
-            id: circleId,
-            type: 'circle',
-            source: id,
-            filter: ['==', ['geometry-type'], 'Point'],
-            paint: {
-              'circle-radius': desc.style?.options?.radius ?? 4,
-              'circle-color': desc.style?.options?.fillColor ?? '#099092',
-              'circle-stroke-color': desc.style?.options?.color ?? '#000',
-              'circle-stroke-width': desc.style?.options?.weight ?? 1,
-            },
+        // Two style paths: a `style.maplibre` array on the layer
+        // expresses raw GL style-spec layers and is forwarded as-is
+        // (escape hatch for expressions, heatmaps, etc.). Absent, we
+        // synthesise the geometry-typed circle/line/fill triple from
+        // the high-level `style.options` block. Either way the
+        // resulting GL layer ids live in `glLayersByDescriptorId`,
+        // so the lifecycle methods don't need to know which path
+        // produced them.
+        const customLayers = normaliseMaplibreLayers(desc.style?.maplibre);
+        const sublayerIds: string[] = [];
+        if (customLayers.length) {
+          customLayers.forEach((spec, i) => {
+            const layerId = `${id}-ml-${i}`;
+            if (!map.getLayer(layerId)) {
+              map.addLayer({
+                ...(spec as any),
+                id: layerId,
+                source: id,
+              });
+              this.trackGlLayer(id, layerId);
+            }
+            sublayerIds.push(layerId);
           });
-          this.ownedLayerIds.add(circleId);
-        }
-        const lineId = `${id}-line`;
-        if (!map.getLayer(lineId)) {
-          map.addLayer({
-            id: lineId,
-            type: 'line',
-            source: id,
-            filter: ['==', ['geometry-type'], 'LineString'],
-            paint: {
-              'line-color': desc.style?.options?.color ?? '#333',
-              'line-width': desc.style?.options?.weight ?? 2,
-            },
-          });
-          this.ownedLayerIds.add(lineId);
-        }
-        const fillId = `${id}-fill`;
-        if (!map.getLayer(fillId)) {
-          map.addLayer({
-            id: fillId,
-            type: 'fill',
-            source: id,
-            filter: ['==', ['geometry-type'], 'Polygon'],
-            paint: {
-              'fill-color': desc.style?.options?.fillColor ?? '#099092',
-              'fill-opacity': desc.style?.options?.fillOpacity ?? 0.4,
-            },
-          });
-          this.ownedLayerIds.add(fillId);
+        } else {
+          const circleId = `${id}-circle`;
+          if (!map.getLayer(circleId)) {
+            map.addLayer({
+              id: circleId,
+              type: 'circle',
+              source: id,
+              filter: ['==', ['geometry-type'], 'Point'],
+              paint: {
+                'circle-radius': desc.style?.options?.radius ?? 4,
+                'circle-color': desc.style?.options?.fillColor ?? '#099092',
+                'circle-stroke-color': desc.style?.options?.color ?? '#000',
+                'circle-stroke-width': desc.style?.options?.weight ?? 1,
+              },
+            });
+            this.trackGlLayer(id, circleId);
+          }
+          sublayerIds.push(circleId);
+          const lineId = `${id}-line`;
+          if (!map.getLayer(lineId)) {
+            map.addLayer({
+              id: lineId,
+              type: 'line',
+              source: id,
+              filter: ['==', ['geometry-type'], 'LineString'],
+              paint: {
+                'line-color': desc.style?.options?.color ?? '#333',
+                'line-width': desc.style?.options?.weight ?? 2,
+              },
+            });
+            this.trackGlLayer(id, lineId);
+          }
+          sublayerIds.push(lineId);
+          const fillId = `${id}-fill`;
+          if (!map.getLayer(fillId)) {
+            map.addLayer({
+              id: fillId,
+              type: 'fill',
+              source: id,
+              filter: ['==', ['geometry-type'], 'Polygon'],
+              paint: {
+                'fill-color': desc.style?.options?.fillColor ?? '#099092',
+                'fill-opacity': desc.style?.options?.fillOpacity ?? 0.4,
+              },
+            });
+            this.trackGlLayer(id, fillId);
+          }
+          sublayerIds.push(fillId);
         }
 
-        // Click handlers for circle/line/fill layers — fire onClick and
-        // optionally show a popup at the click point. Popups bind to the
-        // event location (lng/lat of the click), not to a marker.
+        // Click handlers — bound to every sublayer produced for this
+        // descriptor (the auto-generated triple, or the custom-maplibre
+        // layers). Popups bind to the event location (lng/lat of the
+        // click), not to a marker.
         const popupField = desc.popup?.htmlField ?? 'html';
         if (desc.onClick || desc.popup) {
-          for (const sub of [circleId, lineId, fillId]) {
+          for (const sub of sublayerIds) {
             map.on('click', sub, (e) => {
               const feat = e.features?.[0];
               if (!feat) return;
@@ -493,4 +552,28 @@ export class MnGeoFlavoursMaplibreDirective extends MnMapFlavourDirective implem
       }
     }
   }
+}
+
+/**
+ * Coerce the `style.maplibre` escape hatch into an array of layer-spec
+ * partials. Accepts either a single object or an array; returns `[]` when
+ * absent so the caller's `if (customLayers.length)` branch reads naturally.
+ *
+ * Each entry should look like a MapLibre style-spec layer minus `id` and
+ * `source` (we fill those in). `type` is required; `paint`, `layout`,
+ * `filter`, `minzoom`, `maxzoom` are forwarded as-is. Entries without a
+ * `type` are dropped with a warning — MapLibre would crash on them
+ * anyway, and dropping is friendlier to the rest of the layer.
+ */
+function normaliseMaplibreLayers(input: any): any[] {
+  if (!input) return [];
+  const arr = Array.isArray(input) ? input : [input];
+  return arr.filter((spec) => {
+    if (spec && typeof spec === 'object' && typeof spec.type === 'string') return true;
+    console.warn(
+      'mn-geo-flavours-mapbox: ignoring style.maplibre entry without `type`',
+      spec,
+    );
+    return false;
+  });
 }

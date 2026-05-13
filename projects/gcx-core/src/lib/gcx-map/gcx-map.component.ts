@@ -1138,6 +1138,18 @@ export class GcxMapComponent implements OnDestroy {
       });
     });
 
+    // Tell the flavour the gcx.json declaration order so its initial
+    // stack matches the sidebar. Without this, async datasource fetches
+    // would leave layers stacked in completion order. The flavour
+    // remembers the order and reapplies it as GL layers register, so
+    // calling this before any layer exists is fine.
+    effect(() => {
+      const flav = this.flavour();
+      const ls = this.layers();
+      if (!flav || !ls.length) return;
+      flav.setLayerOrder(ls.map((l) => l.name));
+    });
+
     if (typeof window !== 'undefined') {
       window.addEventListener('hashchange', this.onHashChange);
       window.addEventListener('keydown', this.onKeyDown);
