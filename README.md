@@ -87,6 +87,28 @@ If `geocontext.json` declares no `background` (and no tile layer in
 "bright" style so the canvas isn't empty. The Leaflet flavour does not —
 declare a `background` (or any tile layer) when targeting Leaflet.
 
+#### Context-only (non-interactive) layers
+
+Any `features` or `markers` layer can be marked as **context** with
+`"interactive": false`. The geometry still renders, but no click
+handler, popup, or pointer cursor is wired — the layer reads as
+background detail rather than competing with the data layers above
+it for clicks.
+
+```json
+{
+  "name": "Coastline",
+  "type": "features",
+  "datasource": "coast",
+  "interactive": false,
+  "style": { "options": { "color": "#888", "weight": 1, "fillOpacity": 0 } }
+}
+```
+
+Use this for administrative borders, historical regions, water bodies,
+labels, or anything else that sets the stage for the dataset that
+matters.
+
 ### Background basemap
 
 `background` is a shorthand for declaring a single basemap layer

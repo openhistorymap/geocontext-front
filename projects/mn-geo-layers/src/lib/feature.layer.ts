@@ -24,14 +24,22 @@ export class FeatureLayer extends Layer {
         : conf.data;
 
     const style = conf.styles?.[0] ?? conf.style;
+    // `interactive: false` marks the layer as visual context only — no
+    // click handler, no popup, no cursor change. Both flavours gate hover
+    // and click wiring on the descriptor's `onClick`/`popup`, so omitting
+    // them is enough to disable interaction end-to-end.
+    const interactive = conf.interactive !== false;
 
-    return {
+    const desc: GeoJsonFeaturesDescriptor = {
       kind: 'geojson-features',
       id: this.getName() || datasourceName || 'features',
       data: data ?? { type: 'FeatureCollection', features: [] },
       style,
-      onClick: (feature: any) => this.featureClicked(feature),
     };
+    if (interactive) {
+      desc.onClick = (feature: any) => this.featureClicked(feature);
+    }
+    return desc;
   }
 }
 

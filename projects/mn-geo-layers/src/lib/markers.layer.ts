@@ -30,16 +30,22 @@ export class MarkersLayer extends Layer {
       datasourceName !== undefined
         ? this.getDatasourceManager().getDatasource(datasourceName)
         : conf.data;
+    // `interactive: false` turns pins into context-only markers — no
+    // popup, no click handler, no pointer cursor. The pin still renders.
+    const interactive = conf.interactive !== false;
 
-    return {
+    const desc: GeoJsonFeaturesDescriptor = {
       kind: 'geojson-features',
       id: this.getName() || datasourceName || 'markers',
       data: data ?? { type: 'FeatureCollection', features: [] },
       style: conf.styles?.[0] ?? conf.style,
       marker: 'pins',
-      popup: { htmlField: conf.htmlField ?? 'html' },
-      onClick: (feature: any) => this.featureClicked(feature),
     };
+    if (interactive) {
+      desc.popup = { htmlField: conf.htmlField ?? 'html' };
+      desc.onClick = (feature: any) => this.featureClicked(feature);
+    }
+    return desc;
   }
 }
 

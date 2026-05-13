@@ -608,10 +608,16 @@ export class GcxMapComponent {
       // Sidebar order: ids[0] is drawn on top. So user layers come first,
       // then DEM (hillshade above the basemap), then background last so it
       // ends up at the bottom of the visual stack.
-      const userLayers: ConfiguredLayer[] = (conf.layers ?? []).map((l: any) => ({
-        ...l,
-        visible: true,
-      }));
+      // A top-level `interactive: false` on a layer entry is folded into
+      // `conf` so layer classes (FeatureLayer, MarkersLayer, …) read it
+      // through their own configuration without needing a separate input.
+      const userLayers: ConfiguredLayer[] = (conf.layers ?? []).map((l: any) => {
+        const merged: ConfiguredLayer = { ...l, visible: true };
+        if (l.interactive !== undefined) {
+          merged.conf = { ...(l.conf ?? {}), interactive: l.interactive };
+        }
+        return merged;
+      });
       const dem = resolveDemLayer(conf['dem']);
       const background = resolveBackgroundLayer(conf['background']);
       const combined: ConfiguredLayer[] = [
