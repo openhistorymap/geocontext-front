@@ -1039,11 +1039,31 @@ export class GcxMapComponent implements OnDestroy {
    *  apply the full state (bearing/pitch don't live on `<mn-map>` inputs,
    *  so they need a post-setup `setView` call). Nulled after first use. */
   private pendingHashView: ViewState | null = this.initialHashView;
+  /**
+   * Whether the URL fragment is ours to write to. True when the hash is
+   * either empty or already a parseable view at the moment we observe it;
+   * false when someone else has put non-view content there (an anchor
+   * link like `#about`, another library's state, …). We never clobber a
+   * foreign hash — better to lose URL-sync than to delete data we didn't
+   * put there.
+   *
+   * Recomputed on every hashchange so the relationship stays current:
+   * paste a view hash → we adopt it; paste an anchor → we step back.
+   */
+  private hashOwned: boolean = currentHashIsOwnable();
 
   /** Bound here so removeEventListener can match in ngOnDestroy. */
   private readonly onHashChange = (): void => {
     const v = parseLocationHash();
-    if (v) this.flavour()?.setView(v);
+    if (v) {
+      // A parseable view in the bar — adopt it and reflect on the map.
+      this.hashOwned = true;
+      this.flavour()?.setView(v);
+    } else {
+      // Empty hash is ours to write to on the next move; anything else
+      // (an anchor, foreign state) we treat as not-ours.
+      this.hashOwned = currentHashIsOwnable();
+    }
   };
 
   constructor() {
@@ -1183,6 +1203,10 @@ export class GcxMapComponent implements OnDestroy {
    */
   onMapMoveEnd(): void {
     if (typeof window === 'undefined') return;
+    // Don't clobber a foreign hash. If something not ours is sitting in
+    // the fragment (an in-page anchor, another library's state), give up
+    // on URL sync for this session rather than deleting that content.
+    if (!this.hashOwned) return;
     const v = this.flavour()?.getView();
     if (!v) return;
     const h = '#' + formatViewHash(v);
@@ -1262,6 +1286,19 @@ function interpolate(template: string, props: Record<string, any>): string | nul
     return String(v);
   });
   return missing ? null : resolved;
+}
+
+/**
+ * Whether the current URL fragment is one we can safely write to.
+ * Empty: yes, it's available. A parseable view: yes, that's our format.
+ * Anything else (`#about`, `#section=foo`, somebody else's state): no —
+ * leave it alone.
+ */
+function currentHashIsOwnable(): boolean {
+  if (typeof window === 'undefined') return false;
+  const raw = window.location.hash.replace(/^#/, '');
+  if (!raw) return true;
+  return parseLocationHash() !== null;
 }
 
 /**
