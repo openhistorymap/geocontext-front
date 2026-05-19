@@ -373,6 +373,23 @@ its way to becoming the default branch.
 
 ---
 
+## Citing GeoContext
+
+A DOI for the current Angular 19 rewrite is in the pipeline and will
+be added here when it's issued. In the meantime, the foundational
+paper describes the design GeoContext is descended from:
+
+> Marsicano, L. & Montanari, M. (2018).
+> *GeoContext and ChContext: Geographic Information in Cultural
+> Heritage.* International Archives of the Photogrammetry, Remote
+> Sensing and Spatial Information Sciences, XLII-4/W8, 129–132.
+> <https://doi.org/10.5194/isprs-archives-XLII-4-W8-129-2018>
+
+Machine-readable metadata in [`CITATION.cff`](./CITATION.cff) (GitHub
+renders a "Cite this repository" button from it).
+
+---
+
 ## Built in Bologna
 
 GeoContext is built and maintained by

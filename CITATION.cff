@@ -1,0 +1,46 @@
+cff-version: 1.2.0
+title: GeoContext
+message: >-
+  If you use GeoContext in your work, please cite the foundational
+  paper under `preferred-citation` below until a DOI for the current
+  Angular 19 rewrite is minted (in progress). When the new DOI lands,
+  it will become the top-level citation and the 2018 paper will move
+  to `references` as a historical record.
+type: software
+authors:
+  - family-names: Montanari
+    given-names: Marco
+    affiliation: OpenHistoryMap
+repository-code: https://github.com/openhistorymap/geocontext-front
+url: https://www.openhistorymap.org
+license: Apache-2.0
+keywords:
+  - geographic-information-systems
+  - cultural-heritage
+  - openstreetmap
+  - maplibre
+  - angular
+  - declarative
+preferred-citation:
+  type: conference-paper
+  title: >-
+    GeoContext and ChContext: Geographic Information in Cultural
+    Heritage
+  authors:
+    - family-names: Marsicano
+      given-names: L.
+    - family-names: Montanari
+      given-names: M.
+  collection-title: >-
+    International Archives of the Photogrammetry, Remote Sensing and
+    Spatial Information Sciences
+  collection-type: proceedings
+  volume: XLII-4/W8
+  start: 129
+  end: 132
+  year: 2018
+  publisher:
+    name: Copernicus Publications
+  doi: 10.5194/isprs-archives-XLII-4-W8-129-2018
+  url: https://doi.org/10.5194/isprs-archives-XLII-4-W8-129-2018
+  license: CC-BY-4.0
