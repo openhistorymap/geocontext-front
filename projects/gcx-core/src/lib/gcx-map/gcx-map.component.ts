@@ -1627,7 +1627,14 @@ export class GcxMapComponent implements OnDestroy {
         return;
       }
       (ctor as Layer).setName(GCX_BG_LAYER_ID);
-      (ctor as Layer).setConfiguration({ ...(opt.conf ?? {}) });
+      // Background confs typically reference assets in the same repo
+      // (image-overlay url, tile-template url, …). Datasources go through
+      // GcxCoreService.rewriteAssetPaths at load time; backgrounds[] is
+      // a runtime selection, so we rewrite here on the way in. Relative
+      // `backgrounds/x.jpg` in gcx.json becomes
+      // `cdn.jsdelivr.net/gh/<user>/<repo>@<branch>/backgrounds/x.jpg`
+      // when the app is loaded as a repo, page-relative otherwise.
+      (ctor as Layer).setConfiguration(this.rewriteBgConf(opt.conf));
       const descriptor = (ctor as Layer).create();
       flav.addLayer(descriptor);
       this.bgApplied = true;
@@ -1717,6 +1724,36 @@ export class GcxMapComponent implements OnDestroy {
     if (next !== window.location.href) {
       window.history.replaceState(null, '', next);
     }
+  }
+
+  /**
+   * Resolve any asset-style fields in a background's `conf` through
+   * `GcxCoreService.resolveAssetUrl()`. Returns a shallow copy of the
+   * input so the gcx.json shape is preserved for downstream consumers
+   * (e.g. the selector still sees the relative paths). Touches:
+   *
+   *   - `url`         — `image-overlay`, raw tile templates
+   *   - `urls[]`      — tile-list form
+   *   - `tiles[]`     — alternative tile-list spelling
+   *
+   * Anything that's already an absolute URL falls through unchanged
+   * (handled inside `resolveAssetUrl`).
+   */
+  private rewriteBgConf(conf: any): any {
+    if (!conf || typeof conf !== 'object') return conf;
+    const out: any = { ...conf };
+    if (typeof out.url === 'string') {
+      out.url = this.gcx.resolveAssetUrl(out.url);
+    }
+    for (const key of ['urls', 'tiles'] as const) {
+      const arr = out[key];
+      if (Array.isArray(arr)) {
+        out[key] = arr.map((u: any) =>
+          typeof u === 'string' ? this.gcx.resolveAssetUrl(u) : u,
+        );
+      }
+    }
+    return out;
   }
 
   toggleVisible(layer: ConfiguredLayer): void {
