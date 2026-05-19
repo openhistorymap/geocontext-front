@@ -9,6 +9,7 @@ import {
   viewChild,
 } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import * as Papa from 'papaparse';
 import { FormsModule } from '@angular/forms';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatTabsModule } from '@angular/material/tabs';
@@ -37,12 +38,21 @@ import { GcxCoreService } from '../gcx-core.service';
 import { GcxLegendComponent } from '../gcx-legend/gcx-legend.component';
 
 interface DetailMediaItem {
-  /** `image` → inline `<img>`, `html` → fetched and rendered via Angular's
-   *  HTML sanitizer (cheap pandoc-style fragments work without a markdown
-   *  lib), `download` → just a link to the asset. */
-  kind: 'image' | 'html' | 'download';
+  /** `image` → inline `<img>`; `html` → fetched and rendered via
+   *  Angular's HTML sanitizer (cheap pandoc-style fragments work
+   *  without a markdown lib); `csv-row` → fetched CSV indexed by `key`
+   *  column, the row matching `match` (interpolated against feature
+   *  properties) is rendered as a definition list; `download` → just a
+   *  link to the asset. */
+  kind: 'image' | 'html' | 'csv-row' | 'download';
   src: string;
   label?: string;
+  /** csv-row only: column name in the CSV to match against. */
+  key?: string;
+  /** csv-row only: template (e.g. `{tomba}`) resolved against the
+   *  feature's properties; the resulting string is compared to the CSV
+   *  column named in `key`. Defaults to `{${detail.title}}` when omitted. */
+  match?: string;
 }
 
 interface DetailConfig {
@@ -66,6 +76,13 @@ interface ConfiguredLayer {
 interface ResolvedMediaItem extends DetailMediaItem {
   /** Original template, kept so the (error) handler can match on it. */
   template: string;
+}
+
+/** Parsed result of a `csv-row`-kind fetch. Rows indexed by the
+ *  stringified value of the configured key column for O(1) lookup. */
+interface CsvParsed {
+  headers: string[];
+  rowsByKey: Map<string, Record<string, string>>;
 }
 
 interface ConfiguredDatasource {
@@ -277,6 +294,21 @@ function resolveDemLayer(dem: any): ConfiguredLayer | null {
                       <div class="gcx-detail-html-body" [innerHTML]="body"></div>
                     </section>
                   }
+                }
+                @for (cr of resolvedCsvRows(); track cr.src) {
+                  <section class="gcx-detail-csv">
+                    @if (cr.label) {
+                      <h4 class="gcx-detail-csv-label">{{ cr.label }}</h4>
+                    }
+                    <dl class="gcx-detail-csv-row">
+                      @for (h of cr.headers; track h) {
+                        @if (h !== cr.keyColumn && cr.row[h] != null && cr.row[h] !== '') {
+                          <dt>{{ h }}</dt>
+                          <dd>{{ cr.row[h] }}</dd>
+                        }
+                      }
+                    </dl>
+                  </section>
                 }
                 @if (propertyEntries().length) {
                   <dl class="gcx-detail-properties">
@@ -771,6 +803,47 @@ function resolveDemLayer(dem: any): ConfiguredLayer | null {
         color: var(--gcx-ink);
       }
 
+      /* --- CSV row (per-feature lookup against a tabular reference) ----- */
+      .gcx-detail-csv {
+        margin: 0 0 18px;
+        padding-top: 8px;
+        border-top: 1px dashed var(--gcx-rule);
+      }
+      .gcx-detail-csv-label {
+        margin: 0 0 10px;
+        font-family: var(--gcx-body);
+        font-size: 10.5px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        color: var(--gcx-ink-faint);
+      }
+      .gcx-detail-csv-row {
+        margin: 0;
+        display: grid;
+        grid-template-columns: minmax(80px, 35%) 1fr;
+        column-gap: 12px;
+        row-gap: 6px;
+        font-size: 0.875rem;
+      }
+      .gcx-detail-csv-row dt {
+        font-family: var(--gcx-body);
+        font-size: 10.5px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: var(--gcx-ink-faint);
+        padding-top: 2px;
+        word-break: break-word;
+      }
+      .gcx-detail-csv-row dd {
+        margin: 0;
+        font-family: var(--gcx-display);
+        font-size: 0.92rem;
+        color: var(--gcx-ink);
+        word-break: break-word;
+      }
+
       /* --- Downloads (off-format attachments: docx, pdf, …) ------------- */
       .gcx-detail-downloads {
         list-style: none;
@@ -945,6 +1018,10 @@ export class GcxMapComponent implements OnDestroy {
    *  global — switching features and back doesn't refetch. Missing entries
    *  mean "not yet fetched"; failures land in `mediaErrors` instead. */
   readonly htmlCache = signal<Map<string, string>>(new Map());
+  /** Parsed CSVs for `kind: "csv-row"` media, keyed by URL. Same caching
+   *  shape as htmlCache; failures land in mediaErrors. Index built once
+   *  per CSV using the `key` column declared in gcx.json. */
+  readonly csvCache = signal<Map<string, CsvParsed>>(new Map());
   readonly searchTerm = signal<string>('');
 
   /** Layer list filtered by the search input. Empty term shows everything. */
@@ -1004,7 +1081,18 @@ export class GcxMapComponent implements OnDestroy {
         const interpolated = interpolate(m.src, props);
         if (interpolated == null) return null;
         const src = this.gcx.resolveAssetUrl(interpolated);
-        return { ...m, template: m.src, src };
+        const out: ResolvedMediaItem = { ...m, template: m.src, src };
+        // csv-row needs a per-feature lookup value too; default to the
+        // detail.title property when `match` is omitted so the common
+        // case (CSV keyed by the same id used for the heading) is silent.
+        if (m.kind === 'csv-row') {
+          const matchTpl = m.match ?? (detail.title ? `{${detail.title}}` : null);
+          if (!matchTpl) return null;
+          const matched = interpolate(matchTpl, props);
+          if (matched == null) return null;
+          out.match = matched;
+        }
+        return out;
       })
       .filter((m): m is ResolvedMediaItem => m !== null);
   });
@@ -1023,13 +1111,44 @@ export class GcxMapComponent implements OnDestroy {
   readonly resolvedHtml = computed(() =>
     this.resolvedMedia().filter((m) => m.kind === 'html'),
   );
+  readonly resolvedCsvRowMedia = computed(() =>
+    this.resolvedMedia().filter((m) => m.kind === 'csv-row'),
+  );
   readonly resolvedDownloads = computed(() =>
     this.resolvedMedia().filter((m) => m.kind === 'download'),
   );
 
+  /**
+   * For each csv-row media item, the matched row (if the CSV has loaded
+   * and contains a row keyed by the interpolated match value). Items
+   * still pending fetch — or whose key doesn't appear in the CSV — are
+   * dropped from the list; that's how a tomb with no bibliography
+   * silently renders nothing instead of a "row not found" placeholder.
+   */
+  readonly resolvedCsvRows = computed(() => {
+    const cache = this.csvCache();
+    return this.resolvedCsvRowMedia()
+      .map((m) => {
+        const parsed = cache.get(m.src);
+        if (!parsed || !m.key || m.match == null) return null;
+        const row = parsed.rowsByKey.get(String(m.match));
+        if (!row) return null;
+        return {
+          src: m.src,
+          label: m.label,
+          keyColumn: m.key,
+          headers: parsed.headers,
+          row,
+        };
+      })
+      .filter((x): x is NonNullable<typeof x> => x !== null);
+  });
+
   /** In-flight fetch tracker — prevents the effect from launching duplicate
    *  requests for the same URL while one is already pending. */
   private readonly htmlInFlight = new Set<string>();
+  /** Mirror tracker for csv-row fetches. */
+  private readonly csvInFlight = new Set<string>();
 
   /** View parsed from the URL hash on first load. Used to override the
    *  gcx.json defaults so a shared link puts the user exactly where the
@@ -1117,6 +1236,35 @@ export class GcxMapComponent implements OnDestroy {
           },
           error: () => {
             this.htmlInFlight.delete(url);
+            this.onMediaError(url);
+          },
+        });
+      }
+    });
+
+    // Mirror effect for csv-row media. Parses with papaparse, indexes by
+    // the configured key column, and caches the result. A CSV that
+    // doesn't contain the requested key column is treated as an error so
+    // it gets hidden rather than silently rendering empty rows.
+    effect(() => {
+      const media = this.resolvedCsvRowMedia();
+      const cache = this.csvCache();
+      const errors = this.mediaErrors();
+      for (const m of media) {
+        const url = m.src;
+        if (!m.key) continue;
+        if (cache.has(url) || errors.has(url) || this.csvInFlight.has(url)) continue;
+        this.csvInFlight.add(url);
+        const keyColumn = m.key;
+        this.http.get(url, { responseType: 'text' }).subscribe({
+          next: (text) => {
+            this.csvInFlight.delete(url);
+            const parsed = parseCsvByKey(text, keyColumn);
+            if (parsed) this.csvCache.update((c) => new Map(c).set(url, parsed));
+            else this.onMediaError(url);
+          },
+          error: () => {
+            this.csvInFlight.delete(url);
             this.onMediaError(url);
           },
         });
@@ -1298,6 +1446,34 @@ function interpolate(template: string, props: Record<string, any>): string | nul
     return String(v);
   });
   return missing ? null : resolved;
+}
+
+/**
+ * Parse a CSV body into a header list + an index keyed by `keyColumn`'s
+ * stringified value. Returns null when the CSV doesn't contain the
+ * requested key column — easier to surface that as a media error than
+ * to silently render empty rows.
+ */
+function parseCsvByKey(text: string, keyColumn: string): CsvParsed | null {
+  const result = Papa.parse<Record<string, string>>(text, {
+    header: true,
+    skipEmptyLines: true,
+  });
+  const headers = result.meta.fields ?? [];
+  if (!headers.includes(keyColumn)) {
+    console.warn(
+      `csv-row: key column "${keyColumn}" not found in CSV. Available columns:`,
+      headers,
+    );
+    return null;
+  }
+  const rowsByKey = new Map<string, Record<string, string>>();
+  for (const row of result.data) {
+    const k = (row as any)[keyColumn];
+    if (k == null || k === '') continue;
+    rowsByKey.set(String(k), row);
+  }
+  return { headers, rowsByKey };
 }
 
 /**

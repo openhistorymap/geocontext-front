@@ -259,9 +259,11 @@ An ordered list of attachments. Each item:
 
 | Field | Required | Notes |
 |---|---|---|
-| `kind` | yes | `image`, `html`, or `download`. |
-| `src`  | yes | Path with `{propname}` placeholders. |
-| `label`| no  | Caption / link text. |
+| `kind`  | yes | `image`, `html`, `csv-row`, or `download`. |
+| `src`   | yes | Path with `{propname}` placeholders. |
+| `label` | no  | Caption / link text. |
+| `key`   | csv-row | Column in the CSV to match against. |
+| `match` | csv-row | Value to look up (template, e.g. `{tomba}`). Defaults to `{${detail.title}}`. |
 
 Behaviours:
 
@@ -273,6 +275,14 @@ Behaviours:
   sanitizer in the Details panel. Pandoc-style fragments (tables,
   smallcaps spans, `<em>`) render without a markdown dep. 404s and
   parse errors are hidden.
+- **`csv-row`** — fetches a tabular CSV once, indexes it by `key`
+  (a column in the CSV), and on each feature select renders the row
+  whose key matches `match` (a `{propname}` template against the
+  feature properties; defaults to `{${detail.title}}` when omitted).
+  Other columns render as a definition list under `label`. When the
+  CSV doesn't contain a matching row, the section hides silently —
+  same coverage-tolerance as image/html. Use this to join external
+  bibliography / metadata tables to map features by ID.
 - **`download`** — plain link, opens in a new tab; meant for
   archival attachments like `.docx`, `.pdf`.
 
@@ -418,6 +428,8 @@ For external code that wants to fetch directly:
         "media": [
           { "kind": "image",    "src": "schizzi/{tomba}.jpg",      "label": "Schizzo" },
           { "kind": "html",     "src": "tombe/Tomba_{tomba}.html", "label": "Scheda" },
+          { "kind": "csv-row",  "src": "Bibliografia.csv",
+            "key": "N. Tomba", "match": "{tomba}",                 "label": "Bibliografia" },
           { "kind": "download", "src": "tombe/Tomba_{tomba}.docx", "label": "DOCX" }
         ]
       }
