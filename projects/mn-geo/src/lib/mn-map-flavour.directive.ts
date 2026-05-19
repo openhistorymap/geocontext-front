@@ -1,5 +1,5 @@
 import { Directive } from '@angular/core';
-import type { MnGeoFlavour } from './mn-geo-flavour.interface';
+import type { LayerFilterPredicate, MnGeoFlavour } from './mn-geo-flavour.interface';
 import type { MnMapComponent } from './mn-map/mn-map.component';
 
 /**
@@ -71,6 +71,16 @@ export abstract class MnMapFlavourDirective implements MnGeoFlavour {
    * Default is a no-op; concrete flavours override.
    */
   setView(_view: Partial<ViewState>): void {
+    /* override in concrete flavour */
+  }
+
+  /**
+   * Restrict a previously added layer to features matching `predicate`,
+   * or clear the restriction when `predicate` is null. Default is a
+   * no-op so flavours that don't filter still satisfy the interface;
+   * concrete flavours override.
+   */
+  setLayerFilter(_id: string, _predicate: LayerFilterPredicate | null): void {
     /* override in concrete flavour */
   }
 }

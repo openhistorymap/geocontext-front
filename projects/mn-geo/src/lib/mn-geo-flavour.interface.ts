@@ -25,4 +25,21 @@ export interface MnGeoFlavour {
    *  sidebar = topmost layer"). Layers not in `ids` keep their relative
    *  order. Optional: a flavour without live reordering may omit it. */
   setLayerOrder?(ids: string[]): void;
+
+  /** Show only the features of a previously added layer whose
+   *  `properties[predicate.property]` strictly equals `predicate.value`.
+   *  `null` clears the filter. Comparison is renderer-side equality on the
+   *  string-coerced property value (matches what the user sees in the
+   *  Details tab). Optional: flavours that can't filter cleanly may
+   *  omit it. */
+  setLayerFilter?(id: string, predicate: LayerFilterPredicate | null): void;
+}
+
+/** A single-property equality predicate. Modelled after the simplest
+ *  expression a user can read from the Details tab: "show me only the
+ *  features where X = Y". `value` is matched against the feature's
+ *  property after string-coercion so `"3"` and `3` count the same. */
+export interface LayerFilterPredicate {
+  property: string;
+  value: unknown;
 }

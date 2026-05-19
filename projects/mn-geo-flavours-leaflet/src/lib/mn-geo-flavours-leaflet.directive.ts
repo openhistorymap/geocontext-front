@@ -1,11 +1,22 @@
 import { Directive, forwardRef, OnDestroy } from '@angular/core';
 import * as L from 'leaflet';
-import { MnMapComponent, MnMapFlavourDirective, ViewState } from '@openhistorymap/mn-geo';
+import {
+  LayerFilterPredicate,
+  MnMapComponent,
+  MnMapFlavourDirective,
+  ViewState,
+} from '@openhistorymap/mn-geo';
 import {
   buildPopupHtml,
   isLayerDescriptor,
   LayerDescriptor,
 } from '@openhistorymap/mn-geo-layers';
+
+interface GeoJsonState {
+  group: L.FeatureGroup;
+  data: any;
+  opts: L.GeoJSONOptions;
+}
 
 /**
  * Leaflet implementation of the MnGeoFlavour interface. Attach inside a
@@ -41,6 +52,16 @@ export class MnGeoFlavoursLeafletDirective extends MnMapFlavourDirective impleme
    *  layers register so async-resolving datasources don't leave the
    *  stack in completion order. Same intent as the MapLibre flavour. */
   private _desiredLayerOrder: string[] | null = null;
+  /** Latest data + opts for each geojson-features descriptor, plus the
+   *  L.featureGroup that hosts the rendered inner L.geoJSON layer. Used
+   *  by setLayerFilter (rebuild with a `filter` opt) and by the
+   *  descriptor's `subscribe` channel (rebuild with new data). Leaflet's
+   *  L.geoJSON only honours `filter` at construction, so any per-feature
+   *  selection change forces a clearLayers + recreate. */
+  private readonly geojsonStates = new Map<string, GeoJsonState>();
+  /** Active equality predicate per descriptor id. Looked up at render
+   *  time so live-update pushes also respect the user's filter. */
+  private readonly activeFilters = new Map<string, LayerFilterPredicate>();
 
   get leafletMap(): L.Map | undefined {
     return this._map;
@@ -150,6 +171,8 @@ export class MnGeoFlavoursLeafletDirective extends MnMapFlavourDirective impleme
         this._map.removeLayer(layer);
         this.layersById.delete(input);
       }
+      this.geojsonStates.delete(input);
+      this.activeFilters.delete(input);
       return;
     }
     if (input && typeof input === 'object' && 'remove' in input) {
@@ -159,7 +182,11 @@ export class MnGeoFlavoursLeafletDirective extends MnMapFlavourDirective impleme
       this._map.removeLayer(layer);
       // Drop any id mapping that pointed at this layer.
       for (const [id, l] of this.layersById) {
-        if (l === layer) this.layersById.delete(id);
+        if (l === layer) {
+          this.layersById.delete(id);
+          this.geojsonStates.delete(id);
+          this.activeFilters.delete(id);
+        }
       }
     }
   }
@@ -203,6 +230,33 @@ export class MnGeoFlavoursLeafletDirective extends MnMapFlavourDirective impleme
         layer.setZIndex(ids.length - i);
       }
     }
+  }
+
+  override setLayerFilter(id: string, predicate: LayerFilterPredicate | null): void {
+    if (predicate) this.activeFilters.set(id, predicate);
+    else this.activeFilters.delete(id);
+    const state = this.geojsonStates.get(id);
+    if (state) this.renderGeoJson(state, predicate);
+  }
+
+  /** Clear and rebuild a geojson-features group with `state.data` and
+   *  `state.opts` augmented by an optional equality predicate. L.geoJSON
+   *  only honours `filter` at construction, so any per-feature visibility
+   *  change forces this rebuild. Comparison is string-coerced so the
+   *  predicate matches what the user sees in the Details tab. */
+  private renderGeoJson(
+    state: GeoJsonState,
+    predicate: LayerFilterPredicate | null,
+  ): void {
+    state.group.clearLayers();
+    const opts: L.GeoJSONOptions = predicate
+      ? {
+          ...state.opts,
+          filter: (f: any) =>
+            String(f?.properties?.[predicate.property]) === String(predicate.value),
+        }
+      : state.opts;
+    L.geoJSON(state.data, opts).addTo(state.group);
   }
 
   override getView(): ViewState | null {
@@ -278,14 +332,17 @@ export class MnGeoFlavoursLeafletDirective extends MnMapFlavourDirective impleme
         if (desc.popup || desc.onClick) opts.onEachFeature = onEach;
 
         const group = L.featureGroup();
-        L.geoJSON(desc.data, opts).addTo(group);
+        const state: GeoJsonState = { group, data: desc.data, opts };
+        this.geojsonStates.set(desc.id, state);
+        this.renderGeoJson(state, this.activeFilters.get(desc.id) ?? null);
         if (desc.subscribe) {
           // Live channel: replace the projected geojson layer on each push.
           // Returned teardown is held alongside the group so removeLayer
-          // can stop the subscription.
+          // can stop the subscription. The user's active filter (if any)
+          // is re-evaluated against the freshly-pushed FeatureCollection.
           const unsub = desc.subscribe((data) => {
-            group.clearLayers();
-            L.geoJSON(data, opts).addTo(group);
+            state.data = data;
+            this.renderGeoJson(state, this.activeFilters.get(desc.id) ?? null);
           });
           this.subscriptions.set(group, unsub);
         }

@@ -1,6 +1,11 @@
 import { Directive, forwardRef, OnDestroy } from '@angular/core';
 import maplibregl, { Map as MaplibreMap, Marker as MaplibreMarker } from 'maplibre-gl';
-import { MnMapComponent, MnMapFlavourDirective, ViewState } from '@openhistorymap/mn-geo';
+import {
+  LayerFilterPredicate,
+  MnMapComponent,
+  MnMapFlavourDirective,
+  ViewState,
+} from '@openhistorymap/mn-geo';
 import {
   buildPopupHtml,
   GeoJsonFeaturesDescriptor,
@@ -58,6 +63,18 @@ export class MnGeoFlavoursMaplibreDirective extends MnMapFlavourDirective implem
    *  async, so layers fan in completion-order rather than declaration
    *  order, and the initial setLayerOrder fires before they exist. */
   private _desiredLayerOrder: string[] | null = null;
+  /** Base filter expression for each GL layer at the moment we registered
+   *  it (the geometry-typed `['==', ['geometry-type'], 'Point']`, or
+   *  whatever a `style.maplibre` entry declared, or undefined). Kept so
+   *  setLayerFilter can compose `['all', base, predicate]` instead of
+   *  obliterating the base — and so a second filter change doesn't keep
+   *  nesting `all`s around stale predicates. */
+  private readonly baseFilterByGlLayerId = new Map<string, any>();
+  /** Active equality predicate per descriptor id. Set by setLayerFilter
+   *  and re-applied by trackGlLayer when async-resolved layers arrive,
+   *  so a filter requested before the data fetched still binds when it
+   *  does. */
+  private readonly activeFilters = new Map<string, LayerFilterPredicate>();
   private readonly subscriptions = new Map<string, () => void>();
   /** DEM source id currently bound to the map's terrain (via setTerrain).
    *  Tracked so removeLayer can unset terrain before tearing the source
@@ -147,7 +164,9 @@ export class MnGeoFlavoursMaplibreDirective extends MnMapFlavourDirective implem
     for (const layerId of this.glLayersByDescriptorId.get(id) ?? []) {
       if (this._map.getLayer(layerId)) this._map.removeLayer(layerId);
       this.ownedLayerIds.delete(layerId);
+      this.baseFilterByGlLayerId.delete(layerId);
     }
+    this.activeFilters.delete(id);
     this.glLayersByDescriptorId.delete(id);
     if (this.ownedSourceIds.has(id) && this._map.getSource(id)) {
       if (this.terrainSourceId === id) {
@@ -204,6 +223,43 @@ export class MnGeoFlavoursMaplibreDirective extends MnMapFlavourDirective implem
     }
   }
 
+  override setLayerFilter(id: string, predicate: LayerFilterPredicate | null): void {
+    if (predicate) this.activeFilters.set(id, predicate);
+    else this.activeFilters.delete(id);
+    if (!this._map) return;
+    for (const layerId of this.glLayersByDescriptorId.get(id) ?? []) {
+      this.applyFilterToGlLayer(layerId, predicate);
+    }
+  }
+
+  /** Compose the GL layer's recorded base filter with the user's
+   *  property-equality predicate (or clear back to base when null). The
+   *  base filter is whatever was supplied at addLayer time — usually a
+   *  `geometry-type` gate, sometimes nothing for `style.maplibre` entries.
+   *  Pin-mode markers are HTML overlays, not GL layers, so they bypass
+   *  this path and remain unfiltered for now. */
+  private applyFilterToGlLayer(
+    layerId: string,
+    predicate: LayerFilterPredicate | null,
+  ): void {
+    if (!this._map?.getLayer(layerId)) return;
+    const base = this.baseFilterByGlLayerId.get(layerId);
+    if (!predicate) {
+      this._map.setFilter(layerId, base ?? null);
+      return;
+    }
+    // Coerce to string so the renderer's equality matches what the user
+    // saw in the Details tab (where every value is shown via Angular's
+    // string interpolation).
+    const equality: any = [
+      '==',
+      ['to-string', ['get', predicate.property]],
+      String(predicate.value),
+    ];
+    const combined = base ? ['all', base, equality] : equality;
+    this._map.setFilter(layerId, combined);
+  }
+
   override getView(): ViewState | null {
     if (!this._map) return null;
     const c = this._map.getCenter();
@@ -236,13 +292,20 @@ export class MnGeoFlavoursMaplibreDirective extends MnMapFlavourDirective implem
 
   /** Register a freshly-added GL layer under its descriptor so the rest
    *  of the lifecycle (visibility / order / remove) can find it without
-   *  hard-coded suffix conventions. Reapplies the host's desired stack
-   *  order so async-fanning-in layers don't end up in completion order. */
-  private trackGlLayer(descId: string, layerId: string): void {
+   *  hard-coded suffix conventions. Records the base filter so
+   *  setLayerFilter can compose against it instead of clobbering it,
+   *  reapplies any active filter (covers the async-fan-in case where
+   *  setLayerFilter ran before the GL layer existed), and reapplies the
+   *  host's desired stack order so completion-order doesn't leak into
+   *  the visual stack. */
+  private trackGlLayer(descId: string, layerId: string, baseFilter?: any): void {
     this.ownedLayerIds.add(layerId);
+    if (baseFilter !== undefined) this.baseFilterByGlLayerId.set(layerId, baseFilter);
     const list = this.glLayersByDescriptorId.get(descId);
     if (list) list.push(layerId);
     else this.glLayersByDescriptorId.set(descId, [layerId]);
+    const active = this.activeFilters.get(descId);
+    if (active) this.applyFilterToGlLayer(layerId, active);
     this.applyLayerOrder();
   }
 
@@ -462,7 +525,7 @@ export class MnGeoFlavoursMaplibreDirective extends MnMapFlavourDirective implem
                 id: layerId,
                 source: id,
               });
-              this.trackGlLayer(id, layerId);
+              this.trackGlLayer(id, layerId, (spec as any).filter);
             }
             sublayerIds.push(layerId);
           });
@@ -481,7 +544,7 @@ export class MnGeoFlavoursMaplibreDirective extends MnMapFlavourDirective implem
                 'circle-stroke-width': desc.style?.options?.weight ?? 1,
               },
             });
-            this.trackGlLayer(id, circleId);
+            this.trackGlLayer(id, circleId, ['==', ['geometry-type'], 'Point']);
           }
           sublayerIds.push(circleId);
           const lineId = `${id}-line`;
@@ -496,7 +559,7 @@ export class MnGeoFlavoursMaplibreDirective extends MnMapFlavourDirective implem
                 'line-width': desc.style?.options?.weight ?? 2,
               },
             });
-            this.trackGlLayer(id, lineId);
+            this.trackGlLayer(id, lineId, ['==', ['geometry-type'], 'LineString']);
           }
           sublayerIds.push(lineId);
           const fillId = `${id}-fill`;
@@ -511,7 +574,7 @@ export class MnGeoFlavoursMaplibreDirective extends MnMapFlavourDirective implem
                 'fill-opacity': desc.style?.options?.fillOpacity ?? 0.4,
               },
             });
-            this.trackGlLayer(id, fillId);
+            this.trackGlLayer(id, fillId, ['==', ['geometry-type'], 'Polygon']);
           }
           sublayerIds.push(fillId);
         }

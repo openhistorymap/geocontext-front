@@ -27,6 +27,7 @@ import {
   moveItemInArray,
 } from '@angular/cdk/drag-drop';
 import {
+  LayerFilterPredicate,
   MnMapComponent,
   MnLayerComponent,
   MnDatasourceComponent,
@@ -310,10 +311,41 @@ function resolveDemLayer(dem: any): ConfiguredLayer | null {
                     </dl>
                   </section>
                 }
+                @if (activeFilter(); as f) {
+                  <p class="gcx-filter-banner">
+                    <span>Filtering <em>{{ f.layer }}</em> by <strong>{{ f.predicate.property }}</strong> =
+                      <span class="gcx-filter-value">{{ f.predicate.value }}</span>
+                    </span>
+                    <button
+                      type="button"
+                      class="gcx-filter-clear"
+                      (click)="clearLayerFilter()"
+                      aria-label="Clear filter"
+                    >× clear</button>
+                  </p>
+                }
                 @if (propertyEntries().length) {
                   <dl class="gcx-detail-properties">
                     @for (entry of propertyEntries(); track entry[0]) {
-                      <dt>{{ entry[0] }}</dt>
+                      <dt>
+                        <span>{{ entry[0] }}</span>
+                        <button
+                          type="button"
+                          class="gcx-filter-button"
+                          [class.is-active]="isFilteredBy(entry[0], entry[1])"
+                          (click)="toggleFilterByProperty(entry[0], entry[1])"
+                          [attr.aria-label]="
+                            isFilteredBy(entry[0], entry[1])
+                              ? 'Clear filter on ' + entry[0]
+                              : 'Filter layer by ' + entry[0] + ' = ' + entry[1]
+                          "
+                          [attr.title]="
+                            isFilteredBy(entry[0], entry[1])
+                              ? 'Clear filter'
+                              : 'Filter layer by this value'
+                          "
+                        >⌕</button>
+                      </dt>
                       <dd>{{ entry[1] }}</dd>
                     }
                   </dl>
@@ -712,6 +744,13 @@ function resolveDemLayer(dem: any): ConfiguredLayer | null {
         color: var(--gcx-ink-faint);
         padding-top: 2px;
         word-break: break-word;
+        /* The filter button sits flush right of the label, so the user
+           can read down the dt column for keys, and reach over for the
+           filter action. Stays subtle until hovered. */
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        justify-content: space-between;
       }
       .gcx-detail-properties dd {
         margin: 0;
@@ -720,6 +759,67 @@ function resolveDemLayer(dem: any): ConfiguredLayer | null {
         color: var(--gcx-ink);
         word-break: break-word;
       }
+
+      .gcx-filter-banner {
+        display: flex;
+        align-items: baseline;
+        gap: 10px;
+        justify-content: space-between;
+        margin: 0 0 14px;
+        padding: 8px 10px;
+        border-left: 2px solid var(--gcx-accent);
+        background: color-mix(in oklch, var(--gcx-accent) 6%, var(--gcx-paper));
+        font-family: var(--gcx-body);
+        font-size: 12px;
+        color: var(--gcx-ink-soft);
+      }
+      .gcx-filter-banner em {
+        font-family: var(--gcx-display);
+        font-style: italic;
+        color: var(--gcx-ink);
+      }
+      .gcx-filter-banner strong {
+        font-weight: 600;
+        color: var(--gcx-ink);
+      }
+      .gcx-filter-banner .gcx-filter-value {
+        font-family: var(--gcx-display);
+        color: var(--gcx-accent-deep);
+      }
+      .gcx-filter-clear {
+        appearance: none;
+        background: transparent;
+        border: 0;
+        padding: 0;
+        cursor: pointer;
+        font-family: var(--gcx-body);
+        font-size: 11px;
+        letter-spacing: 0.06em;
+        color: var(--gcx-ink-faint);
+      }
+      .gcx-filter-clear:hover { color: var(--gcx-accent-deep); }
+
+      .gcx-filter-button {
+        appearance: none;
+        background: transparent;
+        border: 0;
+        padding: 0 4px;
+        cursor: pointer;
+        font: 500 13px / 1 var(--gcx-display);
+        color: var(--gcx-ink-faint);
+        opacity: 0;
+        transition: color 120ms ease, opacity 120ms ease;
+      }
+      /* Reveal on row hover so the dt column reads cleanly when the
+         user is just skimming, but the action is one move away when
+         they reach for it. Active filter pin stays visible regardless. */
+      .gcx-detail-properties > dt:hover .gcx-filter-button,
+      .gcx-detail-properties > dt:focus-within .gcx-filter-button,
+      .gcx-filter-button.is-active {
+        opacity: 1;
+      }
+      .gcx-filter-button:hover { color: var(--gcx-accent-deep); }
+      .gcx-filter-button.is-active { color: var(--gcx-accent-deep); }
 
       /* --- Media (images keyed off feature properties) ------------------ */
       .gcx-detail-media {
@@ -1038,6 +1138,23 @@ export class GcxMapComponent implements OnDestroy {
    *  when the layer didn't declare one — the panel then falls back to a
    *  bare properties dump. */
   readonly selectedDetail = signal<DetailConfig | null>(null);
+  /** Name of the layer that the currently-selected feature belongs to,
+   *  captured at onFeature time. Used by the filter UI in the Details
+   *  tab to know which layer to constrain. */
+  readonly selectedLayerName = signal<string | null>(null);
+  /** Active per-layer equality filter, keyed by layer name. Only one
+   *  filter per layer (a property-value pair). Toggling the same
+   *  property+value in the Details tab clears it. */
+  readonly layerFilters = signal<Map<string, LayerFilterPredicate>>(new Map());
+  /** Filter currently applied to the selected feature's layer, surfaced
+   *  to the template as a banner. Null when no filter is active or no
+   *  feature is selected. */
+  readonly activeFilter = computed<{ layer: string; predicate: LayerFilterPredicate } | null>(() => {
+    const layer = this.selectedLayerName();
+    if (!layer) return null;
+    const predicate = this.layerFilters().get(layer);
+    return predicate ? { layer, predicate } : null;
+  });
   /** Resolved media URLs that 404'd. Hidden in the template so missing
    *  schizzi don't show a broken-image icon for the 90% of features that
    *  have no associated asset. Reset on each feature selection. */
@@ -1449,11 +1566,57 @@ export class GcxMapComponent implements OnDestroy {
     this.selectedTab.set(1);
     this.selectedItem.set(event);
     this.selectedDetail.set(layer.detail ?? null);
+    this.selectedLayerName.set(layer.name);
     this.mediaErrors.set(new Set());
     // A new selection invalidates whatever was in the lightbox — the
     // index points into the old feature's resolvedImages().
     this.lightboxIndex.set(null);
     this.gcx.openSidebar();
+  }
+
+  /** Is the per-layer filter currently locked to this exact
+   *  property/value pair? Drives the highlight on the filter button so
+   *  a second click reads as "clear" rather than "apply identical". */
+  isFilteredBy(property: string, value: any): boolean {
+    const af = this.activeFilter();
+    if (!af) return false;
+    return (
+      af.predicate.property === property &&
+      String(af.predicate.value) === String(value)
+    );
+  }
+
+  /** Toggle the layer filter from a property row in the Details tab.
+   *  First click sets the layer's filter to `property = value`; a second
+   *  click on the same row clears it; clicking a different row replaces
+   *  the predicate. The flavour is asked to apply (or clear) the
+   *  filter, and only the selected feature's layer is affected — other
+   *  layers keep their own filters (or lack of one). */
+  toggleFilterByProperty(property: string, value: any): void {
+    const layer = this.selectedLayerName();
+    if (!layer) return;
+    const already = this.isFilteredBy(property, value);
+    this.layerFilters.update((m) => {
+      const next = new Map(m);
+      if (already) next.delete(layer);
+      else next.set(layer, { property, value });
+      return next;
+    });
+    this.flavour()?.setLayerFilter?.(layer, already ? null : { property, value });
+  }
+
+  /** Clear the filter on the layer the currently-selected feature
+   *  belongs to. Called from the banner's × button. */
+  clearLayerFilter(): void {
+    const layer = this.selectedLayerName();
+    if (!layer) return;
+    this.layerFilters.update((m) => {
+      if (!m.has(layer)) return m;
+      const next = new Map(m);
+      next.delete(layer);
+      return next;
+    });
+    this.flavour()?.setLayerFilter?.(layer, null);
   }
 
   onMediaError(src: string): void {
