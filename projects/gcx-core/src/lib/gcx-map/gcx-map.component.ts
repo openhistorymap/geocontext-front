@@ -124,6 +124,16 @@ const BACKGROUND_ALIASES: Record<string, string> = {
   ofm: 'ofm-tiled',
 };
 
+/**
+ * Internal GL layer / Leaflet layer id for the active background.
+ * Deliberately not `'background'`: every MapLibre style ships its own
+ * GL layer literally named "background" (the bottom paint of a vector
+ * style), and `map.getLayer('background')` returning truthy from the
+ * default style would have made the addLayer guard short-circuit and
+ * leave swaps silently broken.
+ */
+const GCX_BG_LAYER_ID = 'gcx-bg';
+
 function resolveBackgroundLayer(bg: any): ConfiguredLayer | null {
   if (bg == null || bg === false || bg === 'none') return null;
   if (typeof bg === 'string') {
@@ -1574,7 +1584,7 @@ export class GcxMapComponent implements OnDestroy {
     // would leave layers stacked in completion order. The flavour
     // remembers the order and reapplies it as GL layers register, so
     // calling this before any layer exists is fine. The synthetic
-    // `background` id is appended last (= bottom of the stack), so the
+    // background id is appended last (= bottom of the stack), so the
     // imperatively-managed bg always sits beneath the user data.
     effect(() => {
       const flav = this.flavour();
@@ -1582,7 +1592,7 @@ export class GcxMapComponent implements OnDestroy {
       const bgId = this.selectedBackgroundId();
       if (!flav) return;
       const ids = ls.map((l) => l.name);
-      if (bgId) ids.push('background');
+      if (bgId) ids.push(GCX_BG_LAYER_ID);
       if (ids.length) flav.setLayerOrder(ids);
     });
 
@@ -1593,9 +1603,12 @@ export class GcxMapComponent implements OnDestroy {
     // (`raster-tiled`, `osm-tiled`, `image-overlay`, `background-color`,
     // …) get exactly the same descriptors as if they were declared as
     // regular layers. On every change we tear down the previous
-    // descriptor (`flav.removeLayer('background')`) and add the new
-    // one — both flavours always reuse id `background` so subsequent
-    // swaps remove cleanly.
+    // descriptor and add the new one — both flavours reuse a single,
+    // private id (`gcx-bg`) for the active background so subsequent
+    // swaps remove cleanly. The previously-used `background` literal
+    // collided with the default MapLibre style's own `background` GL
+    // layer; `map.getLayer('background')` would short-circuit the
+    // add, leaving the swap silently broken.
     effect(() => {
       const flav = this.flavour();
       const opts = this.backgroundOptions();
@@ -1603,7 +1616,7 @@ export class GcxMapComponent implements OnDestroy {
       if (!flav) return;
 
       if (this.bgApplied) {
-        flav.removeLayer('background');
+        flav.removeLayer(GCX_BG_LAYER_ID);
         this.bgApplied = false;
       }
       const opt = selId ? opts.find((o) => o.id === selId) : undefined;
@@ -1613,7 +1626,7 @@ export class GcxMapComponent implements OnDestroy {
         console.warn(`gcx-map: unknown background type "${opt.type}"`);
         return;
       }
-      (ctor as Layer).setName('background');
+      (ctor as Layer).setName(GCX_BG_LAYER_ID);
       (ctor as Layer).setConfiguration({ ...(opt.conf ?? {}) });
       const descriptor = (ctor as Layer).create();
       flav.addLayer(descriptor);
