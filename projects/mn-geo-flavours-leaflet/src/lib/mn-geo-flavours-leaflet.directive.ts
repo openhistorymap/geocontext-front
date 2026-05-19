@@ -67,7 +67,7 @@ export class MnGeoFlavoursLeafletDirective extends MnMapFlavourDirective impleme
     return this._map;
   }
 
-  private geoJsonOptionsFromStyle(style: any): L.GeoJSONOptions {
+  private geoJsonOptionsFromStyle(style: any, interactive: boolean): L.GeoJSONOptions {
     const o = style.options ?? {};
     return {
       pointToLayer: (_feature, latlng) =>
@@ -78,12 +78,14 @@ export class MnGeoFlavoursLeafletDirective extends MnMapFlavourDirective impleme
           weight: o.weight ?? 1,
           opacity: o.opacity ?? 1,
           fillOpacity: o.fillOpacity ?? 0.6,
+          interactive,
         }),
       style: () => ({
         color: o.color ?? '#333',
         weight: o.weight ?? 2,
         fillColor: o.fillColor ?? '#099092',
         fillOpacity: o.fillOpacity ?? 0.4,
+        interactive,
       }),
     };
   }
@@ -305,15 +307,22 @@ export class MnGeoFlavoursLeafletDirective extends MnMapFlavourDirective impleme
       case 'geojson-features': {
         const isPinMode = desc.marker === 'pins';
         const popupField = desc.popup?.htmlField ?? 'html';
+        // A descriptor with no click handler and no popup is context only —
+        // Leaflet's L.Path defaults to interactive:true (pointer-events:auto
+        // on the SVG), which both shifts the cursor to pointer on hover and
+        // shadows clicks on layers below. Setting interactive:false on the
+        // path/marker options gives the user the right semantics: visible
+        // geometry, no hit testing, clicks pass through.
+        const interactive = !!(desc.onClick || desc.popup);
 
         const opts: L.GeoJSONOptions = isPinMode
           ? {
               // Traditional pin markers — Leaflet's default L.marker icon.
-              pointToLayer: (_feature, latlng) => L.marker(latlng),
+              pointToLayer: (_feature, latlng) => L.marker(latlng, { interactive }),
             }
           : desc.style?.options
-            ? this.geoJsonOptionsFromStyle(desc.style)
-            : {};
+            ? this.geoJsonOptionsFromStyle(desc.style, interactive)
+            : this.geoJsonOptionsFromStyle({}, interactive);
 
         const onEach: NonNullable<L.GeoJSONOptions['onEachFeature']> = (
           feature,

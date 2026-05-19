@@ -340,6 +340,12 @@ export class MnGeoFlavoursMaplibreDirective extends MnMapFlavourDirective implem
     // re-renders shouldn't leak overlay nodes).
     this.removeMarkers(id);
 
+    // A non-interactive pin layer renders the icon but must not capture
+    // pointer events — otherwise the marker DIV sits over the GL canvas
+    // and shadows clicks on whatever interactive layer is below. We mark
+    // the element pointer-events:none, which also keeps the cursor from
+    // shifting to grab/pointer on hover.
+    const interactive = !!(desc.onClick || desc.popup);
     const features: any[] = desc.data?.features ?? [];
     const owned: MaplibreMarker[] = [];
     for (const feature of features) {
@@ -349,6 +355,10 @@ export class MnGeoFlavoursMaplibreDirective extends MnMapFlavourDirective implem
 
       const marker = new maplibregl.Marker({ color: this.markerColorFor(desc) })
         .setLngLat([coords[0], coords[1]]);
+
+      if (!interactive) {
+        marker.getElement().style.pointerEvents = 'none';
+      }
 
       if (desc.popup) {
         const popup = new maplibregl.Popup({ closeButton: true, maxWidth: '320px' })
