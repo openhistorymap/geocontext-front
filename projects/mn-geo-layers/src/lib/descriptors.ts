@@ -54,6 +54,37 @@ export interface RasterDemDescriptor {
   exaggeration?: number;
 }
 
+/**
+ * Solid-colour fill covering the entire map viewport, drawn beneath
+ * everything else (when placed at the bottom of the stack). Used for
+ * "no basemap" / background-as-context, e.g. a swamp tint under an
+ * archaeological dataset where the underlying ground was wet plain.
+ * MapLibre uses its native `background` layer type (no source); Leaflet
+ * sets the map container's CSS background.
+ */
+export interface BackgroundColorDescriptor {
+  kind: 'background-color';
+  id: string;
+  color: string;
+  opacity?: number;
+}
+
+/**
+ * Single bounded raster image — a georeferenced historical map, an
+ * aerial photo, etc. — pinned to a rectangular geographic extent.
+ * MapLibre wires it as an `image` source + `raster` layer; Leaflet as
+ * `L.imageOverlay`. `bounds` is `[west, south, east, north]` in WGS84
+ * decimal degrees.
+ */
+export interface ImageOverlayDescriptor {
+  kind: 'image-overlay';
+  id: string;
+  url: string;
+  bounds: [number, number, number, number];
+  opacity?: number;
+  attribution?: string;
+}
+
 export interface GeoJsonFeaturesDescriptor {
   kind: 'geojson-features';
   id: string;
@@ -92,6 +123,8 @@ export type LayerDescriptor =
   | RasterTilesDescriptor
   | VectorTilesDescriptor
   | RasterDemDescriptor
+  | BackgroundColorDescriptor
+  | ImageOverlayDescriptor
   | GeoJsonFeaturesDescriptor;
 
 export function isLayerDescriptor(value: unknown): value is LayerDescriptor {

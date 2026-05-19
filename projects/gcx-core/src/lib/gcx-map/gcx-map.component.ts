@@ -35,6 +35,10 @@ import {
   MnMapFlavourDirective,
   ViewState,
 } from '@openhistorymap/mn-geo';
+import {
+  Layer,
+  MnGeoLayersRegistryService,
+} from '@openhistorymap/mn-geo-layers';
 import { GcxCoreService } from '../gcx-core.service';
 import { GcxLegendComponent } from '../gcx-legend/gcx-legend.component';
 
@@ -90,6 +94,23 @@ interface ConfiguredDatasource {
   name: string;
   type: string;
   conf: any;
+}
+
+/**
+ * One entry in gcx.json's top-level `backgrounds[]` array. Each option
+ * is a self-contained background layer descriptor with a stable `id`
+ * (used by the selector and by the top-level `background` field when
+ * it names a default) and a human-readable `title`. The remaining
+ * fields mirror a regular layer entry — `type` resolves through the
+ * layer-type registry (`raster-tiled`, `osm-tiled`, `image-overlay`,
+ * `background-color`, …) and `conf` carries the per-type configuration.
+ */
+interface BackgroundOption {
+  id: string;
+  title?: string;
+  type: string;
+  conf?: any;
+  style?: any;
 }
 
 /**
@@ -194,6 +215,22 @@ function resolveDemLayer(dem: any): ConfiguredLayer | null {
           <span class="gcx-side-folio">№ {{ layers().length }}</span>
           <span class="gcx-side-eyebrow">Layers · Atlas</span>
         </header>
+        @if (backgroundOptions().length > 1) {
+          <div class="gcx-bg-picker">
+            <span class="gcx-bg-eyebrow">Background</span>
+            <select
+              class="gcx-bg-select"
+              [ngModel]="selectedBackgroundId()"
+              (ngModelChange)="selectedBackgroundId.set($event)"
+              name="background"
+              aria-label="Background"
+            >
+              @for (b of backgroundOptions(); track b.id) {
+                <option [value]="b.id">{{ b.title ?? b.id }}</option>
+              }
+            </select>
+          </div>
+        }
         <form class="gcx-search" (submit)="$event.preventDefault()">
           <span class="gcx-search-icon" aria-hidden="true">⌕</span>
           <input
@@ -512,6 +549,51 @@ function resolveDemLayer(dem: any): ConfiguredLayer | null {
         text-transform: uppercase;
         letter-spacing: 0.14em;
         color: var(--gcx-ink-faint);
+      }
+
+      /* Background picker: a compact eyebrow-labelled <select>. Sits
+         between the folio header and the search input — a quiet
+         editorial dropdown, no Material chrome. */
+      .gcx-bg-picker {
+        display: flex;
+        align-items: baseline;
+        gap: 10px;
+        padding: 10px 20px 10px;
+        border-bottom: 1px dashed var(--gcx-rule);
+      }
+      .gcx-bg-eyebrow {
+        font-family: var(--gcx-body);
+        font-size: 10.5px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        color: var(--gcx-ink-faint);
+        flex: 0 0 auto;
+      }
+      .gcx-bg-select {
+        flex: 1 1 auto;
+        min-width: 0;
+        appearance: none;
+        background: transparent;
+        border: 0;
+        border-bottom: 1px solid var(--gcx-rule);
+        padding: 4px 18px 4px 0;
+        font: 500 var(--gcx-text-base) / 1.4 var(--gcx-display);
+        color: var(--gcx-ink);
+        outline: none;
+        cursor: pointer;
+        /* native chevron in a vector form */
+        background-image:
+          linear-gradient(45deg, transparent 50%, var(--gcx-ink-faint) 50%),
+          linear-gradient(135deg, var(--gcx-ink-faint) 50%, transparent 50%);
+        background-position:
+          calc(100% - 12px) 50%,
+          calc(100% - 7px) 50%;
+        background-size: 5px 5px, 5px 5px;
+        background-repeat: no-repeat;
+      }
+      .gcx-bg-select:focus {
+        border-bottom-color: var(--gcx-accent);
       }
 
       /* Search row: a single underline, not a Material outlined input. */
@@ -1112,6 +1194,7 @@ function resolveDemLayer(dem: any): ConfiguredLayer | null {
 export class GcxMapComponent implements OnDestroy {
   readonly gcx = inject(GcxCoreService);
   private readonly http = inject(HttpClient);
+  private readonly layersRegistry = inject(MnGeoLayersRegistryService);
 
   readonly map = viewChild<MnMapComponent>('map');
   /** Flavour directive content-projected via `<gcx-map><div mnMapFlavour…/></gcx-map>`.
@@ -1127,6 +1210,15 @@ export class GcxMapComponent implements OnDestroy {
 
   readonly datasources = signal<ConfiguredDatasource[]>([]);
   readonly layers = signal<ConfiguredLayer[]>([]);
+  /** Available background options declared in gcx.json's `backgrounds[]`.
+   *  When non-empty the sidebar shows a selector for switching among them.
+   *  Backwards-compat: a config with only the legacy single `background`
+   *  field becomes a one-element array with id `default`. */
+  readonly backgroundOptions = signal<BackgroundOption[]>([]);
+  /** Currently selected background id. Driven by the sidebar selector
+   *  and seeded from the gcx.json `background` field (when it names an
+   *  id present in `backgrounds[]`) or the first option otherwise. */
+  readonly selectedBackgroundId = signal<string | null>(null);
 
   readonly selectedTab = signal<number>(0);
   readonly selectedItem = signal<any>(null);
@@ -1295,6 +1387,12 @@ export class GcxMapComponent implements OnDestroy {
   /** Mirror tracker for csv-row fetches. */
   private readonly csvInFlight = new Set<string>();
 
+  /** True once a background descriptor has been applied to the flavour;
+   *  the bg-swap effect uses this to decide whether to `removeLayer`
+   *  before adding the new one. Not a signal — it's an internal
+   *  bookkeeping flag, not a reactive input. */
+  private bgApplied = false;
+
   /** View parsed from the URL hash on first load. Used to override the
    *  gcx.json defaults so a shared link puts the user exactly where the
    *  sender was. Read once; subsequent updates are driven by `hashchange`. */
@@ -1355,13 +1453,53 @@ export class GcxMapComponent implements OnDestroy {
         return merged;
       });
       const dem = resolveDemLayer(conf['dem']);
-      const background = resolveBackgroundLayer(conf['background']);
+      // Background is now managed imperatively (see the bg-swap effect
+      // below) so it doesn't appear in layers(). The setLayerOrder
+      // effect injects an explicit `background` id at the end of the
+      // ids array so the active background still sits at the bottom of
+      // the stack.
       const combined: ConfiguredLayer[] = [
         ...userLayers,
         ...(dem ? [dem] : []),
-        ...(background ? [background] : []),
       ];
       this.layers.set(combined);
+
+      // Backgrounds[] array: explicit selector-friendly form. Fall back
+      // to the legacy single `background` field by wrapping it as a
+      // one-element list so the imperative effect path is uniform.
+      const explicitBgs: BackgroundOption[] = Array.isArray(conf['backgrounds'])
+        ? (conf['backgrounds'] as BackgroundOption[])
+        : [];
+      if (explicitBgs.length > 0) {
+        this.backgroundOptions.set(explicitBgs);
+        const requested =
+          typeof conf.background === 'string' ? conf.background : undefined;
+        const current = this.selectedBackgroundId();
+        const valid = (id: string | null | undefined) =>
+          !!id && explicitBgs.some((b) => b.id === id);
+        if (!valid(current)) {
+          this.selectedBackgroundId.set(
+            valid(requested) ? requested! : explicitBgs[0].id,
+          );
+        }
+      } else {
+        const legacy = resolveBackgroundLayer(conf['background']);
+        if (legacy) {
+          this.backgroundOptions.set([
+            {
+              id: 'default',
+              title: 'Background',
+              type: legacy.type,
+              conf: legacy.conf,
+              style: legacy.style,
+            },
+          ]);
+          this.selectedBackgroundId.set('default');
+        } else {
+          this.backgroundOptions.set([]);
+          this.selectedBackgroundId.set(null);
+        }
+      }
     });
 
     // Fetch `kind: "html"` media on demand. Triggers whenever the selected
@@ -1435,12 +1573,51 @@ export class GcxMapComponent implements OnDestroy {
     // stack matches the sidebar. Without this, async datasource fetches
     // would leave layers stacked in completion order. The flavour
     // remembers the order and reapplies it as GL layers register, so
-    // calling this before any layer exists is fine.
+    // calling this before any layer exists is fine. The synthetic
+    // `background` id is appended last (= bottom of the stack), so the
+    // imperatively-managed bg always sits beneath the user data.
     effect(() => {
       const flav = this.flavour();
       const ls = this.layers();
-      if (!flav || !ls.length) return;
-      flav.setLayerOrder(ls.map((l) => l.name));
+      const bgId = this.selectedBackgroundId();
+      if (!flav) return;
+      const ids = ls.map((l) => l.name);
+      if (bgId) ids.push('background');
+      if (ids.length) flav.setLayerOrder(ids);
+    });
+
+    // Imperative background-swap effect. The active background is the
+    // entry in `backgroundOptions()` matching `selectedBackgroundId()`.
+    // We resolve it through the same layer-type registry the
+    // declarative `<mn-layer>` instances use, so background types
+    // (`raster-tiled`, `osm-tiled`, `image-overlay`, `background-color`,
+    // …) get exactly the same descriptors as if they were declared as
+    // regular layers. On every change we tear down the previous
+    // descriptor (`flav.removeLayer('background')`) and add the new
+    // one — both flavours always reuse id `background` so subsequent
+    // swaps remove cleanly.
+    effect(() => {
+      const flav = this.flavour();
+      const opts = this.backgroundOptions();
+      const selId = this.selectedBackgroundId();
+      if (!flav) return;
+
+      if (this.bgApplied) {
+        flav.removeLayer('background');
+        this.bgApplied = false;
+      }
+      const opt = selId ? opts.find((o) => o.id === selId) : undefined;
+      if (!opt) return;
+      const ctor = this.layersRegistry.for(opt.type) as Layer | undefined;
+      if (!ctor || typeof (ctor as any).setName !== 'function') {
+        console.warn(`gcx-map: unknown background type "${opt.type}"`);
+        return;
+      }
+      (ctor as Layer).setName('background');
+      (ctor as Layer).setConfiguration({ ...(opt.conf ?? {}) });
+      const descriptor = (ctor as Layer).create();
+      flav.addLayer(descriptor);
+      this.bgApplied = true;
     });
 
     if (typeof window !== 'undefined') {

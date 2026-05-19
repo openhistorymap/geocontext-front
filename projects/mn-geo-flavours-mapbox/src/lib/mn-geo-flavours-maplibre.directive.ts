@@ -409,6 +409,50 @@ export class MnGeoFlavoursMaplibreDirective extends MnMapFlavourDirective implem
   private fromDescriptor(desc: LayerDescriptor): void {
     const map = this._map!;
     switch (desc.kind) {
+      case 'background-color': {
+        const id = desc.id;
+        if (!map.getLayer(id)) {
+          map.addLayer({
+            id,
+            type: 'background',
+            paint: {
+              'background-color': desc.color,
+              ...(desc.opacity != null ? { 'background-opacity': desc.opacity } : {}),
+            },
+          });
+          this.trackGlLayer(id, id);
+        }
+        return;
+      }
+
+      case 'image-overlay': {
+        const id = desc.id;
+        const [w, s, e, n] = desc.bounds;
+        // MapLibre image sources take the 4 corners in clockwise order
+        // starting top-left: (W,N) (E,N) (E,S) (W,S). The type is a
+        // fixed 4-tuple so spread/inferred arrays don't satisfy it —
+        // assert as a tuple of pairs.
+        const coordinates: [[number, number], [number, number], [number, number], [number, number]] = [
+          [w, n], [e, n], [e, s], [w, s],
+        ];
+        if (!map.getSource(id)) {
+          map.addSource(id, { type: 'image', url: desc.url, coordinates });
+          this.ownedSourceIds.add(id);
+        }
+        if (!map.getLayer(id)) {
+          map.addLayer({
+            id,
+            type: 'raster',
+            source: id,
+            ...(desc.opacity != null
+              ? { paint: { 'raster-opacity': desc.opacity } }
+              : {}),
+          });
+          this.trackGlLayer(id, id);
+        }
+        return;
+      }
+
       case 'raster-tiles': {
         const id = desc.id;
         if (!map.getSource(id)) {

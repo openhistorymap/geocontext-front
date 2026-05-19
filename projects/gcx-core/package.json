@@ -4,6 +4,7 @@
   "peerDependencies": {
     "@angular/common": "^21.0.0",
     "@angular/core": "^21.0.0",
+    "@openhistorymap/mn-geo-layers": "*",
     "papaparse": "^5.0.0"
   },
   "dependencies": {

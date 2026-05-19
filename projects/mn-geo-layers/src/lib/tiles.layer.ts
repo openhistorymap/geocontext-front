@@ -1,6 +1,11 @@
 import { EnvironmentProviders, inject, provideAppInitializer } from '@angular/core';
 import { Layer } from './layer.interface';
-import { RasterDemDescriptor, RasterTilesDescriptor } from './descriptors';
+import {
+  BackgroundColorDescriptor,
+  ImageOverlayDescriptor,
+  RasterDemDescriptor,
+  RasterTilesDescriptor,
+} from './descriptors';
 import { MnGeoLayersRegistryService } from './mn-geo-layers-registry.service';
 
 function expandSubdomains(template: string, subdomains?: string): string[] {
@@ -70,15 +75,72 @@ export class DemTiles extends Layer {
 }
 
 /**
+ * Solid-colour viewport fill. Layer type `background-color`; emits a
+ * `background-color` descriptor that flavours translate to a MapLibre
+ * `background` GL layer (no source) or, on Leaflet, a CSS background on
+ * the map container. Used by gcx.json's backgrounds[] selector for a
+ * "no basemap" option that paints the viewport with the publisher's
+ * chosen tint (e.g. swamp green under an archaeological dataset).
+ */
+export class BackgroundColor extends Layer {
+  constructor() {
+    super();
+    this.setRequiresDatasources(false);
+  }
+
+  override create(): BackgroundColorDescriptor {
+    const conf = this.getConfiguration() ?? {};
+    return {
+      kind: 'background-color',
+      id: this.getName() || 'background',
+      color: conf.color ?? '#ffffff',
+      opacity: conf.opacity,
+    };
+  }
+}
+
+/**
+ * Single bounded raster image — historical maps, georeferenced aerials.
+ * Layer type `image-overlay`; emits an `image-overlay` descriptor that
+ * MapLibre renders as an `image` source + raster layer and Leaflet as
+ * `L.imageOverlay`. The `bounds` field is `[west, south, east, north]`
+ * in WGS84.
+ */
+export class ImageOverlay extends Layer {
+  constructor() {
+    super();
+    this.setRequiresDatasources(false);
+  }
+
+  override create(): ImageOverlayDescriptor {
+    const conf = this.getConfiguration() ?? {};
+    return {
+      kind: 'image-overlay',
+      id: this.getName() || 'image',
+      url: conf.url,
+      bounds: conf.bounds,
+      opacity: conf.opacity,
+      attribution: conf.attribution,
+    };
+  }
+}
+
+/**
  * Registers the renderer-agnostic base tile layer types — `raster-tiled` for
  * arbitrary XYZ raster tiles, `raster-dem` for elevation tiles. These power
  * the top-level `background` and `dem` fields in `gcx.json` and let users
  * declare any tile service without pulling in a provider library.
+ *
+ * Also registers `background-color` (solid viewport tint) and
+ * `image-overlay` (bounded raster) — the two background types used by
+ * the gcx.json backgrounds[] selector for non-tile basemaps.
  */
 export function provideMnGeoLayersBase(): EnvironmentProviders {
   return provideAppInitializer(() => {
     const reg = inject(MnGeoLayersRegistryService);
     reg.register('raster-tiled', RasterTiles);
     reg.register('raster-dem', DemTiles);
+    reg.register('background-color', BackgroundColor);
+    reg.register('image-overlay', ImageOverlay);
   });
 }

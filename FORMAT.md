@@ -297,9 +297,14 @@ Paths follow the asset-resolution rules in §9.
 
 ---
 
-## 7. Basemap (`background`)
+## 7. Basemap (`background` / `backgrounds[]`)
 
-Optional shorthand for declaring the base raster tile layer.
+The map shell always draws a single background layer beneath the user
+data. Two forms:
+
+### 7.1 Single basemap (`background`)
+
+Shorthand when only one option is wanted.
 
 ```jsonc
 "background": "osm"                    // alias: osm | ofm | none | false | null
@@ -315,8 +320,57 @@ Optional shorthand for declaring the base raster tile layer.
 | HTTPS URL | Treated as a raw `{z}/{x}/{y}` tile template. |
 | Object | A full layer descriptor (`type`, `conf`, optional `style`). |
 
-The basemap is always drawn beneath user layers, regardless of where
-in the file `background` appears.
+### 7.2 Multiple basemaps with a selector (`backgrounds[]`)
+
+When `backgrounds[]` is present, the sidebar shows a dropdown letting
+the user switch among the listed options live. The `background` field,
+if set as a string, then names the **default** entry by `id`; if it
+doesn't match any entry, the first is used. The single-basemap form
+above is ignored when `backgrounds[]` is present.
+
+```jsonc
+"backgrounds": [
+  { "id": "none", "title": "Nessuno (palude)",
+    "type": "background-color",
+    "conf": { "color": "#3a4633" } },
+  { "id": "osm", "title": "OpenStreetMap",
+    "type": "osm-tiled" },
+  { "id": "rer-1976", "title": "Aerofoto RER 1976-78",
+    "type": "image-overlay",
+    "conf": {
+      "url": "backgrounds/rer_1976_78.jpg",
+      "bounds": [12.1036, 44.6953, 12.1268, 44.7181]
+    } }
+],
+"background": "rer-1976"               // default; optional
+```
+
+Each entry is a self-contained layer spec:
+
+| Field | Required | Notes |
+|---|---|---|
+| `id`    | yes | Stable identifier. Shown in the URL of the future deep-link, used to address the default. |
+| `title` | no  | Human-readable label for the selector. Falls back to `id`. |
+| `type`  | yes | Registered layer-type name. See catalogue below. |
+| `conf`  | type-dependent | Per-type configuration. |
+| `style` | no  | Optional renderer-specific style overrides. |
+
+### 7.3 Background layer types
+
+In addition to the tile-based types from §4, two types are designed
+for basemap use:
+
+| Type | Renders | `conf` keys |
+|---|---|---|
+| `background-color` | A solid viewport tint, no source. Used for "no basemap" / context fill. | `color` (hex/CSS), optional `opacity` |
+| `image-overlay`    | A single bounded raster image (georeferenced historical map, aerial photo). | `url`, `bounds: [W, S, E, N]` (WGS84), optional `opacity`, `attribution` |
+| `raster-tiled` etc. | Any tile provider — same types as for user layers. | `url`, optional `subdomains`, `tileSize`, zoom limits, `attribution` |
+
+`image-overlay` is the right choice for archival captures you've
+checked into the repo (extracted from a WMS GetMap, scanned plates,
+…). The four-corner extent is in WGS84 decimal degrees, west-south-
+east-north order — matches MapLibre's image source corners and
+Leaflet's `L.imageOverlay` bounds after the runtime translates them.
 
 ---
 

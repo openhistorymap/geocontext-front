@@ -62,6 +62,10 @@ export class MnGeoFlavoursLeafletDirective extends MnMapFlavourDirective impleme
   /** Active equality predicate per descriptor id. Looked up at render
    *  time so live-update pushes also respect the user's filter. */
   private readonly activeFilters = new Map<string, LayerFilterPredicate>();
+  /** Descriptor id of the active `background-color` overlay (Leaflet
+   *  has no native background layer, so we paint the container CSS).
+   *  removeLayer resets the CSS when this id is torn down. */
+  private _bgColorId: string | undefined;
 
   get leafletMap(): L.Map | undefined {
     return this._map;
@@ -172,6 +176,12 @@ export class MnGeoFlavoursLeafletDirective extends MnMapFlavourDirective impleme
         this.subscriptions.delete(layer);
         this._map.removeLayer(layer);
         this.layersById.delete(input);
+      }
+      // Background-color side-effect: clear the container CSS so the
+      // next basemap (tile / image / nothing) doesn't leak the prior tint.
+      if (input === this._bgColorId) {
+        this._map.getContainer().style.backgroundColor = '';
+        this._bgColorId = undefined;
       }
       this.geojsonStates.delete(input);
       this.activeFilters.delete(input);
@@ -294,6 +304,30 @@ export class MnGeoFlavoursLeafletDirective extends MnMapFlavourDirective impleme
 
   private fromDescriptor(desc: LayerDescriptor): L.Layer | null {
     switch (desc.kind) {
+      case 'background-color': {
+        // Leaflet has no native "background" layer. Apply the colour to
+        // the map container's CSS — it paints through any pixel not
+        // covered by a tile / overlay layer. The sentinel L.layerGroup
+        // keeps the lifecycle (visibility / order / remove) symmetric
+        // with other layer types; removeLayer below clears the CSS when
+        // this descriptor is torn down.
+        if (this._map) {
+          this._map.getContainer().style.backgroundColor = desc.color;
+          this._bgColorId = desc.id;
+        }
+        return L.layerGroup();
+      }
+      case 'image-overlay': {
+        const [w, s, e, n] = desc.bounds;
+        // L.imageOverlay takes [[south,west],[north,east]] — opposite
+        // corners, lat,lon (Leaflet's convention everywhere).
+        const overlay = L.imageOverlay(desc.url, [[s, w], [n, e]], {
+          opacity: desc.opacity ?? 1,
+          attribution: desc.attribution,
+          interactive: false,
+        });
+        return overlay;
+      }
       case 'raster-tiles': {
         const template = desc.urls[0];
         return L.tileLayer(template, {
