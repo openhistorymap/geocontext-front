@@ -572,10 +572,15 @@ function resolveDemLayer(dem: any): ConfiguredLayer | null {
       }
       /* minmax(0, 1fr) — not the implicit minmax(auto, 1fr) — lets the
          text column shrink below its intrinsic width, so a long layer
-         name ellipsizes instead of pushing the toggle out of the row. */
+         name ellipsizes instead of pushing the toggle out of the row.
+         The legend column is auto (not the old fixed 22 px) because a
+         categorical match-expression legend wants room for its labels;
+         the row keeps align-items:center so simple layers still read
+         as a flat list, while the legend itself uses align-self:start
+         to anchor at the top when it grows down. */
       .gcx-layer {
         display: grid;
-        grid-template-columns: 18px 22px minmax(0, 1fr) auto;
+        grid-template-columns: 18px auto minmax(0, 1fr) auto;
         grid-template-rows: auto auto;
         column-gap: 12px;
         align-items: center;
@@ -606,7 +611,10 @@ function resolveDemLayer(dem: any): ConfiguredLayer | null {
       .gcx-layer gcx-legend {
         grid-column: 2;
         grid-row: 1 / span 2;
-        align-self: center;
+        align-self: start;
+        /* Pad to align the first swatch's centre with the layer name's
+           cap-height (display font sits ~3 px below its line-box top). */
+        padding-top: 4px;
       }
       .gcx-layer-name {
         grid-column: 3;
