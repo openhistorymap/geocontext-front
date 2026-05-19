@@ -4,13 +4,13 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Current state: mid-rewrite
 
-This branch (`rewrite/angular-latest`) is a ground-up rewrite of the legacy Angular 6 app onto **Angular 19**. The foundation is ported and the app builds end-to-end; the remaining work is porting the long tail of datasource/layer/shell libraries from `_legacy/`.
+This branch (`rewrite/angular-latest`) is a ground-up rewrite of the legacy Angular 6 app onto **Angular 21**. The foundation is ported and the app builds end-to-end; the remaining work is porting the long tail of datasource/layer/shell libraries from `_legacy/`.
 
 ### Rewrite progress
 
 Done:
 - [x] Relocate Angular 6 source to `_legacy/`
-- [x] Scaffold Angular 19 workspace (standalone, SCSS, strict TS 5.7)
+- [x] Scaffold Angular 19 workspace (standalone, SCSS, strict TS 5.7) — since upgraded to Angular 21 / TS 5.9 via `ng update`
 - [x] Scaffold libraries (38 originals → 25 after pruning empty scaffolds) + 2 secondary apps
 - [x] All libraries under a single `@openhistorymap/*` scope (consolidated from the original `@modalnodes/*` / `@geocontext/*` / `@ohmap/*` split) — required because GitHub Packages ties scope to the repo owner for `GITHUB_TOKEN`-authed publishing
 - [x] Pick + install runtime deps (Material 19, maplibre-gl 5, leaflet 1.9, turf 7, papaparse 5, mqtt 5, `datamodel` 2.0.2 remote)
@@ -58,19 +58,19 @@ Idioms to apply during remaining ports:
 
 ## Toolchain constraint: host GLIBC is too old
 
-This host runs Ubuntu 18.04 with pre-2.28 GLIBC. **Node 18+ binaries won't execute**, which blocks Angular 18+ CLI on the host. Work around with Docker, mounting the repo:
+This host runs Ubuntu 18.04 with pre-2.28 GLIBC. **Node 18+ binaries won't execute**, which blocks the Angular CLI on the host. Work around with Docker, mounting the repo. Angular 21 requires **Node 22+**, so the canonical image is `node:22`:
 
 ```bash
 docker run --rm -v "$PWD:/app" -w /app -u $(id -u):$(id -g) \
   -e HOME=/tmp -e NG_CLI_ANALYTICS=false \
-  node:20 <command>
+  node:22 <command>
 ```
 
-Never run `nvm install` on the host for Node 18/20 — the binary won't start.
+Never run `nvm install` on the host for Node 18/20/22 — the binary won't start.
 
 ## Stack
 
-Angular 19.2, TypeScript 5.7, RxJS 7.8, zone.js 0.15, Angular Material 19 (azure-blue prebuilt theme), esbuild application builder, strict TS, SCSS. Karma/Jasmine for tests (scaffolded, not wired). No SSR.
+Angular 21.2, TypeScript 5.9, RxJS 7.8, zone.js 0.15, Angular Material 21 (azure-blue prebuilt theme), esbuild application builder, strict TS, SCSS. Karma/Jasmine for tests (scaffolded, not wired). No SSR.
 
 ## Repository layout
 
@@ -82,16 +82,16 @@ Angular 19.2, TypeScript 5.7, RxJS 7.8, zone.js 0.15, Angular Material 19 (azure
 
 ## Commands
 
-All commands run inside `node:20` via Docker (see toolchain note). `npx ng ...` works inside the container without a local install.
+All commands run inside `node:22` via Docker (see toolchain note). `npx ng ...` works inside the container without a local install.
 
 ```bash
 # First install, and after package.json changes
 docker run --rm -v "$PWD:/app" -w /app -u $(id -u):$(id -g) \
-  -e HOME=/tmp node:20 npm install
+  -e HOME=/tmp node:22 npm install
 
 # Dev server
 docker run --rm -v "$PWD:/app" -w /app -u $(id -u):$(id -g) \
-  -p 4200:4200 -e HOME=/tmp node:20 \
+  -p 4200:4200 -e HOME=/tmp node:22 \
   npx ng serve --host=0.0.0.0
 
 # Build a single library (rebuild downstream libs after changes)

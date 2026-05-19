@@ -16,7 +16,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        node: ['20']
+        node: ['22']
     steps:
       - uses: actions/checkout@v4
 
@@ -32,7 +32,7 @@ jobs:
         run: ./scripts/build-ported.sh
 
       - name: Upload dist
-        if: matrix.node == '20'
+        if: matrix.node == '22'
         uses: actions/upload-artifact@v4
         with:
           name: dist-${{ github.sha }}

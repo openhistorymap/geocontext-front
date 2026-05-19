@@ -3,7 +3,7 @@ title: GeoContext
 message: >-
   If you use GeoContext in your work, please cite the foundational
   paper under `preferred-citation` below until a DOI for the current
-  Angular 19 rewrite is minted (in progress). When the new DOI lands,
+  Angular 21 rewrite is minted (in progress). When the new DOI lands,
   it will become the top-level citation and the 2018 paper will move
   to `references` as a historical record.
 type: software

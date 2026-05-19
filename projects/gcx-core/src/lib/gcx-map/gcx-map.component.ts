@@ -594,7 +594,7 @@ function resolveDemLayer(dem: any): ConfiguredLayer | null {
         color: var(--gcx-accent-deep) !important;
       }
       ::ng-deep .gcx-side-tabs .mdc-tab-indicator__content--underline {
-        --mdc-tab-indicator-active-indicator-color: var(--gcx-accent);
+        --mat-tab-active-indicator-color: var(--gcx-accent);
       }
 
       /* --- Layers list — typographic rows, dashed dividers ------------ */

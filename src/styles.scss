@@ -178,18 +178,18 @@ mat-drawer-content.mat-drawer-content {
 .mat-mdc-tab-header .mat-mdc-tab .mdc-tab-indicator__content--underline,
 .mat-mdc-tab-header .mat-mdc-tab.mdc-tab--active .mdc-tab__text-label {
   color: var(--gcx-accent-deep);
-  --mdc-tab-indicator-active-indicator-color: var(--gcx-accent);
+  --mat-tab-active-indicator-color: var(--gcx-accent);
 }
 
 /* Slide toggle — replace the puck-blue with our accent. */
 .mat-mdc-slide-toggle {
-  --mdc-switch-selected-track-color: var(--gcx-accent);
-  --mdc-switch-selected-handle-color: var(--gcx-paper);
-  --mdc-switch-selected-focus-track-color: var(--gcx-accent-deep);
-  --mdc-switch-selected-hover-track-color: var(--gcx-accent-deep);
-  --mdc-switch-selected-pressed-track-color: var(--gcx-accent-deep);
-  --mdc-switch-unselected-track-color: var(--gcx-rule);
-  --mdc-switch-unselected-handle-color: var(--gcx-paper);
+  --mat-slide-toggle-selected-track-color: var(--gcx-accent);
+  --mat-slide-toggle-selected-handle-color: var(--gcx-paper);
+  --mat-slide-toggle-selected-focus-track-color: var(--gcx-accent-deep);
+  --mat-slide-toggle-selected-hover-track-color: var(--gcx-accent-deep);
+  --mat-slide-toggle-selected-pressed-track-color: var(--gcx-accent-deep);
+  --mat-slide-toggle-unselected-track-color: var(--gcx-rule);
+  --mat-slide-toggle-unselected-handle-color: var(--gcx-paper);
 }
 
 /* Buttons inherit our type pairing; remove Material's tracking that fights

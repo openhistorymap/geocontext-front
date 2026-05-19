@@ -375,7 +375,7 @@ its way to becoming the default branch.
 
 ## Citing GeoContext
 
-A DOI for the current Angular 19 rewrite is in the pipeline and will
+A DOI for the current Angular 21 rewrite is in the pipeline and will
 be added here when it's issued. In the meantime, the foundational
 paper describes the design GeoContext is descended from:
 
