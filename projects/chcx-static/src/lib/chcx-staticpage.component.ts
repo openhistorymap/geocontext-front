@@ -53,7 +53,18 @@ import { ChcxFormat, inferFormatFromUrl, renderPayload } from './chcx-render';
   `,
   styles: [
     `
-      :host { display: block; color: var(--gcx-ink); }
+      /* The shell's routed-body container is overflow:hidden so the
+         map can sit flush; that means each route component owns its
+         own scroll. Without height:100% + overflow-y:auto here, long
+         markdown / HTML / CFF pages get clipped at the bottom and the
+         user can't reach the footer of an article. */
+      :host {
+        display: block;
+        height: 100%;
+        overflow-y: auto;
+        overflow-x: hidden;
+        color: var(--gcx-ink);
+      }
       .chcx-static-content { padding: 24px; max-width: 900px; margin: 0 auto; }
       .chcx-static-msg { padding: 24px; max-width: 900px; margin: 0 auto; color: var(--gcx-ink-soft); }
       .chcx-static-error { color: var(--gcx-accent-deep); font-style: italic; }

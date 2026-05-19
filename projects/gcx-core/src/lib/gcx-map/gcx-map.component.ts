@@ -526,7 +526,27 @@ function resolveDemLayer(dem: any): ConfiguredLayer | null {
       .gcx-search-clear:hover { color: var(--gcx-accent-deep); }
 
       /* Tabs adapt — the tabbed strip stays Material for a11y but its
-         look is heavily neutralised in styles.scss. */
+         look is heavily neutralised in styles.scss. The flex chain is
+         critical: the sidebar's inner container is overflow:hidden, so
+         the only place a scrollbar can appear is inside the tab body
+         content. Without min-height:0 on every step of the chain, the
+         tab body locks at intrinsic height and a long layer list
+         pushes the toggle / drag handles below the viewport with no
+         way to reach them. */
+      .gcx-side-tabs {
+        flex: 1 1 auto;
+        min-height: 0;
+        display: flex;
+        flex-direction: column;
+      }
+      ::ng-deep .gcx-side-tabs .mat-mdc-tab-body-wrapper {
+        flex: 1 1 auto;
+        min-height: 0;
+      }
+      ::ng-deep .gcx-side-tabs .mat-mdc-tab-body-content {
+        overflow-y: auto;
+        overflow-x: hidden;
+      }
       ::ng-deep .gcx-side-tabs .mat-mdc-tab-header {
         border-bottom: 1px solid var(--gcx-rule);
       }
@@ -1369,9 +1389,18 @@ export class GcxMapComponent implements OnDestroy {
     if (!this.hashOwned) return;
     const v = this.flavour()?.getView();
     if (!v) return;
-    const h = '#' + formatViewHash(v);
-    if (window.location.hash !== h) {
-      window.history.replaceState(null, '', h);
+    // Build the next URL from the current href via the URL constructor —
+    // not by passing `'#…/…/…'` to replaceState. Spec resolution against
+    // a relative URL containing slashes has bitten us once already
+    // (the `/<owner>/<repo>` path getting dropped under some base-href
+    // configurations); going through `new URL()` makes the result
+    // deterministic: path, query and origin are taken verbatim, only
+    // `.hash` is rewritten.
+    const url = new URL(window.location.href);
+    url.hash = formatViewHash(v);
+    const next = url.toString();
+    if (next !== window.location.href) {
+      window.history.replaceState(null, '', next);
     }
   }
 
