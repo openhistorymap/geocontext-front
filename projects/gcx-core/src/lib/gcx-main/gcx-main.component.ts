@@ -1,7 +1,8 @@
-import { Component, computed, inject, input } from '@angular/core';
+import { Component, computed, effect, inject, input, signal } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
-import { GcxCoreService } from '../gcx-core.service';
+import { GcxCoreService, GCX_JSDELIVR_BASE } from '../gcx-core.service';
 import { GcxThemeService } from '../gcx-theme.service';
 import { GCX_VERSION } from '../version';
 
@@ -43,6 +44,32 @@ export interface GcxRouteItem {
       >
         <mat-icon>{{ theme.isDark() ? 'light_mode' : 'dark_mode' }}</mat-icon>
       </button>
+      @if (hasDatapackage() && datapackageUrl(); as dpUrl) {
+        <a
+          class="masthead-ext"
+          [href]="dpUrl"
+          target="_blank"
+          rel="noopener"
+          title="Data Package (datapackage.json)"
+          aria-label="Frictionless Data Package on GitHub"
+        >
+          <mat-icon>data_object</mat-icon>
+        </a>
+      }
+      @if (repoUrl(); as url) {
+        <a
+          class="masthead-ext"
+          [href]="url"
+          target="_blank"
+          rel="noopener"
+          title="Repository su GitHub"
+          aria-label="Source repository on GitHub"
+        >
+          <svg viewBox="0 0 16 16" width="18" height="18" fill="currentColor" aria-hidden="true">
+            <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"/>
+          </svg>
+        </a>
+      }
       <nav class="masthead-nav" aria-label="Sections">
         <a [routerLink]="mapLink()" routerLinkActive="is-active" class="masthead-link">Map</a>
         @for (item of items(); track item.target) {
@@ -135,6 +162,29 @@ export interface GcxRouteItem {
         width: 19px;
         height: 19px;
       }
+
+      /* External links (repo, datapackage): same restrained icon-button
+         treatment as the theme toggle, but they're anchors. */
+      .masthead-ext {
+        align-self: center;
+        display: inline-flex;
+        align-items: center;
+        padding: 4px 6px;
+        margin-right: 6px;
+        color: var(--gcx-ink-soft);
+        cursor: pointer;
+        line-height: 0;
+        border-radius: 2px;
+        text-decoration: none;
+        transition: color 120ms ease;
+      }
+      .masthead-ext:hover { color: var(--gcx-accent-deep); }
+      .masthead-ext .mat-icon {
+        font-size: 19px;
+        width: 19px;
+        height: 19px;
+      }
+      .masthead-ext svg { display: block; }
       .masthead-title {
         margin: 0;
         font-family: var(--gcx-display);
@@ -231,11 +281,35 @@ export interface GcxRouteItem {
 export class GcxMainComponent {
   readonly gcx = inject(GcxCoreService);
   readonly theme = inject(GcxThemeService);
+  private readonly http = inject(HttpClient);
 
   readonly title = input<string>('GeoContext');
   readonly items = input<GcxRouteItem[]>([]);
   /** Engine version, baked in from `version.ts` at publish time. */
   readonly version = GCX_VERSION;
+
+  /** GitHub URL of the repo backing the current view, or null in local
+   *  (non-repo) mode. Shown as an octocat link in the masthead. */
+  readonly repoUrl = computed<string | null>(() => {
+    const repo = this.gcx.currentRepo();
+    return repo ? `https://github.com/${repo.user}/${repo.project}` : null;
+  });
+
+  /** GitHub blob URL of the repo's datapackage.json (the icon links
+   *  straight to the descriptor on GitHub). `/blob/HEAD/` resolves to
+   *  the default branch on github.com. Only meaningful when
+   *  `hasDatapackage()` is true. */
+  readonly datapackageUrl = computed<string | null>(() => {
+    const repo = this.gcx.currentRepo();
+    if (!repo) return null;
+    const ref = repo.branch ?? 'HEAD';
+    return `https://github.com/${repo.user}/${repo.project}/blob/${ref}/datapackage.json`;
+  });
+
+  /** Whether the current repo ships a datapackage.json. Probed (HEAD)
+   *  against jsdelivr whenever the repo context changes; the masthead
+   *  icon is hidden until/unless the probe succeeds. */
+  readonly hasDatapackage = signal(false);
 
   /** Repo-aware path prefix. `/<user>/<project>` in repo mode, empty
    *  array in local mode (so subsequent segments form `/map`, `/static/X`). */
@@ -245,6 +319,20 @@ export class GcxMainComponent {
   });
 
   readonly mapLink = computed<any[]>(() => ['/', ...this.prefix(), 'map']);
+
+  constructor() {
+    effect(() => {
+      const repo = this.gcx.currentRepo();
+      this.hasDatapackage.set(false);
+      if (!repo) return;
+      const ref = repo.branch ?? 'HEAD';
+      const url = `${GCX_JSDELIVR_BASE}/${repo.user}/${repo.project}@${ref}/datapackage.json`;
+      this.http.head(url, { observe: 'response' }).subscribe({
+        next: () => this.hasDatapackage.set(true),
+        error: () => this.hasDatapackage.set(false),
+      });
+    });
+  }
 
   staticLink(target: string): any[] {
     return ['/', ...this.prefix(), 'static', target];
