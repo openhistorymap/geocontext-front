@@ -146,7 +146,7 @@ export class ChcxStaticService {
   private async fetchFirstAvailable(
     urls: string[],
   ): Promise<Record<string, ChcxStaticPage>> {
-    let last404: any;
+    let lastMiss: any;
     for (const url of urls) {
       try {
         const pages = await firstValueFrom(
@@ -154,14 +154,19 @@ export class ChcxStaticService {
         );
         return pages ?? {};
       } catch (e: any) {
-        if (e?.status === 404) {
-          last404 = e;
+        // jsdelivr answers a *missing* file on an existing public repo with
+        // 403 (not 404), so both mean "try the next filename" — without 403
+        // here, a repo shipping only the legacy `chcx-static.json` never gets
+        // probed because the canonical `geocontext-static.json` 403s first.
+        if (e?.status === 404 || e?.status === 403) {
+          lastMiss = e;
           continue;
         }
         throw e;
       }
     }
-    // All candidates 404'd — legitimate "no static pages defined".
+    // All candidates were missing — legitimate "no static pages defined".
+    void lastMiss;
     return {};
   }
 

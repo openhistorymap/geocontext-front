@@ -183,8 +183,13 @@ export class GcxCoreService {
       try {
         return await firstValueFrom(this.http.get<GcxConfig>(url));
       } catch (e: any) {
-        // Only fall through on 404; surface real network/CORS/server errors.
-        if (e?.status === 404) {
+        // Fall through to the next candidate on "not there" responses;
+        // surface real network / CORS / server errors. jsdelivr answers a
+        // *missing* file on an existing public repo with 403 (not 404), so
+        // both statuses mean "try the next filename" — without 403 here,
+        // a repo that only ships the legacy `gcx.json` errors out before
+        // we ever probe for it (the canonical `geocontext.json` 403s first).
+        if (e?.status === 404 || e?.status === 403) {
           lastError = e;
           continue;
         }
