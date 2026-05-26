@@ -7,6 +7,15 @@ export interface IDatasource {
   getName(): string;
   getConf(): any;
 
+  /**
+   * Names of OTHER datasources whose data must be available before
+   * `fetchData()` can run. Plain (HTTP, inline) datasources return
+   * `[]`; derived datasources (e.g. `transform`) declare the parent
+   * names they need so `DatasourcesmanagerService.fetchDatasources()`
+   * can resolve in dependency-order waves.
+   */
+  getDependencies(): string[];
+
   fetchData(): Observable<any>;
   prepareData(data: any): any;
   getData(): any;
@@ -38,6 +47,11 @@ export abstract class Datasource implements IDatasource, IDatasourceSetter {
   }
   setConf(conf: any): void {
     this._conf = conf;
+  }
+
+  /** Default: no dependencies. Override on derived datasources. */
+  getDependencies(): string[] {
+    return [];
   }
 
   fetchData(): Observable<any> {

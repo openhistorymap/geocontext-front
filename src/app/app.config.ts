@@ -7,7 +7,10 @@ import {
   provideMnGeoLayersFeature,
   provideMnGeoLayersMarkers,
 } from '@openhistorymap/mn-geo-layers';
-import { provideMnGeoDatasourcesGeojson } from '@openhistorymap/mn-geo-datasources';
+import {
+  provideMnGeoDatasourcesGeojson,
+  provideMnGeoDatasourcesTransform,
+} from '@openhistorymap/mn-geo-datasources';
 import { provideMnGeoDatasourcesCsv } from '@openhistorymap/mn-geo-datasources-csv';
 import { provideMnGeoLayersOsm } from '@openhistorymap/mn-geo-layers-osm';
 import { provideMnGeoLayersOfm } from '@openhistorymap/mn-geo-layers-ofm';
@@ -30,6 +33,9 @@ export const appConfig: ApplicationConfig = {
     provideMnGeoLayersMarkers(),
     provideMnGeoDatasourcesGeojson(),
     provideMnGeoDatasourcesCsv(),
+    // Derived datasources: `transform` (turf-backed buffer/etc on a
+    // parent datasource's resolved GeoJSON).
+    provideMnGeoDatasourcesTransform(),
     // Tile sources.
     provideMnGeoLayersOsm(),
     provideMnGeoLayersOfm(),

@@ -75,7 +75,15 @@ interface ConfiguredLayer {
   style?: any;
   conf?: any;
   detail?: DetailConfig;
+  /** Current visibility state — seeded from gcx.json's `layer.visible`
+   *  (defaults to true) and flipped by the sidebar toggle at runtime. */
   visible: boolean;
+  /** When false, the sidebar omits the toggle switch for this row —
+   *  used for layers the publisher wants the visitor to always see
+   *  (or never see). Defaults to true. Optional so the synthetic
+   *  background/dem layers built by the helpers below don't have to
+   *  carry it explicitly; the template treats `undefined` as true. */
+  togglable?: boolean;
 }
 
 interface ResolvedMediaItem extends DetailMediaItem {
@@ -266,40 +274,44 @@ function resolveDemLayer(dem: any): ConfiguredLayer | null {
           [selectedIndex]="selectedTab()"
           (selectedIndexChange)="selectedTab.set($event)"
         >
-          <mat-tab label="Layers">
-            <div
-              class="gcx-layers"
-              cdkDropList
-              [cdkDropListDisabled]="!!searchTerm()"
-              (cdkDropListDropped)="onReorder($event)"
-            >
-              @for (layer of filteredLayers(); track layer.name) {
-                <div class="gcx-layer" cdkDrag [cdkDragDisabled]="!!searchTerm()">
-                  <button
-                    type="button"
-                    class="gcx-layer-handle"
-                    cdkDragHandle
-                    [disabled]="!!searchTerm()"
-                    [attr.aria-label]="'Drag ' + layer.name + ' to reorder'"
-                    [title]="searchTerm() ? 'Clear filter to reorder' : 'Drag to reorder'"
-                  >⋮⋮</button>
-                  <gcx-legend [style]="layer.style" />
-                  <span class="gcx-layer-name">{{ layer.name }}</span>
-                  @if (layer.datasource) {
-                    <span class="gcx-layer-source">{{ layer.datasource }}</span>
-                  }
-                  <mat-slide-toggle
-                    class="gcx-layer-toggle"
-                    [checked]="layer.visible"
-                    (change)="toggleVisible(layer)"
-                    [aria-label]="'Toggle ' + layer.name"
-                  />
-                </div>
-              } @empty {
-                <p class="gcx-empty">No matching layers.</p>
-              }
-            </div>
-          </mat-tab>
+          @if (showLayerSelector()) {
+            <mat-tab label="Layers">
+              <div
+                class="gcx-layers"
+                cdkDropList
+                [cdkDropListDisabled]="!!searchTerm()"
+                (cdkDropListDropped)="onReorder($event)"
+              >
+                @for (layer of filteredLayers(); track layer.name) {
+                  <div class="gcx-layer" cdkDrag [cdkDragDisabled]="!!searchTerm()">
+                    <button
+                      type="button"
+                      class="gcx-layer-handle"
+                      cdkDragHandle
+                      [disabled]="!!searchTerm()"
+                      [attr.aria-label]="'Drag ' + layer.name + ' to reorder'"
+                      [title]="searchTerm() ? 'Clear filter to reorder' : 'Drag to reorder'"
+                    >⋮⋮</button>
+                    <gcx-legend [style]="layer.style" />
+                    <span class="gcx-layer-name">{{ layer.name }}</span>
+                    @if (layer.datasource) {
+                      <span class="gcx-layer-source">{{ layer.datasource }}</span>
+                    }
+                    @if (layer.togglable !== false) {
+                      <mat-slide-toggle
+                        class="gcx-layer-toggle"
+                        [checked]="layer.visible"
+                        (change)="toggleVisible(layer)"
+                        [aria-label]="'Toggle ' + layer.name"
+                      />
+                    }
+                  </div>
+                } @empty {
+                  <p class="gcx-empty">No matching layers.</p>
+                }
+              </div>
+            </mat-tab>
+          }
           <mat-tab label="Details" [disabled]="!selectedItem()">
             <div class="gcx-detail">
               @if (selectedItem(); as feat) {
@@ -1229,6 +1241,11 @@ export class GcxMapComponent implements OnDestroy {
    *  and seeded from the gcx.json `background` field (when it names an
    *  id present in `backgrounds[]`) or the first option otherwise. */
   readonly selectedBackgroundId = signal<string | null>(null);
+  /** Whether the sidebar's layer selector (the Layers tab — search box,
+   *  reorderable list, per-layer toggles) is shown at all. Driven by
+   *  gcx.json's top-level `showLayerSelector` (default true). When
+   *  false, only the Details tab is rendered. */
+  readonly showLayerSelector = signal<boolean>(true);
 
   readonly selectedTab = signal<number>(0);
   readonly selectedItem = signal<any>(null);
@@ -1448,6 +1465,7 @@ export class GcxMapComponent implements OnDestroy {
       this.startzoom.set(hv?.zoom ?? conf.startzoom ?? 1);
       this.minzoom.set(conf.minzoom ?? 1);
       this.maxzoom.set(conf.maxzoom ?? 19);
+      this.showLayerSelector.set(conf['showLayerSelector'] !== false);
       this.datasources.set(conf.datasources ?? []);
       // Sidebar order: ids[0] is drawn on top. So user layers come first,
       // then DEM (hillshade above the basemap), then background last so it
@@ -1455,15 +1473,22 @@ export class GcxMapComponent implements OnDestroy {
       // A top-level `interactive: false` on a layer entry is folded into
       // `conf` so layer classes (FeatureLayer, MarkersLayer, …) read it
       // through their own configuration without needing a separate input.
-      // Same pattern for `transforms[]` — a client-side data pipeline
-      // (buffer / simplify / …) that FeatureLayer applies before
-      // emitting its descriptor.
+      //
+      // Three sidebar-presentation flags also resolve here:
+      //   - `visible: false`   → layer starts hidden (toggle off);
+      //                           default true (visible).
+      //   - `togglable: false` → no toggle switch shown for that row;
+      //                           default true.
+      // Both are stored on the ConfiguredLayer so the toggle and the
+      // initial visibility state are driven entirely by gcx.json.
       const userLayers: ConfiguredLayer[] = (conf.layers ?? []).map((l: any) => {
-        const merged: ConfiguredLayer = { ...l, visible: true };
-        if (l.interactive !== undefined || Array.isArray(l.transforms)) {
-          merged.conf = { ...(l.conf ?? {}) };
-          if (l.interactive !== undefined) merged.conf.interactive = l.interactive;
-          if (Array.isArray(l.transforms)) merged.conf.transforms = l.transforms;
+        const merged: ConfiguredLayer = {
+          ...l,
+          visible: l.visible !== false,
+          togglable: l.togglable !== false,
+        };
+        if (l.interactive !== undefined) {
+          merged.conf = { ...(l.conf ?? {}), interactive: l.interactive };
         }
         return merged;
       });
@@ -1599,6 +1624,11 @@ export class GcxMapComponent implements OnDestroy {
       const ids = ls.map((l) => l.name);
       if (bgId) ids.push(GCX_BG_LAYER_ID);
       if (ids.length) flav.setLayerOrder(ids);
+      // Push initial visibility too — `layer.visible: false` in
+      // gcx.json must hide the layer on first render. The flavour
+      // remembers the desired state and reapplies it when the GL
+      // layer registers (datasources resolve async).
+      for (const l of ls) flav.setLayerVisibility?.(l.name, l.visible);
     });
 
     // Imperative background-swap effect. The active background is the

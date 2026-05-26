@@ -43,6 +43,9 @@ not distinguish).
   "background": "osm",                 // optional, see §7
   "dem":        false,                 // optional, see §8
   "search":     true,                  // optional; toggles search UI
+  "showLayerSelector": true,           // optional (default true); when false
+                                       // the sidebar hides the Layers tab
+                                       // entirely (only Details remains)
 
   "datasources": [ /* §3 */ ],
   "layers":      [ /* §4 */ ]
@@ -84,6 +87,54 @@ datasource by `name`.
 | `geojson+http+remote` | Fetches a GeoJSON file. | `source` |
 | `csv` | Inline CSV string. | `data`, `structure[]` |
 | `csv+http+remote` | Fetches a CSV file. | `source`, `structure[]` |
+| `transform` | **Derived** — runs a client-side pipeline on another datasource's resolved GeoJSON. | `from` (parent name), `transforms[]` |
+
+### `transform` datasources
+
+A `transform` datasource is purely derived: it doesn't fetch
+anything, it takes another datasource's resolved GeoJSON (named in
+`conf.from`) and runs an ordered `transforms[]` pipeline on it,
+producing a new FeatureCollection that any number of layers can
+visualise.
+
+```jsonc
+{
+  "name": "palificazioni_legno",
+  "type": "transform",
+  "conf": {
+    "from": "valle_trebba_palificazioni",
+    "transforms": [
+      { "type": "buffer", "radius": 0.15, "units": "meters" }
+    ]
+  }
+}
+```
+
+Mechanics:
+
+- The datasource manager resolves datasources in dependency-order
+  waves: a `transform` declares its parent via `conf.from` and the
+  manager runs it only after the parent has resolved. Chains of
+  transforms (transform-of-transform) work — the manager iterates
+  waves until none remain pending.
+- Features with null/missing geometry are dropped before the
+  pipeline (turf operations crash on them; one bad row would
+  otherwise invalidate the whole derived layer).
+- A pipeline step that throws is skipped with a console warning;
+  the previous step's output continues through.
+- The transform runs **on the client**; the underlying file on
+  disk is unchanged. A single derived datasource can feed multiple
+  layers with different styles or interactivity.
+
+#### Built-in transform steps
+
+| `type`   | Backed by                       | Required params | Optional params |
+|----------|---------------------------------|---------------|----------------|
+| `buffer` | [`@turf/buffer`](https://turfjs.org/docs/api/buffer) | `radius` (number) | `units` (`meters`/`kilometers`/`miles`/`feet`/`radians`/`degrees` — default `meters`), `steps` (default 8) |
+
+Style mode should match the geometry the pipeline produces (a
+`buffer` on points yields polygons → `style.mode: polygon` or
+`style.maplibre` with `type: fill`).
 
 ### CSV `structure[]`
 
@@ -144,40 +195,19 @@ it as visual context: the geometry still renders but no click handler,
 popup, or pointer cursor is wired. Use for coastlines, admin borders,
 or anything that should not compete with the data layers above for clicks.
 
-### `transforms[]`
+### `visible`
 
-A client-side pipeline that runs on the datasource's GeoJSON before
-the layer is rendered. Each step takes the previous step's output, so
-order matters. Lets a single source dataset feed multiple presentations
-(e.g. a point dataset rendered both as markers and as a buffered
-polygon "footprint") without a derived file per presentation.
+`true` (default) or `false`. Initial visibility of the layer on first
+render. When `false`, the layer's data is still loaded and the GL/
+Leaflet layer is registered, but it starts hidden — the sidebar
+toggle reflects the off state and the user can switch it on.
 
-```jsonc
-{
-  "name": "Palificazioni (legno)",
-  "type": "features",
-  "datasource": "valle_trebba_palificazioni",
-  "transforms": [
-    { "type": "buffer", "radius": 0.15, "units": "meters" }
-  ],
-  "style": { "style": "mapbox", "mode": "polygon",
-             "options": { "fillColor": "#8c6239", "color": "#5e3f1f" } }
-}
-```
+### `togglable`
 
-The transform is applied **on the client**; it does not change the
-underlying dataset on disk. Failures pass the data through with a
-console warning rather than dropping the layer.
-
-#### Built-in transforms
-
-| `type`   | Backed by                       | Required params | Optional params |
-|----------|---------------------------------|---------------|----------------|
-| `buffer` | [`@turf/buffer`](https://turfjs.org/docs/api/buffer) | `radius` (number) | `units` (`meters`/`kilometers`/`miles`/`feet`/`radians`/`degrees` — default `meters`), `steps` (default 8) |
-
-Style mode should match the geometry the pipeline produces: a `buffer`
-on a point dataset yields polygons, so set `style.mode = "polygon"`
-(or use `style.maplibre` with `type: "fill"`).
+`true` (default) or `false`. When `false`, the sidebar omits the
+on/off toggle for that row — useful for layers the publisher wants
+the visitor to *always* see, or never see (`togglable: false,
+visible: false` makes a permanently-hidden context layer).
 
 ---
 

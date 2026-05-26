@@ -63,6 +63,12 @@ export class MnGeoFlavoursMaplibreDirective extends MnMapFlavourDirective implem
    *  async, so layers fan in completion-order rather than declaration
    *  order, and the initial setLayerOrder fires before they exist. */
   private _desiredLayerOrder: string[] | null = null;
+  /** Caller's desired visibility per descriptor id (true = visible).
+   *  Same reason as `_desiredLayerOrder`: gcx-map declares `visible:
+   *  false` on layers at config load, but the GL layer doesn't exist
+   *  until the datasource resolves. trackGlLayer reapplies the
+   *  remembered state when each layer registers. */
+  private readonly desiredVisibility = new Map<string, boolean>();
   /** Base filter expression for each GL layer at the moment we registered
    *  it (the geometry-typed `['==', ['geometry-type'], 'Point']`, or
    *  whatever a `style.maplibre` entry declared, or undefined). Kept so
@@ -181,6 +187,11 @@ export class MnGeoFlavoursMaplibreDirective extends MnMapFlavourDirective implem
   }
 
   override setLayerVisibility(id: string, visible: boolean): void {
+    // Remember the desired state so trackGlLayer can apply it when the
+    // GL layer eventually registers (datasources resolve async, so the
+    // GL layer doesn't exist when an initially-hidden layer is first
+    // declared in gcx.json's `layer.visible: false`).
+    this.desiredVisibility.set(id, visible);
     if (!this._map) return;
     const visibility = visible ? 'visible' : 'none';
     for (const layerId of this.glLayersByDescriptorId.get(id) ?? []) {
@@ -307,6 +318,13 @@ export class MnGeoFlavoursMaplibreDirective extends MnMapFlavourDirective implem
     const active = this.activeFilters.get(descId);
     if (active) this.applyFilterToGlLayer(layerId, active);
     this.applyLayerOrder();
+    // Apply a previously-requested hidden state. If the host called
+    // setLayerVisibility(descId, false) before the GL layer existed
+    // (the typical case for `layer.visible: false` in gcx.json), apply
+    // it now.
+    if (this.desiredVisibility.get(descId) === false && this._map?.getLayer(layerId)) {
+      this._map.setLayoutProperty(layerId, 'visibility', 'none');
+    }
   }
 
   ngOnDestroy(): void {

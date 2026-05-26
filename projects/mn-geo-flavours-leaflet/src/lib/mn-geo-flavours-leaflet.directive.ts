@@ -52,6 +52,11 @@ export class MnGeoFlavoursLeafletDirective extends MnMapFlavourDirective impleme
    *  layers register so async-resolving datasources don't leave the
    *  stack in completion order. Same intent as the MapLibre flavour. */
   private _desiredLayerOrder: string[] | null = null;
+  /** Caller's desired visibility per descriptor id. Looked up by
+   *  addLayer when the L.Layer registers, so `layer.visible: false`
+   *  in gcx.json takes effect even though setLayerVisibility ran
+   *  before the datasource resolved. */
+  private readonly desiredVisibility = new Map<string, boolean>();
   /** Latest data + opts for each geojson-features descriptor, plus the
    *  L.featureGroup that hosts the rendered inner L.geoJSON layer. Used
    *  by setLayerFilter (rebuild with a `filter` opt) and by the
@@ -163,6 +168,12 @@ export class MnGeoFlavoursLeafletDirective extends MnMapFlavourDirective impleme
       if (id) {
         this.layersById.set(id, layer);
         this.applyLayerOrder();
+        // If the host previously requested this id be hidden
+        // (`layer.visible: false` in gcx.json arriving before the
+        // datasource resolved), apply the state now.
+        if (this.desiredVisibility.get(id) === false) {
+          this._map.removeLayer(layer);
+        }
       }
     }
   }
@@ -204,6 +215,10 @@ export class MnGeoFlavoursLeafletDirective extends MnMapFlavourDirective impleme
   }
 
   override setLayerVisibility(id: string, visible: boolean): void {
+    // Remember the request — `addLayer` reapplies it when the L.Layer
+    // is eventually registered (async datasource pipeline). Same
+    // intent as the MapLibre flavour's desiredVisibility.
+    this.desiredVisibility.set(id, visible);
     if (!this._map) return;
     const layer = this.layersById.get(id);
     if (!layer) return;

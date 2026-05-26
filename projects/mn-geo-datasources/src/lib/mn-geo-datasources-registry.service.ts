@@ -16,14 +16,16 @@ export class MnGeoDatasourcesRegistryService extends MnRegistryService<any> {
   }
 
   /**
-   * If the registered entry is a Datasource class, instantiate and wire HTTP.
-   * If it's already resolved data, pass it through.
+   * If the registered entry is a Datasource class, instantiate and wire
+   * `http` plus `registry` (this instance — derived datasources like
+   * `transform` need to look up already-resolved parent data via
+   * `for(parentName)`). If it's already resolved data, pass it through.
    */
   override for(name: string): any {
     const entry = super.for(name);
     if (typeof entry === 'function') {
       const ds = new (entry as new () => Datasource)();
-      ds.setup({ http: this.http });
+      ds.setup({ http: this.http, registry: this });
       return ds;
     }
     return entry;
