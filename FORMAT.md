@@ -144,6 +144,41 @@ it as visual context: the geometry still renders but no click handler,
 popup, or pointer cursor is wired. Use for coastlines, admin borders,
 or anything that should not compete with the data layers above for clicks.
 
+### `transforms[]`
+
+A client-side pipeline that runs on the datasource's GeoJSON before
+the layer is rendered. Each step takes the previous step's output, so
+order matters. Lets a single source dataset feed multiple presentations
+(e.g. a point dataset rendered both as markers and as a buffered
+polygon "footprint") without a derived file per presentation.
+
+```jsonc
+{
+  "name": "Palificazioni (legno)",
+  "type": "features",
+  "datasource": "valle_trebba_palificazioni",
+  "transforms": [
+    { "type": "buffer", "radius": 0.15, "units": "meters" }
+  ],
+  "style": { "style": "mapbox", "mode": "polygon",
+             "options": { "fillColor": "#8c6239", "color": "#5e3f1f" } }
+}
+```
+
+The transform is applied **on the client**; it does not change the
+underlying dataset on disk. Failures pass the data through with a
+console warning rather than dropping the layer.
+
+#### Built-in transforms
+
+| `type`   | Backed by                       | Required params | Optional params |
+|----------|---------------------------------|---------------|----------------|
+| `buffer` | [`@turf/buffer`](https://turfjs.org/docs/api/buffer) | `radius` (number) | `units` (`meters`/`kilometers`/`miles`/`feet`/`radians`/`degrees` — default `meters`), `steps` (default 8) |
+
+Style mode should match the geometry the pipeline produces: a `buffer`
+on a point dataset yields polygons, so set `style.mode = "polygon"`
+(or use `style.maplibre` with `type: "fill"`).
+
 ---
 
 ## 5. The `style` block

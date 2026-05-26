@@ -1455,10 +1455,15 @@ export class GcxMapComponent implements OnDestroy {
       // A top-level `interactive: false` on a layer entry is folded into
       // `conf` so layer classes (FeatureLayer, MarkersLayer, …) read it
       // through their own configuration without needing a separate input.
+      // Same pattern for `transforms[]` — a client-side data pipeline
+      // (buffer / simplify / …) that FeatureLayer applies before
+      // emitting its descriptor.
       const userLayers: ConfiguredLayer[] = (conf.layers ?? []).map((l: any) => {
         const merged: ConfiguredLayer = { ...l, visible: true };
-        if (l.interactive !== undefined) {
-          merged.conf = { ...(l.conf ?? {}), interactive: l.interactive };
+        if (l.interactive !== undefined || Array.isArray(l.transforms)) {
+          merged.conf = { ...(l.conf ?? {}) };
+          if (l.interactive !== undefined) merged.conf.interactive = l.interactive;
+          if (Array.isArray(l.transforms)) merged.conf.transforms = l.transforms;
         }
         return merged;
       });
