@@ -1,0 +1,16 @@
+{
+  "name": "@openhistorymap/gcx-export",
+  "version": "0.1.0",
+  "description": "CLI that exports a GeoContext repo (its gcx.json + datasets) as a vector SVG with a georeference sidecar, ready to be rasterised + GeoTIFF-ed downstream.",
+  "type": "module",
+  "private": true,
+  "bin": {
+    "gcx-export": "./bin/gcx-export.mjs"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "peerDependencies": {
+    "@turf/buffer": "^7.0.0"
+  }
+}
