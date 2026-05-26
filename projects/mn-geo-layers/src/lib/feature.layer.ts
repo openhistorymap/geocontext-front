@@ -29,10 +29,17 @@ export interface LayerTransform {
  * FeatureCollection. Each step receives the previous step's output, so
  * the order matters. Failures fall through with a warning — better to
  * draw the un-transformed data than to drop the layer entirely.
+ *
+ * Sanitises the input first: turf operations (buffer, simplify, …)
+ * throw on features with null/missing geometry, which is a real shape
+ * in field-collected datasets (e.g. one of the 83 palificazioni rows
+ * has null geometry). Dropping those features before the pipeline
+ * keeps a single bad row from invalidating the whole transformed
+ * layer.
  */
 function applyTransforms(data: any, transforms: LayerTransform[]): any {
   if (!data || !transforms?.length) return data;
-  let current = data;
+  let current = sanitiseFeatureCollection(data);
   for (const t of transforms) {
     try {
       current = applyTransform(current, t) ?? current;
@@ -44,6 +51,22 @@ function applyTransforms(data: any, transforms: LayerTransform[]): any {
     }
   }
   return current;
+}
+
+/**
+ * Return a copy of the FeatureCollection with null-geometry features
+ * removed. Non-FC inputs (single feature/geometry) pass through. Does
+ * not mutate the source.
+ */
+function sanitiseFeatureCollection(data: any): any {
+  if (!data || data.type !== 'FeatureCollection' || !Array.isArray(data.features)) {
+    return data;
+  }
+  const cleaned = data.features.filter(
+    (f: any) => f && f.geometry && typeof f.geometry.type === 'string',
+  );
+  if (cleaned.length === data.features.length) return data;
+  return { ...data, features: cleaned };
 }
 
 function applyTransform(data: any, t: LayerTransform): any {
