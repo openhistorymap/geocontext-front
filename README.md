@@ -200,6 +200,15 @@ bbox + size are appended automatically in EPSG:3857.
 flavour turns it into a hillshade GL layer and (optionally) 3D terrain;
 the Leaflet flavour ignores it with a warning.
 
+The DEM is **managed imperatively, separate from `layers[]`** — when
+configured, a small `3D` toggle appears next to the background
+selector in the sidebar, and the rendering is off by default (terrain
+is expensive enough — a network roundtrip per DEM tile and a 3D
+camera — that the publisher's `terrain: true` is read as "available",
+not "force on"). Hillshade rides on top of user data; toggling on
+also tilts the camera to `dem.pitch` (default 45°) so the extrusion
+is visible from the start.
+
 ```json
 {
   "dem": {
@@ -220,7 +229,8 @@ the Leaflet flavour ignores it with a warning.
 | `hillshade` | `true` | Render a hillshade GL layer. Set `false` to register the source for terrain only. |
 | `terrain` | `false` | Enable 3D terrain (`map.setTerrain`). MapLibre only. |
 | `exaggeration` | `1` | Vertical exaggeration when `terrain: true`. |
-| `pitch` | `45` when `terrain: true`, `0` otherwise | Initial camera tilt in degrees (MapLibre only). Override on a per-map basis when `terrain: true` would otherwise read as a no-op — pitch=0 is straight-down and 3D extrusion has nothing to show. |
+| `pitch` | `45` | Camera tilt in degrees applied when the user enables the DEM toggle (MapLibre only). Pitch resets to its pre-DEM value when the toggle is flipped back off. |
+| `title` | `"3D"` | Label shown on the sidebar toggle when the DEM is configured. |
 | `minZoom` / `maxZoom` | — | Zoom bounds for the source. |
 
 A bare URL string is shorthand for `{ url, encoding: "terrarium",

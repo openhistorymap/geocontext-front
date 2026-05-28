@@ -122,6 +122,25 @@ interface BackgroundOption {
 }
 
 /**
+ * Normalised gcx.json `dem` block. The user-facing shape on disk is
+ * loose (string URL shorthand, or `{type, conf}`, or a flat object with
+ * `url` and friends); this is the bag the imperative effect actually
+ * reads. `title` defaults to "Terrain" in the UI but is overridable
+ * per project. */
+interface DemConfig {
+  url: string;
+  encoding?: 'terrarium' | 'mapbox';
+  hillshade?: boolean;
+  terrain?: boolean;
+  exaggeration?: number;
+  pitch?: number;
+  attribution?: string;
+  title?: string;
+  minZoom?: number;
+  maxZoom?: number;
+}
+
+/**
  * Shorthand strings the user can put in `gcx.json#background` that map to a
  * registered layer type. Anything not in this map (and not a URL) is passed
  * through as a layer type name, so users can plug in any registered tile
@@ -141,6 +160,11 @@ const BACKGROUND_ALIASES: Record<string, string> = {
  * leave swaps silently broken.
  */
 const GCX_BG_LAYER_ID = 'gcx-bg';
+/** Synthetic descriptor id used for the imperative DEM swap. Distinct
+ *  from `dem` (which the legacy declarative path used) so a config
+ *  carrying both shapes won't collide and so the flavour's
+ *  glLayersByDescriptorId entry has a stable, predictable key. */
+const GCX_DEM_LAYER_ID = 'gcx-dem';
 
 function resolveBackgroundLayer(bg: any): ConfiguredLayer | null {
   if (bg == null || bg === false || bg === 'none') return null;
@@ -168,25 +192,32 @@ function resolveBackgroundLayer(bg: any): ConfiguredLayer | null {
   return null;
 }
 
-function resolveDemLayer(dem: any): ConfiguredLayer | null {
+/**
+ * Normalise gcx.json's `dem` block into the imperative-swap shape. The
+ * user-facing form is loose — a bare URL string, an object with `url`,
+ * or an object with `type`/`conf` (legacy declarative form). This
+ * collapses all three to a single bag the dem-swap effect can read,
+ * or `null` when no DEM is configured. The on-disk `terrain: true`
+ * still means "available", not "force on" — the toggle is what flips
+ * the rendering.
+ */
+function normaliseDemConfig(dem: any): DemConfig | null {
   if (dem == null || dem === false) return null;
-  if (typeof dem === 'string') {
-    return { name: 'dem', type: 'raster-dem', conf: { url: dem }, visible: true };
-  }
-  if (typeof dem === 'object') {
-    if (dem.type) {
-      return {
-        name: dem.name ?? 'dem',
-        type: dem.type,
-        conf: dem.conf ?? {},
-        visible: true,
-      };
-    }
-    if (dem.url) {
-      return { name: dem.name ?? 'dem', type: 'raster-dem', conf: dem, visible: true };
-    }
-  }
-  return null;
+  if (typeof dem === 'string') return { url: dem };
+  if (typeof dem !== 'object') return null;
+  const obj = (dem.conf && typeof dem.conf === 'object') ? { ...dem, ...dem.conf } : dem;
+  if (typeof obj.url !== 'string' || !obj.url) return null;
+  const out: DemConfig = { url: obj.url };
+  if (typeof obj.encoding === 'string') out.encoding = obj.encoding;
+  if (typeof obj.hillshade === 'boolean') out.hillshade = obj.hillshade;
+  if (typeof obj.terrain === 'boolean') out.terrain = obj.terrain;
+  if (typeof obj.exaggeration === 'number') out.exaggeration = obj.exaggeration;
+  if (typeof obj.pitch === 'number') out.pitch = obj.pitch;
+  if (typeof obj.attribution === 'string') out.attribution = obj.attribution;
+  if (typeof obj.title === 'string') out.title = obj.title;
+  if (typeof obj.minZoom === 'number') out.minZoom = obj.minZoom;
+  if (typeof obj.maxZoom === 'number') out.maxZoom = obj.maxZoom;
+  return out;
 }
 
 /**
@@ -233,20 +264,32 @@ function resolveDemLayer(dem: any): ConfiguredLayer | null {
           <span class="gcx-side-folio">№ {{ layers().length }}</span>
           <span class="gcx-side-eyebrow">Layers · Atlas</span>
         </header>
-        @if (backgroundOptions().length > 1) {
+        @if (backgroundOptions().length > 1 || demConfig()) {
           <div class="gcx-bg-picker">
-            <span class="gcx-bg-eyebrow">Background</span>
-            <select
-              class="gcx-bg-select"
-              [ngModel]="selectedBackgroundId()"
-              (ngModelChange)="selectedBackgroundId.set($event)"
-              name="background"
-              aria-label="Background"
-            >
-              @for (b of backgroundOptions(); track b.id) {
-                <option [value]="b.id">{{ b.title ?? b.id }}</option>
-              }
-            </select>
+            @if (backgroundOptions().length > 1) {
+              <span class="gcx-bg-eyebrow">Background</span>
+              <select
+                class="gcx-bg-select"
+                [ngModel]="selectedBackgroundId()"
+                (ngModelChange)="selectedBackgroundId.set($event)"
+                name="background"
+                aria-label="Background"
+              >
+                @for (b of backgroundOptions(); track b.id) {
+                  <option [value]="b.id">{{ b.title ?? b.id }}</option>
+                }
+              </select>
+            }
+            @if (demConfig(); as dem) {
+              <button
+                type="button"
+                class="gcx-dem-toggle"
+                [class.is-on]="demEnabled()"
+                (click)="demEnabled.set(!demEnabled())"
+                [attr.aria-pressed]="demEnabled()"
+                [attr.title]="(demEnabled() ? 'Disable' : 'Enable') + ' 3D terrain'"
+              >{{ dem.title ?? '3D' }}</button>
+            }
           </div>
         }
         <form class="gcx-search" (submit)="$event.preventDefault()">
@@ -618,6 +661,36 @@ function resolveDemLayer(dem: any): ConfiguredLayer | null {
       }
       .gcx-bg-select:focus {
         border-bottom-color: var(--gcx-accent);
+      }
+      /* DEM toggle — small editorial pill that sits at the right edge
+         of the background row. Stays muted until enabled so it reads as
+         a tool, not a status indicator. */
+      .gcx-dem-toggle {
+        flex: 0 0 auto;
+        appearance: none;
+        background: transparent;
+        border: 1px solid var(--gcx-rule);
+        border-radius: 999px;
+        padding: 2px 10px;
+        cursor: pointer;
+        font: 600 10.5px / 1.3 var(--gcx-body);
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--gcx-ink-soft);
+        transition: color 120ms ease, border-color 120ms ease, background 120ms ease;
+      }
+      .gcx-dem-toggle:hover {
+        color: var(--gcx-accent-deep);
+        border-color: var(--gcx-accent);
+      }
+      .gcx-dem-toggle.is-on {
+        color: var(--gcx-paper);
+        background: var(--gcx-accent);
+        border-color: var(--gcx-accent);
+      }
+      .gcx-dem-toggle.is-on:hover {
+        background: var(--gcx-accent-deep);
+        border-color: var(--gcx-accent-deep);
       }
 
       /* Search row: a single underline, not a Material outlined input. */
@@ -1259,6 +1332,16 @@ export class GcxMapComponent implements OnDestroy {
    *  gcx.json's top-level `showLayerSelector` (default true). When
    *  false, only the Details tab is rendered. */
   readonly showLayerSelector = signal<boolean>(true);
+  /** Raw `dem` block from gcx.json, normalised so the imperative effect
+   *  always sees an object (or null when no DEM is configured). Drives
+   *  whether the sidebar shows a "Terrain" toggle at all. */
+  readonly demConfig = signal<DemConfig | null>(null);
+  /** Whether terrain / hillshade is currently applied. Starts off even
+   *  when `dem.terrain: true` is set in gcx.json — DEM rendering is
+   *  expensive (3D camera + a network roundtrip per tile) and the
+   *  publisher's `terrain: true` is read as "enable when the user asks
+   *  for it", not "force on first paint". */
+  readonly demEnabled = signal<boolean>(false);
 
   readonly selectedTab = signal<number>(0);
   readonly selectedItem = signal<any>(null);
@@ -1432,6 +1515,12 @@ export class GcxMapComponent implements OnDestroy {
    *  before adding the new one. Not a signal — it's an internal
    *  bookkeeping flag, not a reactive input. */
   private bgApplied = false;
+  /** Same idea as `bgApplied`, but for the imperative DEM swap. */
+  private demApplied = false;
+  /** Pitch the user inherited from the URL hash (or 0), preserved so
+   *  toggling the DEM off can restore the camera to its "flat" view
+   *  without clobbering a deliberate hash-supplied tilt. */
+  private pitchBeforeDem = 0;
 
   /** View parsed from the URL hash on first load. Used to override the
    *  gcx.json defaults so a shared link puts the user exactly where the
@@ -1478,17 +1567,16 @@ export class GcxMapComponent implements OnDestroy {
       this.startzoom.set(hv?.zoom ?? conf.startzoom ?? 1);
       this.minzoom.set(conf.minzoom ?? 1);
       this.maxzoom.set(conf.maxzoom ?? 19);
-      // Pitch: hash > explicit dem.pitch > default 45° when terrain is
-      // on > 0. Without this, raster-dem with `terrain: true` adds the
-      // source and ties it to setTerrain, but pitch-0 means the camera
-      // is straight down and the 3D extrusion produces no visible
-      // change — making the feature look broken.
-      const demConf =
-        conf['dem'] && typeof conf['dem'] === 'object' ? (conf['dem'] as any) : null;
-      const demTerrain = !!(demConf && demConf.terrain === true);
-      const explicitPitch =
-        typeof demConf?.pitch === 'number' ? demConf.pitch : undefined;
-      this.pitch.set(hv?.pitch ?? explicitPitch ?? (demTerrain ? 45 : 0));
+      // DEM is now managed imperatively above the regular layer stack
+      // (toggle next to the background selector, starts off). The
+      // layers-parser effect only normalises the gcx.json `dem` block;
+      // the imperative dem-swap effect below applies / tears it down
+      // when the user flips the toggle.
+      const demConf = normaliseDemConfig(conf['dem']);
+      this.demConfig.set(demConf);
+      // Initial pitch is whatever the hash carries; toggling the DEM on
+      // will pitch the camera up (see the dem-swap effect).
+      this.pitch.set(hv?.pitch ?? 0);
       // bbox clamps panning to the dataset area. Accepts `[w,s,e,n]`
       // (the GeoJSON-bbox / WMS convention); anything else is ignored
       // rather than crashing the map setup.
@@ -1525,17 +1613,12 @@ export class GcxMapComponent implements OnDestroy {
         }
         return merged;
       });
-      const dem = resolveDemLayer(conf['dem']);
-      // Background is now managed imperatively (see the bg-swap effect
-      // below) so it doesn't appear in layers(). The setLayerOrder
-      // effect injects an explicit `background` id at the end of the
-      // ids array so the active background still sits at the bottom of
-      // the stack.
-      const combined: ConfiguredLayer[] = [
-        ...userLayers,
-        ...(dem ? [dem] : []),
-      ];
-      this.layers.set(combined);
+      // Background AND DEM are managed imperatively (see the bg-swap +
+      // dem-swap effects below), so neither appears in layers(). The
+      // setLayerOrder effect injects the synthetic ids for them so the
+      // bg sits at the bottom of the stack and the DEM rides on top of
+      // user data.
+      this.layers.set(userLayers);
 
       // Backgrounds[] array: explicit selector-friendly form. Fall back
       // to the legacy single `background` field by wrapping it as a
@@ -1647,14 +1730,19 @@ export class GcxMapComponent implements OnDestroy {
     // would leave layers stacked in completion order. The flavour
     // remembers the order and reapplies it as GL layers register, so
     // calling this before any layer exists is fine. The synthetic
-    // background id is appended last (= bottom of the stack), so the
-    // imperatively-managed bg always sits beneath the user data.
+    // DEM id is prepended (= top of the stack so hillshade rides over
+    // user data) and the synthetic background id is appended (= bottom
+    // of the stack). Both are imperatively managed; setLayerOrder ids
+    // just give them stable positions in the stack.
     effect(() => {
       const flav = this.flavour();
       const ls = this.layers();
       const bgId = this.selectedBackgroundId();
+      const demOn = this.demEnabled();
       if (!flav) return;
-      const ids = ls.map((l) => l.name);
+      const ids: string[] = [];
+      if (demOn) ids.push(GCX_DEM_LAYER_ID);
+      ids.push(...ls.map((l) => l.name));
       if (bgId) ids.push(GCX_BG_LAYER_ID);
       if (ids.length) flav.setLayerOrder(ids);
       // Push initial visibility too — `layer.visible: false` in
@@ -1706,6 +1794,49 @@ export class GcxMapComponent implements OnDestroy {
       const descriptor = (ctor as Layer).create();
       flav.addLayer(descriptor);
       this.bgApplied = true;
+    });
+
+    // Imperative DEM-swap effect. Mirrors bg-swap but for the DEM
+    // toggle next to the background selector. The DEM rides on top of
+    // the user data (the setLayerOrder effect places `gcx-dem` first in
+    // the ids list = topmost), so hillshade renders over feature
+    // layers and terrain warps the same set. When the user flips the
+    // toggle off, the source / hillshade layer / terrain are torn down
+    // and the camera resets to whatever pitch the URL hash carried (or
+    // 0). When the toggle flips on, the source is added, the hillshade
+    // is added if `hillshade !== false`, terrain is applied if
+    // `terrain: true`, and the camera tilts to `dem.pitch` (or 45° by
+    // default — pitch-0 hides any 3D extrusion).
+    effect(() => {
+      const flav = this.flavour();
+      const dem = this.demConfig();
+      const enabled = this.demEnabled();
+      if (!flav) return;
+
+      if (this.demApplied) {
+        flav.removeLayer(GCX_DEM_LAYER_ID);
+        this.demApplied = false;
+        // Restore the camera to its non-terrain pitch. Doing this
+        // unconditionally would clobber a user gesture, so we only
+        // re-apply when we know we were the ones who pitched it.
+        flav.setView({ pitch: this.pitchBeforeDem });
+      }
+      if (!enabled || !dem) return;
+
+      const ctor = this.layersRegistry.for('raster-dem') as Layer | undefined;
+      if (!ctor || typeof (ctor as any).setName !== 'function') {
+        console.warn('gcx-map: raster-dem layer type is not registered');
+        return;
+      }
+      (ctor as Layer).setName(GCX_DEM_LAYER_ID);
+      (ctor as Layer).setConfiguration(dem);
+      flav.addLayer((ctor as Layer).create());
+      this.demApplied = true;
+      // Snapshot the current camera pitch so toggling off can return
+      // to it; then tilt to the DEM's preferred view.
+      const view = flav.getView?.();
+      this.pitchBeforeDem = view?.pitch ?? 0;
+      flav.setView({ pitch: dem.pitch ?? 45 });
     });
 
     if (typeof window !== 'undefined') {
