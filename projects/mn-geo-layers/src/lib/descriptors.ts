@@ -76,6 +76,45 @@ export interface WmsTilesDescriptor {
 }
 
 /**
+ * ArcGIS REST ImageServer / MapServer dynamic-image basemap. The
+ * descriptor carries the base service URL (without the operation
+ * segment) plus the per-request knobs — each flavour appends
+ * `/exportImage` (ImageServer) or `/export` (MapServer) and substitutes
+ * a per-tile bbox in Web Mercator. Designed for the ArcGIS REST
+ * `?f=image&bbox={bbox}&bboxSR={sr}&imageSR={sr}&size=tileSize,tileSize`
+ * URL shape — equivalent in spirit to WMS GetMap but with different
+ * parameter names and no spec'd standard for tiled requests.
+ *
+ * `operation` defaults to `exportImage` (ImageServer); set to `export`
+ * for a MapServer dynamic-image service.
+ */
+export interface ArcgisImageDescriptor {
+  kind: 'arcgis-image';
+  id: string;
+  /** Service endpoint up to and including the service name; no trailing
+   *  slash, no operation segment. Example:
+   *  `https://example.org/arcgis/rest/services/<svc>/ImageServer`. */
+  url: string;
+  /** Which REST operation to call. `exportImage` (default) for
+   *  ImageServer endpoints; `export` for MapServer dynamic-image
+   *  endpoints. */
+  operation?: 'exportImage' | 'export';
+  /** ArcGIS image format. Default `png32` — lossless with alpha.
+   *  Use `jpg` for opaque imagery to cut payload size. */
+  format?: string;
+  /** Request transparent pixels (alpha channel). Defaults to `false`. */
+  transparent?: boolean;
+  /** Tile pixel size. Defaults to 256, matching the slippy-map grid. */
+  tileSize?: number;
+  minZoom?: number;
+  maxZoom?: number;
+  attribution?: string;
+  /** Extra ArcGIS REST params merged into the query (e.g. `layers`,
+   *  `dpi`, `time`, `mosaicRule`). Stringified and URL-encoded. */
+  params?: Record<string, string | number | boolean>;
+}
+
+/**
  * Digital Elevation Model raster tiles. Tile pixels encode elevation values
  * (terrarium or mapbox-rgb), used by the renderer for hillshading and
  * optional 3D terrain. Flavours that don't speak DEM (Leaflet today) ignore
@@ -170,6 +209,7 @@ export type LayerDescriptor =
   | RasterTilesDescriptor
   | VectorTilesDescriptor
   | WmsTilesDescriptor
+  | ArcgisImageDescriptor
   | RasterDemDescriptor
   | BackgroundColorDescriptor
   | ImageOverlayDescriptor

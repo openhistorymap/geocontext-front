@@ -7,6 +7,7 @@ import {
   ViewState,
 } from '@openhistorymap/mn-geo';
 import {
+  ArcgisImageDescriptor,
   buildPopupHtml,
   isLayerDescriptor,
   LayerDescriptor,
@@ -374,6 +375,14 @@ export class MnGeoFlavoursLeafletDirective extends MnMapFlavourDirective impleme
         };
         return L.tileLayer.wms(desc.url, wmsOpts);
       }
+      case 'arcgis-image': {
+        // Leaflet has no native ArcGIS REST adapter (esri-leaflet ships
+        // one, but it's a heavy extra dependency for one tile shape).
+        // Building a small L.TileLayer subclass that overrides
+        // getTileUrl with the right exportImage/export call shape is
+        // smaller code than the dep would be.
+        return buildArcgisTileLayer(desc);
+      }
       case 'geojson-features': {
         const isPinMode = desc.marker === 'pins';
         const popupField = desc.popup?.htmlField ?? 'html';
@@ -455,4 +464,55 @@ function leafletCrsFor(crs?: string): L.CRS {
   // silently coercing to a different grid.
   console.warn(`mn-geo-flavours-leaflet: unknown WMS CRS "${crs}", falling back to EPSG:3857`);
   return L.CRS.EPSG3857;
+}
+
+/** Half-world width in EPSG:3857 (Web Mercator) metres. */
+const WEB_MERCATOR_HALF = 20037508.342789244;
+
+/**
+ * Construct a Leaflet TileLayer that fetches each tile from an ArcGIS
+ * REST ImageServer / MapServer dynamic-image endpoint. We subclass
+ * L.TileLayer and override `getTileUrl` so the slippy-map tile
+ * coordinate (x, y, z) is rewritten into the bbox-and-size GetImage
+ * call ArcGIS expects.
+ */
+function buildArcgisTileLayer(desc: ArcgisImageDescriptor): L.Layer {
+  const size = desc.tileSize ?? 256;
+  const op = desc.operation ?? 'exportImage';
+  const baseParams: Record<string, string> = {
+    f: 'image',
+    bboxSR: '3857',
+    imageSR: '3857',
+    size: `${size},${size}`,
+    format: desc.format ?? 'png32',
+    transparent: desc.transparent ? 'true' : 'false',
+  };
+  for (const [k, v] of Object.entries(desc.params ?? {})) {
+    baseParams[k] = String(v);
+  }
+  const baseQuery = Object.entries(baseParams)
+    .map(([k, v]) => `${k}=${encodeURIComponent(v)}`)
+    .join('&');
+
+  const ArcgisTileLayer = L.TileLayer.extend({
+    getTileUrl(coords: L.Coords): string {
+      const n = Math.pow(2, coords.z);
+      const tileWorld = (WEB_MERCATOR_HALF * 2) / n;
+      const xmin = -WEB_MERCATOR_HALF + coords.x * tileWorld;
+      const xmax = xmin + tileWorld;
+      // Slippy-map Y grows southward; in Web Mercator metres ymax is at
+      // the top of the tile (north), ymin at the bottom (south).
+      const ymax = WEB_MERCATOR_HALF - coords.y * tileWorld;
+      const ymin = ymax - tileWorld;
+      const bbox = `${xmin},${ymin},${xmax},${ymax}`;
+      return `${desc.url}/${op}?${baseQuery}&bbox=${bbox}`;
+    },
+  });
+
+  return new (ArcgisTileLayer as any)('', {
+    tileSize: size,
+    minZoom: desc.minZoom,
+    maxZoom: desc.maxZoom,
+    attribution: desc.attribution,
+  });
 }

@@ -7,6 +7,7 @@ import {
   ViewState,
 } from '@openhistorymap/mn-geo';
 import {
+  ArcgisImageDescriptor,
   buildPopupHtml,
   GeoJsonFeaturesDescriptor,
   isLayerDescriptor,
@@ -529,6 +530,36 @@ export class MnGeoFlavoursMaplibreDirective extends MnMapFlavourDirective implem
         return;
       }
 
+      case 'arcgis-image': {
+        // Same `{bbox-epsg-3857}` trick as the WMS path — ArcGIS REST
+        // exportImage / export accepts a bbox + size in any SR, so we
+        // ask for Web Mercator on both axes and let MapLibre substitute
+        // the per-tile extent.
+        const id = desc.id;
+        if (!map.getSource(id)) {
+          map.addSource(id, {
+            type: 'raster',
+            tiles: [buildArcgisRequestUrl(desc)],
+            tileSize: desc.tileSize ?? 256,
+            minzoom: desc.minZoom,
+            maxzoom: desc.maxZoom,
+            attribution: desc.attribution,
+          });
+          this.ownedSourceIds.add(id);
+        }
+        if (!map.getLayer(id)) {
+          map.addLayer({
+            id,
+            type: 'raster',
+            source: id,
+            minzoom: desc.minZoom,
+            maxzoom: desc.maxZoom,
+          });
+          this.trackGlLayer(id, id);
+        }
+        return;
+      }
+
       case 'vector-tiles': {
         const id = desc.id;
         if (!map.getSource(id)) {
@@ -789,4 +820,34 @@ function buildWmsRequestUrl(desc: WmsTilesDescriptor): string {
   // carries query parameters (some WMS deployments do).
   const sep = desc.url.includes('?') ? '&' : '?';
   return `${desc.url}${sep}${query}&BBOX={bbox-epsg-3857}`;
+}
+
+/**
+ * Build a MapLibre tile URL for an ArcGIS REST ImageServer / MapServer
+ * dynamic-image endpoint. The operation path (`exportImage` for
+ * ImageServer, `export` for MapServer) is appended to `desc.url`; the
+ * BBOX comes through MapLibre's `{bbox-epsg-3857}` token. SRs are pinned
+ * to 3857 on both axes so the response aligns with the Web Mercator
+ * tile grid.
+ */
+function buildArcgisRequestUrl(desc: ArcgisImageDescriptor): string {
+  const size = desc.tileSize ?? 256;
+  const op = desc.operation ?? 'exportImage';
+  const params: Record<string, string> = {
+    f: 'image',
+    bboxSR: '3857',
+    imageSR: '3857',
+    size: `${size},${size}`,
+    format: desc.format ?? 'png32',
+    transparent: desc.transparent ? 'true' : 'false',
+  };
+  for (const [k, v] of Object.entries(desc.params ?? {})) {
+    params[k] = String(v);
+  }
+  const query = Object.entries(params)
+    .map(([k, v]) => `${k}=${encodeURIComponent(v)}`)
+    .join('&');
+  // BBOX trailing-and-untouched so MapLibre's substitution finds the
+  // raw token after URL-encoding the rest.
+  return `${desc.url}/${op}?${query}&bbox={bbox-epsg-3857}`;
 }

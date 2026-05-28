@@ -76,6 +76,7 @@ The legacy filename `gcx.json` is also accepted as a fallback.
 |---|---|
 | `raster-tiled` | Generic XYZ raster tile layer. `conf.url` is the template (`{z}/{x}/{y}` or `{s}` for subdomains). Use this when no dedicated provider library exists. |
 | `wms-tiled` | OGC Web Map Service basemap. `conf` carries `url` (endpoint), `layers` (comma-separated WMS layer names), and optional `format`, `version` (default `1.3.0`), `crs` (default `EPSG:3857`), `styles`, `transparent`, plus a free-form `params` map for vendor-specific keys (`CQL_FILTER`, `TIME`, …). Works on both flavours. |
+| `arcgis-image` | ArcGIS REST `ImageServer/exportImage` or `MapServer/export` dynamic-image basemap. `conf` carries `url` (service endpoint, no trailing operation), and optional `operation` (`exportImage` default / `export`), `format` (default `png32`), `transparent`, plus a free-form `params` map (`layers`, `dpi`, `time`, `mosaicRule`, …). Works on both flavours. |
 | `raster-dem` | Elevation raster (terrarium / mapbox-rgb). Renders hillshade and (optionally) 3D terrain on the MapLibre flavour; ignored on Leaflet. WCS is intentionally not supported — it returns raw coverage payloads (GeoTIFF / NetCDF) for processing, not display tiles. |
 | `osm-tiled` | OpenStreetMap raster tiles. No `datasource` needed. |
 | `ofm-tiled` | OpenFantasyMaps render server. |
@@ -167,6 +168,30 @@ Add vendor-specific GetMap knobs via `conf.params` — useful for
 
 The same `wms-tiled` type also works as a regular overlay in
 `layers[]` (set `"transparent": true`).
+
+#### ArcGIS REST basemap
+
+For ArcGIS Server services that don't expose a WMS sibling, use
+`arcgis-image`. `url` is the service URL up to (and including) the
+service name — no `/exportImage` or `/export` segment, no query
+string. `operation` picks the right endpoint: `exportImage` (default)
+for ImageServer, `export` for MapServer dynamic services. Per-tile
+bbox + size are appended automatically in EPSG:3857.
+
+```json
+{
+  "background": {
+    "type": "arcgis-image",
+    "conf": {
+      "url": "https://servizigis.regione.emilia-romagna.it/arcgis/rest/services/public/Territorio_ferrarese_1814/ImageServer",
+      "operation": "exportImage",
+      "format": "png32",
+      "transparent": false,
+      "attribution": "© Regione Emilia-Romagna, Territorio ferrarese 1814"
+    }
+  }
+}
+```
 
 ### Terrain & hillshade
 

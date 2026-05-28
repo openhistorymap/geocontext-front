@@ -1,6 +1,7 @@
 import { EnvironmentProviders, inject, provideAppInitializer } from '@angular/core';
 import { Layer } from './layer.interface';
 import {
+  ArcgisImageDescriptor,
   BackgroundColorDescriptor,
   ImageOverlayDescriptor,
   RasterDemDescriptor,
@@ -136,6 +137,35 @@ export class WmsTiles extends Layer {
 }
 
 /**
+ * ArcGIS REST ImageServer / MapServer dynamic-image basemap. Layer type
+ * `arcgis-image`; emits an `arcgis-image` descriptor that flavours turn
+ * into per-tile `exportImage` / `export` requests in EPSG:3857.
+ */
+export class ArcgisImage extends Layer {
+  constructor() {
+    super();
+    this.setRequiresDatasources(false);
+  }
+
+  override create(): ArcgisImageDescriptor {
+    const conf = this.getConfiguration() ?? {};
+    return {
+      kind: 'arcgis-image',
+      id: this.getName() || 'arcgis',
+      url: conf.url,
+      operation: conf.operation ?? 'exportImage',
+      format: conf.format ?? 'png32',
+      transparent: conf.transparent ?? false,
+      tileSize: conf.tileSize ?? 256,
+      minZoom: conf.minZoom,
+      maxZoom: conf.maxZoom,
+      attribution: conf.attribution,
+      params: conf.params,
+    };
+  }
+}
+
+/**
  * Single bounded raster image — historical maps, georeferenced aerials.
  * Layer type `image-overlay`; emits an `image-overlay` descriptor that
  * MapLibre renders as an `image` source + raster layer and Leaflet as
@@ -177,6 +207,7 @@ export function provideMnGeoLayersBase(): EnvironmentProviders {
     reg.register('raster-tiled', RasterTiles);
     reg.register('raster-dem', DemTiles);
     reg.register('wms-tiled', WmsTiles);
+    reg.register('arcgis-image', ArcgisImage);
     reg.register('background-color', BackgroundColor);
     reg.register('image-overlay', ImageOverlay);
   });
