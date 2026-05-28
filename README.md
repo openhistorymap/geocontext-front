@@ -65,6 +65,7 @@ The legacy filename `gcx.json` is also accepted as a fallback.
 | `title` | string | Page + masthead title. |
 | `center` | `[lat, lon]` *or* `{ lat, lon }` | Initial map centre. Latitude first (everyday "44°N 13°E" order). |
 | `startzoom` / `minzoom` / `maxzoom` | number | Initial zoom + interaction limits. |
+| `bbox` | `[w, s, e, n]` | Optional pan/zoom clamp in WGS84 decimal degrees. Both flavours enforce it (MapLibre `maxBounds`, Leaflet `maxBounds`); the camera can't stray outside the rectangle. |
 | `background` | string \| object | Basemap layer — see *Background basemap* below. Optional. |
 | `dem` | string \| object | Digital Elevation Model source — see *Terrain & hillshade* below. Optional. |
 | `datasources` | array | Named data sources fetched at load — see *datasource types* below. |
@@ -219,6 +220,7 @@ the Leaflet flavour ignores it with a warning.
 | `hillshade` | `true` | Render a hillshade GL layer. Set `false` to register the source for terrain only. |
 | `terrain` | `false` | Enable 3D terrain (`map.setTerrain`). MapLibre only. |
 | `exaggeration` | `1` | Vertical exaggeration when `terrain: true`. |
+| `pitch` | `45` when `terrain: true`, `0` otherwise | Initial camera tilt in degrees (MapLibre only). Override on a per-map basis when `terrain: true` would otherwise read as a no-op — pitch=0 is straight-down and 3D extrusion has nothing to show. |
 | `minZoom` / `maxZoom` | — | Zoom bounds for the source. |
 
 A bare URL string is shorthand for `{ url, encoding: "terrarium",

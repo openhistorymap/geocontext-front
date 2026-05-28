@@ -49,6 +49,16 @@ export class MnMapComponent implements OnInit {
   readonly startzoom = input<number>();
   readonly minzoom = input<number>();
   readonly maxzoom = input<number>();
+  /** Initial camera tilt in degrees (MapLibre only — Leaflet has no
+   *  pitch). Default 0. Non-zero pitch is the only way to *see* a
+   *  raster-dem terrain extrusion, so consumers that enable terrain
+   *  in their config should also set this. */
+  readonly pitch = input<number>(0);
+  /** Optional pan/zoom constraint, `[west, south, east, north]` in
+   *  WGS84 decimal degrees. When present, both flavours clamp the
+   *  viewport to this rectangle (MapLibre `maxBounds`, Leaflet
+   *  `setMaxBounds`). Undefined = unbounded. */
+  readonly bbox = input<[number, number, number, number] | undefined>(undefined);
 
   readonly width = input<string>('100%');
   readonly height = input<string>('90vh');

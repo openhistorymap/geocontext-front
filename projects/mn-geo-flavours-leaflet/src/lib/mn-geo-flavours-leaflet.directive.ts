@@ -111,11 +111,16 @@ export class MnGeoFlavoursLeafletDirective extends MnMapFlavourDirective impleme
       ? center
       : [center.lat ?? 0, center.lon ?? center.lng ?? 0];
 
+    // bbox is `[w,s,e,n]` in WGS84; Leaflet's maxBounds is
+    // `LatLngBounds([[s,w],[n,e]])` (latitude-first). Translate at the
+    // boundary so consumer config can stay [w,s,e,n] across flavours.
+    const bb = host.bbox();
     this._map = L.map(element, {
       center: [lat, lng],
       zoom: host.startzoom() ?? 3,
       minZoom: host.minzoom(),
       maxZoom: host.maxzoom(),
+      maxBounds: bb ? L.latLngBounds([bb[1], bb[0]], [bb[3], bb[2]]) : undefined,
     });
 
     this._map.on('moveend', (e) => host.mapMoveEnd.emit(e));

@@ -14,6 +14,11 @@ export interface GcxConfig {
   title?: string;
   type?: string;
   center?: [number, number] | { lat: number; lon: number };
+  /** Optional pan/zoom clamp, `[west, south, east, north]` in WGS84
+   *  decimal degrees. When present, both flavours forbid the camera
+   *  from straying outside this rectangle — useful to keep readers
+   *  anchored on a study area when the dataset only covers it. */
+  bbox?: [number, number, number, number];
   minzoom?: number;
   startzoom?: number;
   maxzoom?: number;

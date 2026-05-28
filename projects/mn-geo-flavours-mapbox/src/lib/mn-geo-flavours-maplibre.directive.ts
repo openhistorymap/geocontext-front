@@ -107,13 +107,21 @@ export class MnGeoFlavoursMaplibreDirective extends MnMapFlavourDirective implem
       ? center
       : [center.lat ?? 0, center.lon ?? center.lng ?? 0];
 
+    // Pre-set the pitch at construction so we never see the pitch-0
+    // frame before the terrain extension is wired up — flicker is bad.
+    // bbox clamps the camera with `maxBounds` in [w,s,e,n] order; MapLibre
+    // takes `[[w,s],[e,n]]` so we slice it on the way in.
+    const initialPitch = Math.max(0, Math.min(85, host.pitch() ?? 0));
+    const bb = host.bbox();
     this._map = new maplibregl.Map({
       container: element,
       style: DEFAULT_BASE_STYLE_URL,
       center: [lng, lat],
       zoom: host.startzoom() ?? 3,
+      pitch: initialPitch,
       minZoom: host.minzoom(),
       maxZoom: host.maxzoom(),
+      maxBounds: bb ? [[bb[0], bb[1]], [bb[2], bb[3]]] : undefined,
     });
 
     this._map.on('moveend', (e) => host.mapMoveEnd.emit(e));

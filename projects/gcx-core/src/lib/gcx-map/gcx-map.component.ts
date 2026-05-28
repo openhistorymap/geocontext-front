@@ -438,6 +438,8 @@ function resolveDemLayer(dem: any): ConfiguredLayer | null {
           [startzoom]="startzoom()"
           [minzoom]="minzoom()"
           [maxzoom]="maxzoom()"
+          [pitch]="pitch()"
+          [bbox]="bbox()"
           height="100%"
           (mapMoveEnd)="onMapMoveEnd()"
         >
@@ -1229,6 +1231,17 @@ export class GcxMapComponent implements OnDestroy {
   readonly startzoom = signal<number>(1);
   readonly minzoom = signal<number>(1);
   readonly maxzoom = signal<number>(19);
+  /** Initial pitch (MapLibre only). Set to ~45° automatically when
+   *  gcx.json's `dem.terrain` is true so the 3D extrusion is visible
+   *  on first paint — pitch=0 over flat areas (e.g. the Po Delta)
+   *  makes the DEM look like it's doing nothing. Overridable via the
+   *  URL hash. */
+  readonly pitch = signal<number>(0);
+  /** Pan/zoom clamp from gcx.json `bbox`, `[west, south, east, north]`
+   *  in WGS84 decimal degrees. Forwarded to the flavour, which applies
+   *  it as MapLibre `maxBounds` / Leaflet `maxBounds`. Undefined =
+   *  unbounded. */
+  readonly bbox = signal<[number, number, number, number] | undefined>(undefined);
 
   readonly datasources = signal<ConfiguredDatasource[]>([]);
   readonly layers = signal<ConfiguredLayer[]>([]);
@@ -1465,6 +1478,26 @@ export class GcxMapComponent implements OnDestroy {
       this.startzoom.set(hv?.zoom ?? conf.startzoom ?? 1);
       this.minzoom.set(conf.minzoom ?? 1);
       this.maxzoom.set(conf.maxzoom ?? 19);
+      // Pitch: hash > explicit dem.pitch > default 45° when terrain is
+      // on > 0. Without this, raster-dem with `terrain: true` adds the
+      // source and ties it to setTerrain, but pitch-0 means the camera
+      // is straight down and the 3D extrusion produces no visible
+      // change — making the feature look broken.
+      const demConf =
+        conf['dem'] && typeof conf['dem'] === 'object' ? (conf['dem'] as any) : null;
+      const demTerrain = !!(demConf && demConf.terrain === true);
+      const explicitPitch =
+        typeof demConf?.pitch === 'number' ? demConf.pitch : undefined;
+      this.pitch.set(hv?.pitch ?? explicitPitch ?? (demTerrain ? 45 : 0));
+      // bbox clamps panning to the dataset area. Accepts `[w,s,e,n]`
+      // (the GeoJSON-bbox / WMS convention); anything else is ignored
+      // rather than crashing the map setup.
+      const rawBbox = conf['bbox'];
+      this.bbox.set(
+        Array.isArray(rawBbox) && rawBbox.length === 4 && rawBbox.every((n) => typeof n === 'number')
+          ? (rawBbox as [number, number, number, number])
+          : undefined,
+      );
       this.showLayerSelector.set(conf['showLayerSelector'] !== false);
       this.datasources.set(conf.datasources ?? []);
       // Sidebar order: ids[0] is drawn on top. So user layers come first,
