@@ -133,7 +133,6 @@ interface DemConfig {
   hillshade?: boolean;
   terrain?: boolean;
   exaggeration?: number;
-  pitch?: number;
   attribution?: string;
   title?: string;
   minZoom?: number;
@@ -212,7 +211,6 @@ function normaliseDemConfig(dem: any): DemConfig | null {
   if (typeof obj.hillshade === 'boolean') out.hillshade = obj.hillshade;
   if (typeof obj.terrain === 'boolean') out.terrain = obj.terrain;
   if (typeof obj.exaggeration === 'number') out.exaggeration = obj.exaggeration;
-  if (typeof obj.pitch === 'number') out.pitch = obj.pitch;
   if (typeof obj.attribution === 'string') out.attribution = obj.attribution;
   if (typeof obj.title === 'string') out.title = obj.title;
   if (typeof obj.minZoom === 'number') out.minZoom = obj.minZoom;
@@ -1517,10 +1515,6 @@ export class GcxMapComponent implements OnDestroy {
   private bgApplied = false;
   /** Same idea as `bgApplied`, but for the imperative DEM swap. */
   private demApplied = false;
-  /** Pitch the user inherited from the URL hash (or 0), preserved so
-   *  toggling the DEM off can restore the camera to its "flat" view
-   *  without clobbering a deliberate hash-supplied tilt. */
-  private pitchBeforeDem = 0;
 
   /** View parsed from the URL hash on first load. Used to override the
    *  gcx.json defaults so a shared link puts the user exactly where the
@@ -1800,13 +1794,15 @@ export class GcxMapComponent implements OnDestroy {
     // toggle next to the background selector. The DEM rides on top of
     // the user data (the setLayerOrder effect places `gcx-dem` first in
     // the ids list = topmost), so hillshade renders over feature
-    // layers and terrain warps the same set. When the user flips the
-    // toggle off, the source / hillshade layer / terrain are torn down
-    // and the camera resets to whatever pitch the URL hash carried (or
-    // 0). When the toggle flips on, the source is added, the hillshade
-    // is added if `hillshade !== false`, terrain is applied if
-    // `terrain: true`, and the camera tilts to `dem.pitch` (or 45° by
-    // default — pitch-0 hides any 3D extrusion).
+    // layers and terrain warps the same set.
+    //
+    // Camera state is deliberately left alone here. The previous
+    // version auto-pitched to 45° on toggle-on, which against a tight
+    // `bbox` puts MapLibre's pan handler into a constraint-fight that
+    // froze interactions entirely (and the 3D hit-testing change
+    // confused click routing too). Users who want the 3D extrusion can
+    // opt in with ctrl/cmd-drag (MapLibre's tilt gesture); the toggle
+    // alone just enables the terrain data and the hillshade.
     effect(() => {
       const flav = this.flavour();
       const dem = this.demConfig();
@@ -1816,10 +1812,6 @@ export class GcxMapComponent implements OnDestroy {
       if (this.demApplied) {
         flav.removeLayer(GCX_DEM_LAYER_ID);
         this.demApplied = false;
-        // Restore the camera to its non-terrain pitch. Doing this
-        // unconditionally would clobber a user gesture, so we only
-        // re-apply when we know we were the ones who pitched it.
-        flav.setView({ pitch: this.pitchBeforeDem });
       }
       if (!enabled || !dem) return;
 
@@ -1832,11 +1824,6 @@ export class GcxMapComponent implements OnDestroy {
       (ctor as Layer).setConfiguration(dem);
       flav.addLayer((ctor as Layer).create());
       this.demApplied = true;
-      // Snapshot the current camera pitch so toggling off can return
-      // to it; then tilt to the DEM's preferred view.
-      const view = flav.getView?.();
-      this.pitchBeforeDem = view?.pitch ?? 0;
-      flav.setView({ pitch: dem.pitch ?? 45 });
     });
 
     if (typeof window !== 'undefined') {

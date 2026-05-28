@@ -205,9 +205,14 @@ configured, a small `3D` toggle appears next to the background
 selector in the sidebar, and the rendering is off by default (terrain
 is expensive enough — a network roundtrip per DEM tile and a 3D
 camera — that the publisher's `terrain: true` is read as "available",
-not "force on"). Hillshade rides on top of user data; toggling on
-also tilts the camera to `dem.pitch` (default 45°) so the extrusion
-is visible from the start.
+not "force on"). Hillshade rides on top of user data.
+
+The toggle deliberately doesn't change the camera. Auto-tilting into
+a tight `bbox` makes MapLibre's pan handler fight its own constraint
+and freezes interaction; the 3D hit-testing change also confuses
+clicks. To see the extrusion, **ctrl-drag** (or right-click-drag) to
+tilt the camera manually — once terrain is bound, the same gesture
+that tilts in 2D rises into 3D.
 
 ```json
 {
@@ -229,7 +234,6 @@ is visible from the start.
 | `hillshade` | `true` | Render a hillshade GL layer. Set `false` to register the source for terrain only. |
 | `terrain` | `false` | Enable 3D terrain (`map.setTerrain`). MapLibre only. |
 | `exaggeration` | `1` | Vertical exaggeration when `terrain: true`. |
-| `pitch` | `45` | Camera tilt in degrees applied when the user enables the DEM toggle (MapLibre only). Pitch resets to its pre-DEM value when the toggle is flipped back off. |
 | `title` | `"3D"` | Label shown on the sidebar toggle when the DEM is configured. |
 | `minZoom` / `maxZoom` | — | Zoom bounds for the source. |
 
