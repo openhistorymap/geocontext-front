@@ -29,6 +29,53 @@ export interface VectorTilesDescriptor {
 }
 
 /**
+ * Server-rendered raster tiles fetched over WMS GetMap. The descriptor
+ * carries the connection parameters (endpoint, requested layer(s),
+ * version, CRS, format, transparency) rather than a pre-built URL —
+ * each flavour rewrites them into its native call shape:
+ *   - MapLibre: builds `tiles: [<endpoint>?…&BBOX={bbox-epsg-3857}&…]`
+ *     and adds a `raster` source (MapLibre substitutes the per-tile
+ *     bbox at request time).
+ *   - Leaflet: hands the parameters straight to `L.tileLayer.wms`.
+ *
+ * WCS is intentionally not modelled here: it returns raw coverage
+ * payloads (GeoTIFF, NetCDF) for processing, not display tiles. For
+ * elevation use `raster-dem` with terrarium- or mapbox-encoded XYZ
+ * tiles; for live cartography use WMS.
+ */
+export interface WmsTilesDescriptor {
+  kind: 'wms-tiles';
+  id: string;
+  /** Service endpoint, no query string (`https://example.org/geoserver/wms`). */
+  url: string;
+  /** Comma-separated WMS layer names — passed through verbatim as the
+   *  `LAYERS` parameter, matching the WMS spec. */
+  layers: string;
+  /** Image MIME type. Default `image/png`. */
+  format?: string;
+  /** WMS protocol version. Default `1.3.0` (the modern axis-flipped
+   *  request flavour MapLibre's `{bbox-epsg-3857}` token assumes). */
+  version?: string;
+  /** Coordinate Reference System for the request. Default `EPSG:3857`
+   *  so the WMS server returns tiles aligned with Web Mercator. */
+  crs?: string;
+  /** WMS `STYLES` parameter — empty string requests the server's
+   *  default style for each layer (matches the spec). */
+  styles?: string;
+  /** Request transparent PNGs (`TRANSPARENT=TRUE`). Defaults to
+   *  `false` for basemaps, but overlays usually want `true`. */
+  transparent?: boolean;
+  tileSize?: number;
+  minZoom?: number;
+  maxZoom?: number;
+  attribution?: string;
+  /** Extra params merged into the GetMap query — for vendor-specific
+   *  knobs (`CQL_FILTER`, `TIME`, `ENV`, …). Stringified and
+   *  URL-encoded by the flavour. */
+  params?: Record<string, string | number | boolean>;
+}
+
+/**
  * Digital Elevation Model raster tiles. Tile pixels encode elevation values
  * (terrarium or mapbox-rgb), used by the renderer for hillshading and
  * optional 3D terrain. Flavours that don't speak DEM (Leaflet today) ignore
@@ -122,6 +169,7 @@ export interface GeoJsonFeaturesDescriptor {
 export type LayerDescriptor =
   | RasterTilesDescriptor
   | VectorTilesDescriptor
+  | WmsTilesDescriptor
   | RasterDemDescriptor
   | BackgroundColorDescriptor
   | ImageOverlayDescriptor

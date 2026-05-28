@@ -11,6 +11,7 @@ import {
   GeoJsonFeaturesDescriptor,
   isLayerDescriptor,
   LayerDescriptor,
+  WmsTilesDescriptor,
 } from '@openhistorymap/mn-geo-layers';
 
 /**
@@ -497,6 +498,37 @@ export class MnGeoFlavoursMaplibreDirective extends MnMapFlavourDirective implem
         return;
       }
 
+      case 'wms-tiles': {
+        // MapLibre has no native WMS source; we build the per-tile URL
+        // ourselves using its `{bbox-epsg-3857}` token, which substitutes
+        // each tile's Web-Mercator extent at request time. Returning a
+        // plain raster source keeps the rest of the pipeline (visibility,
+        // ordering, removal) reusing the raster-tiles code path.
+        const id = desc.id;
+        if (!map.getSource(id)) {
+          map.addSource(id, {
+            type: 'raster',
+            tiles: [buildWmsRequestUrl(desc)],
+            tileSize: desc.tileSize ?? 256,
+            minzoom: desc.minZoom,
+            maxzoom: desc.maxZoom,
+            attribution: desc.attribution,
+          });
+          this.ownedSourceIds.add(id);
+        }
+        if (!map.getLayer(id)) {
+          map.addLayer({
+            id,
+            type: 'raster',
+            source: id,
+            minzoom: desc.minZoom,
+            maxzoom: desc.maxZoom,
+          });
+          this.trackGlLayer(id, id);
+        }
+        return;
+      }
+
       case 'vector-tiles': {
         const id = desc.id;
         if (!map.getSource(id)) {
@@ -711,4 +743,50 @@ function normaliseMaplibreLayers(input: any): any[] {
     );
     return false;
   });
+}
+
+/**
+ * Build a MapLibre tile URL for a WMS endpoint. MapLibre substitutes
+ * `{bbox-epsg-3857}` per tile, so the rest of the query string is the
+ * usual WMS GetMap shape. The `BBOX` parameter goes last (after a `&`)
+ * because MapLibre's substitution happens *after* the source resolves
+ * its tile coordinates; the canonical position keeps that token from
+ * being URL-encoded by anything reading the string in between.
+ *
+ * The version flips axis order semantics for the BBOX: 1.3.0 wants
+ * `miny,minx,maxy,maxx` for EPSG:4326 but stays `minx,miny,maxx,maxy`
+ * for EPSG:3857 — and `{bbox-epsg-3857}` always emits the latter — so
+ * the default version/crs pairing (1.3.0 + 3857) is the easy path.
+ * Mixing 1.1.1 with 3857 also works; mixing 1.3.0 with 4326 will give
+ * server-side axis-swap errors, but that's a WMS-spec footgun, not
+ * ours.
+ */
+function buildWmsRequestUrl(desc: WmsTilesDescriptor): string {
+  const size = desc.tileSize ?? 256;
+  const version = desc.version ?? '1.3.0';
+  // WMS 1.3.0 renamed `SRS` to `CRS`; emit both keys so older servers
+  // that still demand `SRS` keep working — the spec allows extras.
+  const crsKey = version === '1.1.1' ? 'SRS' : 'CRS';
+  const params: Record<string, string> = {
+    SERVICE: 'WMS',
+    REQUEST: 'GetMap',
+    VERSION: version,
+    LAYERS: desc.layers,
+    STYLES: desc.styles ?? '',
+    FORMAT: desc.format ?? 'image/png',
+    TRANSPARENT: desc.transparent ? 'TRUE' : 'FALSE',
+    [crsKey]: desc.crs ?? 'EPSG:3857',
+    WIDTH: String(size),
+    HEIGHT: String(size),
+  };
+  for (const [k, v] of Object.entries(desc.params ?? {})) {
+    params[k.toUpperCase()] = String(v);
+  }
+  const query = Object.entries(params)
+    .map(([k, v]) => `${k}=${encodeURIComponent(v)}`)
+    .join('&');
+  // The `?` vs `&` separator depends on whether the endpoint already
+  // carries query parameters (some WMS deployments do).
+  const sep = desc.url.includes('?') ? '&' : '?';
+  return `${desc.url}${sep}${query}&BBOX={bbox-epsg-3857}`;
 }

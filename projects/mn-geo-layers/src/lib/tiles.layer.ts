@@ -5,6 +5,7 @@ import {
   ImageOverlayDescriptor,
   RasterDemDescriptor,
   RasterTilesDescriptor,
+  WmsTilesDescriptor,
 } from './descriptors';
 import { MnGeoLayersRegistryService } from './mn-geo-layers-registry.service';
 
@@ -100,6 +101,41 @@ export class BackgroundColor extends Layer {
 }
 
 /**
+ * OGC Web Map Service basemap. Layer type `wms-tiled`; emits a
+ * `wms-tiles` descriptor with the WMS request parameters (endpoint,
+ * `layers`, `format`, `version`, `crs`, `transparent`, optional `styles`
+ * and `params`) — each flavour turns them into a native WMS request
+ * (`L.tileLayer.wms` on Leaflet; a per-tile `{bbox-epsg-3857}` raster
+ * source on MapLibre).
+ */
+export class WmsTiles extends Layer {
+  constructor() {
+    super();
+    this.setRequiresDatasources(false);
+  }
+
+  override create(): WmsTilesDescriptor {
+    const conf = this.getConfiguration() ?? {};
+    return {
+      kind: 'wms-tiles',
+      id: this.getName() || 'wms',
+      url: conf.url,
+      layers: conf.layers ?? '',
+      format: conf.format ?? 'image/png',
+      version: conf.version ?? '1.3.0',
+      crs: conf.crs ?? 'EPSG:3857',
+      styles: conf.styles ?? '',
+      transparent: conf.transparent ?? false,
+      tileSize: conf.tileSize ?? 256,
+      minZoom: conf.minZoom,
+      maxZoom: conf.maxZoom,
+      attribution: conf.attribution,
+      params: conf.params,
+    };
+  }
+}
+
+/**
  * Single bounded raster image — historical maps, georeferenced aerials.
  * Layer type `image-overlay`; emits an `image-overlay` descriptor that
  * MapLibre renders as an `image` source + raster layer and Leaflet as
@@ -140,6 +176,7 @@ export function provideMnGeoLayersBase(): EnvironmentProviders {
     const reg = inject(MnGeoLayersRegistryService);
     reg.register('raster-tiled', RasterTiles);
     reg.register('raster-dem', DemTiles);
+    reg.register('wms-tiled', WmsTiles);
     reg.register('background-color', BackgroundColor);
     reg.register('image-overlay', ImageOverlay);
   });

@@ -75,7 +75,8 @@ The legacy filename `gcx.json` is also accepted as a fallback.
 | `type` | What it draws |
 |---|---|
 | `raster-tiled` | Generic XYZ raster tile layer. `conf.url` is the template (`{z}/{x}/{y}` or `{s}` for subdomains). Use this when no dedicated provider library exists. |
-| `raster-dem` | Elevation raster (terrarium / mapbox-rgb). Renders hillshade and (optionally) 3D terrain on the MapLibre flavour; ignored on Leaflet. |
+| `wms-tiled` | OGC Web Map Service basemap. `conf` carries `url` (endpoint), `layers` (comma-separated WMS layer names), and optional `format`, `version` (default `1.3.0`), `crs` (default `EPSG:3857`), `styles`, `transparent`, plus a free-form `params` map for vendor-specific keys (`CQL_FILTER`, `TIME`, …). Works on both flavours. |
+| `raster-dem` | Elevation raster (terrarium / mapbox-rgb). Renders hillshade and (optionally) 3D terrain on the MapLibre flavour; ignored on Leaflet. WCS is intentionally not supported — it returns raw coverage payloads (GeoTIFF / NetCDF) for processing, not display tiles. |
 | `osm-tiled` | OpenStreetMap raster tiles. No `datasource` needed. |
 | `ofm-tiled` | OpenFantasyMaps render server. |
 | `carto-voyager` · `carto-light` · `carto-dark` · `carto-positron` (and matching `*-nolabels`) | CARTO basemap variants. |
@@ -132,6 +133,40 @@ without spelling out a `layers[]` entry. Accepted forms:
 The resolved background sits at the **bottom** of the visual stack
 (below `layers[]` and `dem`) and shows up at the bottom of the sidebar
 list, where the user can toggle it off like any other layer.
+
+#### WMS basemap
+
+A `wms-tiled` background fetches server-rendered tiles from any OGC
+Web Map Service (GeoServer, MapServer, QGIS Server, …). Both flavours
+support it: Leaflet via `L.tileLayer.wms`, MapLibre via a per-tile
+`{bbox-epsg-3857}` raster source.
+
+```json
+{
+  "background": {
+    "type": "wms-tiled",
+    "conf": {
+      "url": "https://wms.geo.admin.ch/",
+      "layers": "ch.swisstopo.pixelkarte-farbe",
+      "format": "image/jpeg",
+      "version": "1.3.0",
+      "crs": "EPSG:3857",
+      "transparent": false,
+      "attribution": "© swisstopo"
+    }
+  }
+}
+```
+
+Add vendor-specific GetMap knobs via `conf.params` — useful for
+`CQL_FILTER`, `TIME`, `ENV`, or any other extra the server accepts:
+
+```json
+"params": { "CQL_FILTER": "status='active'", "TIME": "1850-01-01" }
+```
+
+The same `wms-tiled` type also works as a regular overlay in
+`layers[]` (set `"transparent": true`).
 
 ### Terrain & hillshade
 

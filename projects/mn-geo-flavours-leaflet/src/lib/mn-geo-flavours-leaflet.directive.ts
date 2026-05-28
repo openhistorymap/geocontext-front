@@ -353,6 +353,27 @@ export class MnGeoFlavoursLeafletDirective extends MnMapFlavourDirective impleme
           tileSize: desc.tileSize,
         });
       }
+      case 'wms-tiles': {
+        // L.tileLayer.wms speaks the WMS GetMap protocol natively (BBOX
+        // per tile, axis-order handling, transparent PNGs). We forward
+        // the descriptor's connection params straight to it; extra
+        // vendor-specific keys (CQL_FILTER, TIME, …) ride along in
+        // `params` and are merged into the GetMap query.
+        const wmsOpts: L.WMSOptions = {
+          layers: desc.layers,
+          format: desc.format ?? 'image/png',
+          version: desc.version ?? '1.3.0',
+          transparent: desc.transparent ?? false,
+          crs: leafletCrsFor(desc.crs),
+          styles: desc.styles ?? '',
+          minZoom: desc.minZoom,
+          maxZoom: desc.maxZoom,
+          attribution: desc.attribution,
+          tileSize: desc.tileSize,
+          ...(desc.params ?? {}),
+        };
+        return L.tileLayer.wms(desc.url, wmsOpts);
+      }
       case 'geojson-features': {
         const isPinMode = desc.marker === 'pins';
         const popupField = desc.popup?.htmlField ?? 'html';
@@ -416,4 +437,22 @@ export class MnGeoFlavoursLeafletDirective extends MnMapFlavourDirective impleme
       }
     }
   }
+}
+
+/**
+ * Resolve a WMS `CRS` string (`EPSG:3857`, `EPSG:4326`) to the matching
+ * Leaflet CRS object. Defaults to L.CRS.EPSG3857 — the Web-Mercator
+ * grid that GeoContext's slippy-map setup already uses — so a missing
+ * or unknown value Just Works on the common case. EPSG:900913 is the
+ * legacy non-conforming alias for 3857 some older WMS deployments
+ * still emit.
+ */
+function leafletCrsFor(crs?: string): L.CRS {
+  const k = (crs ?? '').toUpperCase();
+  if (k === 'EPSG:4326') return L.CRS.EPSG4326;
+  if (k === 'EPSG:3857' || k === 'EPSG:900913' || k === '') return L.CRS.EPSG3857;
+  // Unrecognised — let the WMS server reject it cleanly rather than
+  // silently coercing to a different grid.
+  console.warn(`mn-geo-flavours-leaflet: unknown WMS CRS "${crs}", falling back to EPSG:3857`);
+  return L.CRS.EPSG3857;
 }
