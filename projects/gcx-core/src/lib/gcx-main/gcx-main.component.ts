@@ -340,14 +340,14 @@ export class GcxMainComponent {
    *  Probed alongside the datapackage whenever the repo changes. */
   readonly stories = signal<GcxStoryEntry[] | null>(null);
 
-  /** GeoContext Storybook URL for the current repo. `?repo=` rather than
-   *  the runner's path form — see GCX_STORYBOOK_BASE. */
+  /** GeoContext Storybook URL for the current repo — the same
+   *  `/<user>/<project>/` shape this app uses for `/map`. */
   readonly storybookUrl = computed<string | null>(() => {
     const repo = this.gcx.currentRepo();
     if (!repo) return null;
-    const params = new URLSearchParams({ repo: `${repo.user}/${repo.project}` });
-    if (repo.branch && repo.branch !== 'HEAD') params.set('branch', repo.branch);
-    return `${GCX_STORYBOOK_BASE}/?${params.toString()}`;
+    const path = `${GCX_STORYBOOK_BASE}/${repo.user}/${repo.project}/`;
+    const ref = repo.branch && repo.branch !== 'HEAD' ? `?branch=${encodeURIComponent(repo.branch)}` : '';
+    return `${path}${ref}`;
   });
 
   /** Tooltip listing what's there, so the reader knows before leaving. */

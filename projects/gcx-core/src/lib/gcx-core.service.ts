@@ -11,9 +11,13 @@ export const GCX_JSDELIVR_BASE = 'https://cdn.jsdelivr.net/gh';
  * same map — is readable there as a scrolling article, and the masthead
  * links to it when one is present.
  *
- * The link uses `?repo=<user>/<project>` rather than the runner's
- * `/<user>/<project>` path form: the runner is served from a project
- * subpath here, where a two-segment path is ambiguous with the base.
+ * The runner carries the repo in the path exactly as this app does:
+ *
+ *   <base>/<user>/<project>/                 the repo's narrations
+ *   <base>/<user>/<project>/?story=<file>    one of them
+ *
+ * so `/<user>/<project>/map` here and `/<user>/<project>/` there address
+ * the same repository.
  */
 export const GCX_STORYBOOK_BASE = 'https://geocontext.info/geocontext-storybook';
 
