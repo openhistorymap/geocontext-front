@@ -2,7 +2,14 @@ import { Component, computed, effect, inject, input, signal } from '@angular/cor
 import { HttpClient } from '@angular/common/http';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
-import { GcxCoreService, GCX_JSDELIVR_BASE } from '../gcx-core.service';
+import {
+  GcxCoreService,
+  GCX_JSDELIVR_BASE,
+  GCX_STORIES_CANDIDATE,
+  GCX_STORY_CANDIDATE,
+  GCX_STORYBOOK_BASE,
+  type GcxStoryEntry,
+} from '../gcx-core.service';
 import { GcxThemeService } from '../gcx-theme.service';
 import { GCX_VERSION } from '../version';
 
@@ -72,6 +79,17 @@ export interface GcxRouteItem {
       }
       <nav class="masthead-nav" aria-label="Sections">
         <a [routerLink]="mapLink()" routerLinkActive="is-active" class="masthead-link">Map</a>
+        @if (storybookUrl(); as storyHref) {
+          @if (stories(); as narrations) {
+            <a
+              class="masthead-link masthead-link--ext"
+              [href]="storyHref"
+              target="_blank"
+              rel="noopener"
+              [title]="storiesHint()"
+            >{{ narrations.length > 1 ? 'Stories' : 'Story' }}</a>
+          }
+        }
         @for (item of items(); track item.target) {
           <a [routerLink]="staticLink(item.target)" routerLinkActive="is-active" class="masthead-link">
             {{ item.title }}
@@ -225,6 +243,13 @@ export interface GcxRouteItem {
         color: var(--gcx-accent-deep);
         border-bottom-color: var(--gcx-accent);
       }
+      /* Leaving the app for the story runner is signposted, the same way
+         the runner signposts its link back to the map. */
+      .masthead-link--ext::after {
+        content: ' ↗';
+        font-size: 0.85em;
+        opacity: 0.7;
+      }
 
       /* --- Routed body ------------------------------------------------
          position: relative is the anchor; the routed component fills it
@@ -311,6 +336,30 @@ export class GcxMainComponent {
    *  icon is hidden until/unless the probe succeeds. */
   readonly hasDatapackage = signal(false);
 
+  /** Narrations this repo publishes, or null when it publishes none.
+   *  Probed alongside the datapackage whenever the repo changes. */
+  readonly stories = signal<GcxStoryEntry[] | null>(null);
+
+  /** GeoContext Storybook URL for the current repo. `?repo=` rather than
+   *  the runner's path form — see GCX_STORYBOOK_BASE. */
+  readonly storybookUrl = computed<string | null>(() => {
+    const repo = this.gcx.currentRepo();
+    if (!repo) return null;
+    const params = new URLSearchParams({ repo: `${repo.user}/${repo.project}` });
+    if (repo.branch && repo.branch !== 'HEAD') params.set('branch', repo.branch);
+    return `${GCX_STORYBOOK_BASE}/?${params.toString()}`;
+  });
+
+  /** Tooltip listing what's there, so the reader knows before leaving. */
+  readonly storiesHint = computed<string>(() => {
+    const list = this.stories() ?? [];
+    if (list.length > 1) {
+      const titles = list.map((s) => s.title ?? s.id).filter(Boolean);
+      return `Read as a story — ${titles.join(', ')}`;
+    }
+    return 'Read this map as a scrolling story';
+  });
+
   /** Repo-aware path prefix. `/<user>/<project>` in repo mode, empty
    *  array in local mode (so subsequent segments form `/map`, `/static/X`). */
   private readonly prefix = computed<string[]>(() => {
@@ -330,6 +379,31 @@ export class GcxMainComponent {
       this.http.head(url, { observe: 'response' }).subscribe({
         next: () => this.hasDatapackage.set(true),
         error: () => this.hasDatapackage.set(false),
+      });
+    });
+
+    // Stories: a `stories.json` collection first, then a lone
+    // `story.json`. Both are optional, and a repo with neither simply
+    // shows no link — the probe failing is the expected case, not an
+    // error worth surfacing.
+    effect(() => {
+      const repo = this.gcx.currentRepo();
+      this.stories.set(null);
+      if (!repo) return;
+      const ref = repo.branch ?? 'HEAD';
+      const base = `${GCX_JSDELIVR_BASE}/${repo.user}/${repo.project}@${ref}`;
+
+      this.http.get<{ stories?: GcxStoryEntry[] }>(`${base}/${GCX_STORIES_CANDIDATE}`).subscribe({
+        next: (collection) => {
+          const entries = (collection?.stories ?? []).filter((s) => s?.path && !s.draft);
+          this.stories.set(entries.length ? entries : null);
+        },
+        error: () => {
+          this.http.head(`${base}/${GCX_STORY_CANDIDATE}`, { observe: 'response' }).subscribe({
+            next: () => this.stories.set([{ title: 'Story' }]),
+            error: () => this.stories.set(null),
+          });
+        },
       });
     });
   }

@@ -559,7 +559,45 @@ For external code that wants to fetch directly:
 
 ---
 
-## 12. Versioning
+## 12. Narrations (`story.json` / `stories.json`)
+
+A GeoContext repo may also carry one or more **narrations**: longform,
+scroll-driven articles over the same map, rendered by
+[GeoContext Storybook](https://github.com/ohm-geocontext/geocontext-storybook).
+
+Nothing in this document changes. A story is a separate file that
+`extends` the `geocontext.json` described here, and adds an ordered list
+of blocks — each one able to move the camera, toggle layers, swap the
+basemap and carry its own figures.
+
+| File | Meaning |
+|---|---|
+| `story.json` | A single narration. |
+| `stories.json` | An index of several narrations of the same map. |
+
+```jsonc
+// stories.json — one map, several readings
+{
+  "kind": "geocontext-stories",
+  "geocontext": "geocontext.json",
+  "stories": [
+    { "id": "excavation", "path": "stories/excavation.json", "title": "The excavation" },
+    { "id": "drainage",   "path": "stories/drainage.json",   "title": "Draining the valley" }
+  ]
+}
+```
+
+The front-end probes for these when it loads a repo and, if either is
+present, shows a **Story** / **Stories** link in the masthead. The
+narrations link back the same way. Neither file is required, and a repo
+without them behaves exactly as before.
+
+The field-by-field reference is
+[STORY_FORMAT.md](https://github.com/ohm-geocontext/geocontext-storybook/blob/HEAD/STORY_FORMAT.md).
+
+---
+
+## 13. Versioning
 
 This document is part of the `geocontext-front` repo. Breaking changes
 to the schema bump the front-end's `package.json` major version and

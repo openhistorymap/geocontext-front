@@ -5,6 +5,32 @@ import { firstValueFrom } from 'rxjs';
 export const GCX_CORE_FILE = '/assets/gcx.json';
 export const GCX_JSDELIVR_BASE = 'https://cdn.jsdelivr.net/gh';
 
+/**
+ * Where GeoContext Storybook is deployed. A repo that publishes a
+ * `story.json` — or a `stories.json` listing several narrations of the
+ * same map — is readable there as a scrolling article, and the masthead
+ * links to it when one is present.
+ *
+ * The link uses `?repo=<user>/<project>` rather than the runner's
+ * `/<user>/<project>` path form: the runner is served from a project
+ * subpath here, where a two-segment path is ambiguous with the base.
+ */
+export const GCX_STORYBOOK_BASE = 'https://geocontext.info/geocontext-storybook';
+
+/** Filenames probed for a story collection at a repo root. */
+export const GCX_STORIES_CANDIDATE = 'stories.json';
+/** Filename probed when a repo publishes a single narration. */
+export const GCX_STORY_CANDIDATE = 'story.json';
+
+/** One entry of a repo's `stories.json`. */
+export interface GcxStoryEntry {
+  id?: string;
+  path?: string;
+  title?: string;
+  subtitle?: string;
+  draft?: boolean;
+}
+
 /** Filenames probed at a repo root when the caller didn't pass an explicit
  *  `path`. `geocontext.json` is preferred; `gcx.json` is the legacy name and
  *  kept for backwards compatibility with older repos. */
